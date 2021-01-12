@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+- "stable"
+# - lts/* # once we support on-the-fly transpilation
+
+
+stages:
+  - name: deploy
+    if: (NOT type IN (pull_request)) AND ( branch = master OR tag =~ ^v[0-9] )
+
+jobs:
+  include:
+    - stage: deploy
+      name: deploy
+      script: .travis/deploy_npm
+  

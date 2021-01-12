@@ -1,0 +1,5 @@
+/coverage/
+/3rdparty/
+
+# Generated
+/CHANGELOG.md
