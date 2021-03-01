@@ -8,8 +8,8 @@ BACKEND:
 FRONTEND:
 # logo = ../resource/wgwrangler/logo.png
 # logo_small = ../resource/wgwrangler/logo-small.png
-  title: Song List
-  initial_plugin: Songs
+  title: WGwrangler
+  initial_plugin: WireguardShow
   company_name: OETIKER+PARTNER AG
   company_url: http://www.oetiker.ch
 # max_width = 800
@@ -21,9 +21,9 @@ PLUGIN:
       type: add
       tab-name: Create Initial User
 
-  - Songs:
-      module: Song
-      tab-name: Songs
+  - WireguardShow:
+      module: WireguardShow
+      tab-name: Wireguard
 
   - AdminUser:
       module: Users

@@ -35,3 +35,4 @@ etc/*.cfg
 *~
 /.vscode/perl-lang/
 .idea
+_Deparsed_XSubs.pm

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wgwrangler 0.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-12 10:52+0100\n"
+"POT-Creation-Date: 2021-03-01 07:39+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,8 +17,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: lib/WGwrangler/GuiPlugin/Song.pm:63
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:64
 msgid "*"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:36
+msgid "<color=\"red\">Warning</color>"
 msgstr ""
 
 #: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:451
@@ -26,12 +30,9 @@ msgstr ""
 msgid "Access Denied"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/Song.pm:166
-msgid "Add Song"
-msgstr ""
-
-#: lib/WGwrangler/GuiPlugin/SongForm.pm:145
-msgid "Add Tree Node"
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:184
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:177
+msgid "Add Peer"
 msgstr ""
 
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:205
@@ -39,8 +40,14 @@ msgstr ""
 msgid "Add User"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/Song.pm:109 lib/WGwrangler/GuiPlugin/SongForm.pm:92
-msgid "Composer"
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:136
+msgid "Alias"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:117
+#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:76
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:120
+msgid "Allowed-IPs"
 msgstr ""
 
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:202
@@ -52,29 +59,55 @@ msgstr ""
 msgid "Data Decoding Problem %1"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/Song.pm:205
-msgid "Delete Song"
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:252
+msgid "Delete Peer"
 msgstr ""
 
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:130
 msgid "Delete User"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/Song.pm:208
-msgid "Do you really want to delete the selected Song "
+#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:81
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:144
+msgid "Description"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:338
+msgid "Disable Peer"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:88
+msgid "Disabled"
 msgstr ""
 
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:133
 msgid "Do you really want to delete the selected user ?"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/Song.pm:187 lib/WGwrangler/GuiPlugin/Song.pm:196
-msgid "Edit Song"
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:255
+msgid "Do you realy want to delete this peer - This cannot be undone!"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:205
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:214
+msgid "Edit Peer"
 msgstr ""
 
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:105
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:110
 msgid "Edit User"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:338
+msgid "Enable Peer"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:223
+msgid "Enable/Disable"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:163
+msgid "Endpoint"
 msgstr ""
 
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:42
@@ -99,19 +132,35 @@ msgstr ""
 msgid "Given Name"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/Song.pm:87
-msgid "Id"
+#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:60
+msgid "Integrity Hash"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/Song.pm:171
-msgid "New Song"
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:95
+#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:44
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:61
+msgid "Interface"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:83
+msgid "Interface Info"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:110
+#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:68
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:111
+msgid "Name"
 msgstr ""
 
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:96
 msgid "New User"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/Song.pm:64
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:189
+msgid "New Wireguard Peer"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:65
 msgid "Nice Start"
 msgstr ""
 
@@ -119,15 +168,9 @@ msgstr ""
 msgid "No user selected."
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/Song.pm:136
-#: lib/WGwrangler/GuiPlugin/SongForm.pm:109
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:104
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:74
 msgid "Note"
-msgstr ""
-
-#: lib/WGwrangler/GuiPlugin/Song.pm:116
-msgid "Page"
 msgstr ""
 
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:68
@@ -138,55 +181,55 @@ msgstr ""
 msgid "Password Again"
 msgstr ""
 
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:102
+msgid "Peer Private Key"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:93
+msgid "Peer Public Key"
+msgstr ""
+
 #: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:456
 #: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:554
 msgid "Plugin Name missing"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:102
+#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:52
+msgid "Public Key"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:279
+msgid "Reload Data"
 msgstr ""
 
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:67
 msgid "Rights"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/SongForm.pm:144
+#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:114
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:204
 msgid "Save Changes"
-msgstr ""
-
-#: lib/WGwrangler/GuiPlugin/SongForm.pm:77
-msgid "Song Details"
-msgstr ""
-
-#: lib/WGwrangler/GuiPlugin/SongForm.pm:97
-msgid "Song Page"
-msgstr ""
-
-#: lib/WGwrangler/GuiPlugin/SongForm.pm:86
-msgid "Song has a "
-msgstr ""
-
-#: lib/WGwrangler/GuiPlugin/SongForm.pm:60
-msgid "SongId"
 msgstr ""
 
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:156
 msgid "The password instances did not match."
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/Song.pm:95 lib/WGwrangler/GuiPlugin/SongForm.pm:69
-msgid "Title"
+#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:37
+msgid "This Peer is disabled!"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:124
+msgid "Transfer-RX"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:137
+msgid "Transfer-TX"
 msgstr ""
 
 #: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:462
 msgid "Upload Missing"
-msgstr ""
-
-#: lib/WGwrangler/GuiPlugin/SongForm.pm:78
-msgid ""
-"Use the following fields to write down some extra information about the song."
-msgstr ""
-
-#: lib/WGwrangler/GuiPlugin/SongForm.pm:111
-msgid "Use this area to write down additional notes on the particular song."
 msgstr ""
 
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:50
@@ -197,10 +240,6 @@ msgstr ""
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:59
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:46
 msgid "Username"
-msgstr ""
-
-#: lib/WGwrangler/GuiPlugin/Song.pm:102
-msgid "Voices"
 msgstr ""
 
 #: thirdparty/lib/perl5/CallBackery/Config.pm:445
@@ -224,6 +263,6 @@ msgstr ""
 msgid "cardCfg must be defined in child plugin class"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/AbstractForm.pm:130
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/AbstractForm.pm:178
 msgid "sorry, don't know the field you are talking about"
 msgstr ""

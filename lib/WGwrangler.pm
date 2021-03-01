@@ -2,6 +2,10 @@ package WGwrangler;
 
 use Mojo::Base 'CallBackery';
 use CallBackery::Model::ConfigJsonSchema;
+#use WGwrangler::User;
+use WGwrangler::Model::WireguardDataAdapter;
+
+use constant WIREGUARD_HOME => (!defined($ENV{'WIREGUARD_HOME'})) ? "/etc/wireguard" : $ENV{'WIREGUARD_HOME'};
 
 =head1 NAME
 
@@ -33,22 +37,29 @@ use our own plugin directory and our own configuration file:
 has config => sub {
     my $self = shift;
     my $config = CallBackery::Model::ConfigJsonSchema->new(
-        app => $self,
+        app  => $self,
         file => $ENV{WGwrangler_CONFIG} || $self->home->rel_file('etc/wgwrangler.yaml')
     );
     unshift @{$config->pluginPath}, 'WGwrangler::GuiPlugin';
     return $config;
 };
 
-
 has database => sub {
     my $self = shift;
     my $database = $self->SUPER::database(@_);
     $database->sql->migrations
         ->name('WGwranglerBaseDB')
-        ->from_data(__PACKAGE__,'appdb.sql')
+        ->from_data(__PACKAGE__, 'appdb.sql')
         ->migrate;
     return $database;
+};
+
+# has 'userObject' => sub {
+#     WGwrangler::User->new();
+# };
+
+has 'wireguardModel' => sub {
+    WGwrangler::Model::WireguardDataAdapter->new(WIREGUARD_HOME);
 };
 
 1;

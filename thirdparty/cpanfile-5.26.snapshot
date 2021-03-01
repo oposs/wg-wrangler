@@ -50,10 +50,10 @@ DISTRIBUTIONS
       Term::ReadKey 0
       strict 0
       warnings 0
-  CallBackery-0.35.2
-    pathname: O/OE/OETIKER/CallBackery-0.35.2.tar.gz
+  CallBackery-0.35.5
+    pathname: O/OE/OETIKER/CallBackery-0.35.5.tar.gz
     provides:
-      CallBackery 0.035002
+      CallBackery 0.035005
       CallBackery::Config undef
       CallBackery::Controller::RpcService undef
       CallBackery::Database undef
@@ -1352,6 +1352,33 @@ DISTRIBUTIONS
       Fcntl 0
       URI 1.10
       perl 5.008001
+  Wireguard-WGmeta-0.2.1
+    pathname: T/TO/TOBIB/Wireguard-WGmeta-0.2.1.tar.gz
+    provides:
+      Wireguard::WGmeta 0.002001
+      Wireguard::WGmeta::Cli::Commands::Add undef
+      Wireguard::WGmeta::Cli::Commands::Apply undef
+      Wireguard::WGmeta::Cli::Commands::Command undef
+      Wireguard::WGmeta::Cli::Commands::Disable undef
+      Wireguard::WGmeta::Cli::Commands::Enable undef
+      Wireguard::WGmeta::Cli::Commands::Help undef
+      Wireguard::WGmeta::Cli::Commands::Set undef
+      Wireguard::WGmeta::Cli::Commands::Show undef
+      Wireguard::WGmeta::Cli::Human undef
+      Wireguard::WGmeta::Cli::Router 0.002001
+      Wireguard::WGmeta::Cli::TerminalHelpers undef
+      Wireguard::WGmeta::Parser::Config 0.002001
+      Wireguard::WGmeta::Parser::Show 0.002001
+      Wireguard::WGmeta::Utils undef
+      Wireguard::WGmeta::ValidAttributes undef
+      Wireguard::WGmeta::Validator undef
+      Wireguard::WGmeta::Wrapper::Bridge undef
+      Wireguard::WGmeta::Wrapper::Config 0.002001
+      Wireguard::WGmeta::Wrapper::ConfigT 0.002001
+      Wireguard::WGmeta::Wrapper::Show 0.002001
+    requirements:
+      ExtUtils::MakeMaker 0
+      perl 5.020000
   YAML-LibYAML-0.82
     pathname: T/TI/TINITA/YAML-LibYAML-0.82.tar.gz
     provides:
