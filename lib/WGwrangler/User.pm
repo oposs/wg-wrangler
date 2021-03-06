@@ -2,9 +2,7 @@ package WGwrangler::User;
 use strict;
 use warnings FATAL => 'all';
 
-#use Mojo::Base 'Mojolicious';
-
-our @ISA = qw (CallBackery::User);
+use Mojo::Base 'CallBackery::User';
 
 sub login {
     my $self = shift;

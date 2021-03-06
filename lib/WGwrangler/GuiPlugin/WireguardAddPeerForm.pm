@@ -110,23 +110,29 @@ has formCfg => sub($self) {
             key    => 'name',
             label  => trm('Name'),
             widget => 'text',
+            validator => sub {
+                my $value = shift;
+                return $self->app->wireguardModel->validate_name($value);
+            },
             set    => {
                 required    => true,
                 placeholder => 'A name to identfiy this peer (by humans)'
             },
         },
         {
-            key    => 'allowed-ips',
-            label  => trm('Allowed-IPs'),
-            widget => 'text',
-            # validator => sub {
-            #     my $value = shift;
-            #     unless (looks_like_ip_in_cidr($value)){
-            #         return "Your input does not look like an ip address";
-            #     }
-            #     return "";
-            # },
-            set    => {
+            key       => 'allowed-ips',
+            label     => trm('Allowed-IPs'),
+            widget    => 'text',
+            validator => sub {
+                my $value = shift;
+                my $parameter = shift;
+                my $formData = shift;
+                if ($formData->{interface}) {
+                    return $self->app->wireguardModel->validate_ips_for_interface($formData->{interface}, $value);
+                }
+                return "";
+            },
+            set       => {
                 required    => true,
                 placeholder => 'List of ip addresses, seperarated by comma and in CDIR notation'
             },
@@ -135,6 +141,15 @@ has formCfg => sub($self) {
             key    => 'alias',
             label  => trm('Alias'),
             widget => 'text',
+            validator => sub {
+                my $value = shift;
+                my $parameter = shift;
+                my $formData = shift;
+                if ($formData->{alias}) {
+                    return $self->app->wireguardModel->validate_alias_for_interface($formData->{interface}, $formData->{'public-key'}, $value);
+                }
+                return "";
+            },
             set    => {
                 placeholder => 'Unlike the name attribute, this must be unique'
             }
@@ -199,14 +214,18 @@ has grammar => sub {
 
 sub generate_interface_label($self, $interface) {
     my %interface_data = %{$self->app->wireguardModel->get_section_data($interface, $interface)};
-    my $iface_public_key = $self->app->wireguardModel->get_public_key($interface_data{'private-key'});
-    my $suggested_ips = $self->app->wireguardModel->suggest_ip($interface, 5);
-    my $label = "Interface: $interface \n"
-        . "Public-Key: $iface_public_key\n"
-        . "Address: $interface_data{'address'}\n"
-        . "FQDN: $interface_data{fqdn}:$interface_data{'listen-port'}\n"
-        . "Suggested-IPs: $suggested_ips";
-    return $label;
+    if (%interface_data) {
+        my $iface_public_key = $self->app->wireguardModel->get_public_key($interface_data{'private-key'});
+        my $label = "Interface: $interface \n"
+            . "Public-Key: $iface_public_key\n"
+            . "Address: $interface_data{'address'}\n"
+            . "FQDN: $interface_data{fqdn}:$interface_data{'listen-port'}\n";
+        return $label;
+    }
+    else {
+        return "";
+    }
+
 }
 
 sub getAllFieldValues {

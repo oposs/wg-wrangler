@@ -31,7 +31,8 @@ Returns a Configuration Structure for the Song Entry Form.
 has formCfg => sub($self) {
 
     return [
-        $self->{args}{selection}{disabled} == 1? {
+        # This does somehow not work $self->{args}{selection}{disabled} is a reference to JSON::PP true
+        $self->{args}{selection}{disabled} ? {
             widget => 'header',
             label  => trm('<color="red">Warning</color>'),
             note   => trm('This Peer is disabled!'),
@@ -61,20 +62,55 @@ has formCfg => sub($self) {
             widget => 'hiddenText',
             set    => {
                 readOnly => true,
+                required => true,
             }
         },
         {
             key    => 'name',
             label  => trm('Name'),
             widget => 'text',
+            validator => sub {
+                my $value = shift;
+                return $self->app->wireguardModel->validate_name($value);
+            },
             set    => {
                 required => true,
             },
         },
         {
-            key    => 'allowed-ips',
-            label  => trm('Allowed-IPs'),
+            key       => 'allowed-ips',
+            label     => trm('Allowed-IPs'),
+            widget    => 'text',
+            validator => sub {
+                my $value = shift;
+                my $parameter = shift;
+                my $formData = shift;
+                if ($formData->{interface}) {
+                    return $self->app->wireguardModel->validate_ips_for_interface($formData->{interface}, $value);
+                }
+                return "";
+            },
+            set       => {
+                required => true
+            },
+        },
+        {
+            key    => 'alias',
+            label  => trm('Alias'),
             widget => 'text',
+            validator => sub {
+                my $value = shift;
+                my $parameter = shift;
+                my $formData = shift;
+                if ($formData->{alias}) {
+                    my $res = $self->app->wireguardModel->validate_alias_for_interface($formData->{interface}, $formData->{'public-key'}, $value);
+                    return $self->app->wireguardModel->validate_alias_for_interface($formData->{interface}, $formData->{'public-key'}, $value);
+                }
+                return "";
+            },
+            set    => {
+                placeholder => 'Unlike the name attribute, this must be unique'
+            }
         },
         {
             key    => 'description',

@@ -319,7 +319,7 @@ sub getTableRowCount {
 sub getTableData {
     my $self = shift;
     my $args = shift;
-    my $filter = $self->_getFilter($args->{formData}{song_title});
+    my $filter = $self->_getFilter($args->{formData}{wg_interface});
     my $data = $self->app->wireguardModel->get_peer_table_data($args->{firstRow}, $args->{lastRow}, $filter);
     if ($args->{sortColumn}) {
         $data = $self->app->wireguardModel->sort_table_data($data, $args->{sortColumn}, $args->{sortDesc});

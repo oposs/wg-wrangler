@@ -4,21 +4,18 @@ use warnings FATAL => 'all';
 use experimental 'signatures';
 use Mojo::JSON qw(true false);
 
-use base 'Exporter';
-our @EXPORT = qw(get_peer_table_data get_peer_count update_peer_data sort_table_data commit_changes get_section_data disable_peer get_interface_selection);
-
 use Wireguard::WGmeta::Utils;
 use Wireguard::WGmeta::Wrapper::Show;
 use Wireguard::WGmeta::Wrapper::ConfigT;
 use Wireguard::WGmeta::Wrapper::Bridge;
-use WGwrangler::IPmanager;
+use WGwrangler::Model::IPmanager;
 
 
 sub new($class, $wireguard_home) {
 
     my $wg_show_data = read_file('/home/tobias/Documents/wg-wrangler/dummy_wg_home/wg_show_dummy');
     my $wg_metaT = Wireguard::WGmeta::Wrapper::ConfigT->new($wireguard_home);
-    my $ip_manager = WGwrangler::IPmanager->new();
+    my $ip_manager = WGwrangler::Model::IPmanager->new();
     $wg_metaT->register_on_reload_listener(\&_reload_callback, 'reload_callback', [ $wg_metaT, $ip_manager ]);
 
     for my $interface (keys %{$wg_metaT->{parsed_config}}) {
@@ -40,21 +37,14 @@ sub _reload_callback($interface, $ref_list_args) {
 }
 
 sub _populate_ip_manager($interface, $wg_metaT, $ip_manager) {
-    my $interface_networks = { $interface => extract_ipv4($wg_metaT->{parsed_config}{$interface}{$interface}{address}) };
-    $ip_manager->ipv4_build_database($interface_networks);
+    if (exists $wg_metaT->{parsed_config}{$interface}{$interface}{address}) {
+        my $interface_networks = $wg_metaT->{parsed_config}{$interface}{$interface}{address};
+        $ip_manager->populate_range($interface, $interface_networks);
+    }
     for my $idenifier (@{$wg_metaT->{parsed_config}{$interface}{section_order}}) {
         unless ($idenifier eq $interface) {
-            my $peer_networks = extract_ipv4($wg_metaT->{parsed_config}{$interface}{$idenifier}{'allowed-ips'});
-            for my $peer_network (@{$peer_networks}) {
-                print 't';
-                my ($network, $sub_netsize) = @{$peer_network};
-                if (defined $network) {
-                    for my $ipv4_address (@{get_ip_list($network, $sub_netsize)}) {
-                        $ip_manager->ipv4_acquire($ipv4_address, $interface);
-                    }
-                }
-            }
-
+            # Dummy loop, needed for later
+            next;
         }
     }
 }
@@ -70,13 +60,36 @@ sub wg_show($self) {
     return $self->{wg_show};
 }
 
-#@returns Wireguard::WGmeta::IPmanager
+#@returns WGwrangler::Model::IPmanager
 sub ip_manager($self) {
     return $self->{ip_manager};
 }
 
 sub suggest_ip($self, $interface, $n) {
-    return join '/32, ', $self->ip_manager()->ipv4_suggest($interface, $n);
+    # return join '/32, ', $self->ip_manager()->ipv4_suggest($interface, $n);
+    return "not implemented yet";
+}
+
+sub validate_ips_for_interface($self, $interface, $ips) {
+    return $self->ip_manager()->is_valid_for_interface($interface, $ips);
+}
+
+sub validate_alias_for_interface($self, $interface, $identifier, $alias) {
+    # ToDo: This is just a workaround until wg-meta supports is_valid_alias()
+    $self->wg_meta()->_may_reload_from_disk();
+    if (exists $self->wg_meta()->{parsed_config}{$interface}{alias_map}{$alias}) {
+        if ($self->wg_meta()->try_translate_alias($interface, $alias) eq $identifier) {
+            return "";
+        }
+        else {
+            return "Alias is already defined for this interface";
+        }
+    }
+    return "";
+}
+
+sub validate_name($self, $name) {
+    return $name =~ /[^a-zA-Z0-9_\-]/g ? "Only a-Z, 0-9 and -/_ allowed" : "";
 }
 
 sub get_public_key($self, $private_key) {
@@ -97,15 +110,15 @@ sub update_peer_data($self, $interface, $identfier, $attr, $value) {
 }
 
 sub add_peer($self, $interface, $name, $ip_address, $public_key, $alias, $pre_shared_key) {
-    my $peer_networks = extract_ipv4($ip_address);
-    for my $peer_network (@{$peer_networks}) {
-        my ($network, $sub_netsize) = @{$peer_network};
-        if (defined $network) {
-            for my $ipv4_address (@{get_ip_list($network, $sub_netsize)}) {
-                $self->ip_manager()->ipv4_acquire($ipv4_address, $interface);
-            }
-        }
-    }
+    # my $peer_networks = extract_ipv4($ip_address);
+    # for my $peer_network (@{$peer_networks}) {
+    #     my ($network, $sub_netsize) = @{$peer_network};
+    #     if (defined $network) {
+    #         for my $ipv4_address (@{get_ip_list($network, $sub_netsize)}) {
+    #             $self->ip_manager()->ipv4_acquire($ipv4_address, $interface);
+    #         }
+    #     }
+    # }
     $self->wg_meta()->add_peer($interface, $name, $ip_address, $public_key, $alias, $pre_shared_key);
 }
 
