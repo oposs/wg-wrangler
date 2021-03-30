@@ -15,25 +15,29 @@ sub new($class, $wireguard_home) {
 
     my $wg_show_data = read_file('/home/tobias/Documents/wg-wrangler/dummy_wg_home/wg_show_dummy');
     my $wg_metaT = Wireguard::WGmeta::Wrapper::ConfigT->new($wireguard_home);
+    my $wg_meta_show = Wireguard::WGmeta::Wrapper::Show->new($wg_show_data);
     my $ip_manager = WGwrangler::Model::IPmanager->new();
-    $wg_metaT->register_on_reload_listener(\&_reload_callback, 'reload_callback', [ $wg_metaT, $ip_manager ]);
-
+    my $initial_table_data = _generate_table_source($wg_metaT, $wg_meta_show);
     for my $interface (keys %{$wg_metaT->{parsed_config}}) {
         _populate_ip_manager($interface, $wg_metaT, $ip_manager);
     }
     my $self = {
         'wireguard_home' => $wireguard_home,
         'wg_metaT'       => $wg_metaT,
-        'wg_show'        => Wireguard::WGmeta::Wrapper::Show->new($wg_show_data),
-        'ip_manager'     => $ip_manager
+        'wg_show'        => $wg_meta_show,
+        'ip_manager'     => $ip_manager,
+        'table_data'     => $initial_table_data,
+        'filterd_data'   => $initial_table_data
     };
+    $wg_metaT->register_on_reload_listener(\&_reload_callback, 'reload_callback', [ $self ]);
     bless $self, $class;
     return $self;
 }
 
 sub _reload_callback($interface, $ref_list_args) {
-    my ($wg_metaT, $ip_manager) = @{$ref_list_args};
-    _populate_ip_manager($interface, $wg_metaT, $ip_manager)
+    my ($self) = @{$ref_list_args};
+    _populate_ip_manager($interface, $self->{wg_metaT}, $self->{ip_manager});
+    $self->{table_data} = _generate_table_source($self->{wg_metaT}, $self->{wg_show});
 }
 
 sub _populate_ip_manager($interface, $wg_metaT, $ip_manager) {
@@ -101,8 +105,10 @@ sub gen_key_pair($self) {
     return { 'private-key' => $keypair[0], 'public-key' => $keypair[1] }
 }
 
-sub get_peer_count($self, $interface) {
-    return $self->wg_meta()->get_peer_count($interface);
+sub get_peer_count($self, $filter) {
+    $self->wg_meta()->_may_reload_from_disk();
+    my $filtered_data = _apply_filter($self->{table_data}, $filter);
+    return @{$filtered_data};
 }
 
 sub update_peer_data($self, $interface, $identfier, $attr, $value) {
@@ -162,15 +168,15 @@ sub enable_peer($self, $interface, $identifier, $integrity_hash) {
     $self->wg_meta()->commit(1, 0, $integrity_hash);
 }
 
-sub get_peer_table_data($self, $first_row, $last_row, $filter) {
+sub _generate_table_source($wg_meta, $wg_show) {
     my @table_data;
-    for my $interface ($self->wg_meta()->get_interface_list()) {
+    for my $interface ($wg_meta->get_interface_list()) {
         my $row_data = {};
-        for my $identifier ($self->wg_meta()->get_section_list($interface)) {
+        for my $identifier ($wg_meta->get_section_list($interface)) {
             # skip interfaces
             unless ($identifier eq $interface) {
                 # add wirguard data
-                my %wg_section_data = $self->wg_meta()->get_interface_section($interface, $identifier);
+                my %wg_section_data = $wg_meta->get_interface_section($interface, $identifier);
                 $wg_section_data{interface} = $interface;
 
                 # handling of disabled attr
@@ -183,8 +189,8 @@ sub get_peer_table_data($self, $first_row, $last_row, $filter) {
                 $row_data = \%wg_section_data;
 
                 # add wg-show data
-                if ($self->wg_show()->iface_exists($interface)) {
-                    my %show_section_data = $self->wg_show()->get_interface_section($interface, $identifier);
+                if ($wg_show->iface_exists($interface)) {
+                    my %show_section_data = $wg_show->get_interface_section($interface, $identifier);
                     for my $attr_name (keys %show_section_data) {
                         $row_data->{$attr_name} = $show_section_data{$attr_name};
                     }
@@ -193,8 +199,36 @@ sub get_peer_table_data($self, $first_row, $last_row, $filter) {
             }
         }
     }
+    return \@table_data;
+}
+
+
+sub _apply_filter($ref_data, $filter) {
+    if ($filter) {
+        my @filtered_data;
+        my @filter_terms = map {s/^\s+|\s+$//g;
+            $_} split /\s+/, $filter;
+        for my $row_hash (@{$ref_data}) {
+            for my $filter_term (@filter_terms) {
+                if (index(lc $row_hash->{name}, lc $filter_term) != -1
+                    || $row_hash->{'public-key'} eq $filter_term
+                    || $row_hash->{'interface'} eq $filter_term
+                    || $row_hash->{'allowed-ips'} =~ /$filter_term/) {
+                    push @filtered_data, $row_hash;
+                }
+            }
+        }
+        return \@filtered_data;
+    }
+    else {
+        return $ref_data;
+    }
+}
+
+sub get_peer_table_data($self, $first_row, $last_row, $filter) {
+    my @table_data = @{$self->{table_data}};
     $last_row = $#table_data if ($last_row > $#table_data);
-    return [ @table_data[$first_row .. $last_row] ];
+    return _apply_filter([ @table_data[$first_row .. $last_row] ], $filter);
 }
 
 

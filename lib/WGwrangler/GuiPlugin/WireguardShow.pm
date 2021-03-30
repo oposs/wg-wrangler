@@ -67,11 +67,11 @@ has formCfg => sub($self) {
         {
             key    => 'wg_interface',
             widget => 'text',
-            note   => 'Wireguard interface',
+            note   => 'Terms are connected using OR',
             label  => 'Search',
             set    => {
-                placeholder => 'WG interface',
-                enabled     => false
+                placeholder => 'name, interface, ip or public-key',
+                enabled     => true
             },
         },
     ]
@@ -302,10 +302,7 @@ sub db {
 sub _getFilter {
     my $self = shift;
     my $search = shift;
-    my $filter = '';
-    # if ($search) {
-    #     $filter = "WHERE song_title LIKE " . $self->db->dbh->quote('%' . $search);
-    # }
+    my $filter = $search;
     return $filter;
 }
 
