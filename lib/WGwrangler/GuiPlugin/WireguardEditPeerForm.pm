@@ -46,6 +46,7 @@ has formCfg => sub($self) {
             widget => 'text',
             set    => {
                 readOnly => true,
+                required => true
             }
         },
         {
@@ -54,6 +55,7 @@ has formCfg => sub($self) {
             widget => 'text',
             set    => {
                 readOnly => true,
+                required => true
             }
         },
         {
@@ -102,8 +104,7 @@ has formCfg => sub($self) {
                 my $value = shift;
                 my $parameter = shift;
                 my $formData = shift;
-                if ($formData->{alias}) {
-                    my $res = $self->app->wireguardModel->validate_alias_for_interface($formData->{interface}, $formData->{'public-key'}, $value);
+                if ($formData->{alias} && $formData->{interface} && $formData->{'public-key'}) {
                     return $self->app->wireguardModel->validate_alias_for_interface($formData->{interface}, $formData->{'public-key'}, $value);
                 }
                 return "";

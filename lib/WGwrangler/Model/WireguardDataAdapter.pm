@@ -80,6 +80,8 @@ sub validate_ips_for_interface($self, $interface, $ips) {
 
 sub validate_alias_for_interface($self, $interface, $identifier, $alias) {
     # ToDo: This is just a workaround until wg-meta supports is_valid_alias()
+    my $validated_name = $self->validate_name($alias);
+    return $validated_name if $validated_name;
     $self->wg_meta()->_may_reload_from_disk();
     if (exists $self->wg_meta()->{parsed_config}{$interface}{alias_map}{$alias}) {
         if ($self->wg_meta()->try_translate_alias($interface, $alias) eq $identifier) {
