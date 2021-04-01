@@ -2,13 +2,15 @@ package WGwrangler::Model::IPmanager;
 use strict;
 use warnings FATAL => 'all';
 use experimental 'signatures';
+use Data::Dumper;
 
 use Net::IP;
 
 sub new($class) {
     my $self = {
-        'ip_database'  => {},
-        'ip_meta_info' => {}
+        'interface_ranges' => {},
+        'ip_meta_info'     => {},
+        'acquired_ips'     => {},
     };
     bless $self, $class;
     return $self;
@@ -16,35 +18,115 @@ sub new($class) {
 
 sub populate_range($self, $interface, $ips_string) {
     my @ranges;
-    my $interface_ranges = {};
     my @ips = map {trm($_)} split /\,/, $ips_string;
     for my $ip_range (@ips) {
-        my $may_ip = Net::IP->new($ip_range) or die "Could not read ip-range for `$interface`: ".Net::IP::Error();
+        my $may_ip = Net::IP->new($ip_range) or die "Could not read ip-range for `$interface`: " . Net::IP::Error();
+        # prepare acquired ip storage
+        $self->{acquired_ips}{$interface}{$may_ip->ip()} = {};
         push @ranges, $may_ip;
     }
-    $self->{ip_database}{$interface} = \@ranges;
+    $self->{interface_ranges}{$interface} = \@ranges;
+    $self->{ip_meta_info}{$interface}{n_ips} = 0;
     return 1;
 }
 
+sub acquire_ip($self, $interface, $ip_string) {
+    my $may_ip = Net::IP->new($ip_string) or die "Could not read ip for `$ip_string`: " . Net::IP::Error();
+    for my $interface_range (@{$self->{interface_ranges}{$interface}}) {
+        if ($self->_is_in($may_ip, $interface_range)) {
+            # cheap check
+            if (exists $self->{acquired_ips}{$interface}{$interface_range->ip()}{$may_ip->ip()}) {
+                return undef;
+            }
+            # expensive check
+            for my $acquired_key (keys %{$self->{acquired_ips}{$interface}{$interface_range->ip()}}) {
+                if ($self->_is_in($may_ip, $self->{acquired_ips}{$interface}{$interface_range->ip()}{$acquired_key})) {
+                    return undef;
+                }
+            }
+            $self->{acquired_ips}{$interface}{$interface_range->ip()}{$may_ip->ip()} = $may_ip;
+            $self->{ip_meta_info}{$interface}{n_ips}++;
+            return 1;
+        }
+    }
+    return undef;
+}
+
+sub release_ip($self, $interface, $ip_string) {
+    my $may_ip = Net::IP->new($ip_string) or die "Could not read ip for `$ip_string`: " . Net::IP::Error();
+    for my $interface_range (@{$self->{interface_ranges}{$interface}}) {
+        if ($self->_is_in($may_ip, $interface_range)) {
+            delete $self->{acquired_ips}{$interface}{$interface_range->ip()}{$may_ip->ip()};
+            $self->{ip_meta_info}{$interface}{n_ips}--;
+            return 1;
+        }
+    }
+    return undef;
+}
+
+sub _is_in($self, $ip, $range) {
+    if ($range->version() == $ip->version()) {
+        my $ip_result = $ip->overlaps($range);
+
+        return $ip_result && ($ip_result == $IP_IDENTICAL || $ip_result == $IP_A_IN_B_OVERLAP || $range->intip() == $ip->intip());
+    }
+    return undef;
+}
+
+
+sub suggest_ip($self, $interface, $n = 1) {
+    my @suggested_ips;
+    for my $ip_range (@{$self->{interface_ranges}{$interface}}) {
+        # get a list of all acquired ip/ranges for this interface and sort them lowest to highest
+        my $ip_range_string = $ip_range->ip();
+        my @acquired_ip_list = map {$self->{acquired_ips}{$interface}{$ip_range_string}{$_}} keys(%{$self->{acquired_ips}{$interface}{$ip_range_string}});
+        my @acquired_ips_sorted = sort {$a->intip() <=> $b->intip()} @acquired_ip_list;
+
+        # prepare suggestion
+        my $ip_suggestion = $ip_range->ip_add_num(1);
+
+        for my $acquired_ip (@acquired_ips_sorted) {
+            if ($self->_is_in($ip_suggestion, $acquired_ip)) {
+
+                $ip_suggestion = $ip_suggestion->ip_add_num($acquired_ip->size());
+                if(!$ip_suggestion){
+                    return "No IPs left for`". $ip_range->ip() ."`";
+                }
+            }
+            else {
+                last;
+            }
+        }
+        push @suggested_ips, $ip_suggestion->ip();
+    }
+    return join ',', @suggested_ips;
+}
+
 sub is_valid_for_interface($self, $interface, $ips_string) {
-    if (exists $self->{ip_database}{$interface}) {
+    if (exists $self->{interface_ranges}{$interface}) {
         my @ips = map {trm($_)} split /\,/, $ips_string;
         my $found_matching_version = undef;
 
-        for my $ip_range (@ips) {
-            my $may_ip = Net::IP->new($ip_range) or return Net::IP::Error();
+        for my $ip_string_tt (@ips) {
+            my $may_ip = Net::IP->new($ip_string_tt) or return Net::IP::Error();
 
-            for my $ip_object (@{$self->{ip_database}{$interface}}) {
-                if ($ip_object->version() == $may_ip->version()) {
+            for my $interface_range (@{$self->{interface_ranges}{$interface}}) {
+                if ($self->_is_in($may_ip, $interface_range)) {
                     $found_matching_version = 1;
-                    my $ip_result = $ip_object->overlaps($may_ip);
-                    if ($ip_result && ($ip_result == $IP_IDENTICAL || $ip_result == $IP_B_IN_A_OVERLAP)) {
-                        next;
+                    # Cheap check
+                    if (exists $self->{acquired_ips}{$interface}{$interface_range->ip()}{$may_ip->ip()}) {
+                        return "IP/range `" . $may_ip->ip() . "` is already acquired";
                     }
-                    else {
-                        return "It seems that `$ip_range` does not belong to `$interface`";
-
+                    # expensive check
+                    for my $acquired_key (keys %{$self->{acquired_ips}{$interface}{$interface_range->ip()}}) {
+                        if ($self->_is_in($may_ip, $self->{acquired_ips}{$interface}{$interface_range->ip()}{$acquired_key})) {
+                            return "IP/range `" . $may_ip->ip() . "` is within an already acquired network";
+                        }
                     }
+                    last;
+                }
+                else {
+                    return "It seems that `$ip_string_tt` does not belong to `$interface`";
                 }
             }
         }
@@ -55,7 +137,6 @@ sub is_valid_for_interface($self, $interface, $ips_string) {
     }
 
 }
-
 sub extract_ips($ip_string) {
     my @ips = split /\,/, $ip_string;
     chomp(@ips);
