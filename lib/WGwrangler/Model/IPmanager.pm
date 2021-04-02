@@ -16,9 +16,9 @@ sub new($class) {
     return $self;
 }
 
-sub populate_range($self, $interface, $ips_string) {
+sub populate_range($self, $interface, $ip_ranges_str) {
     my @ranges;
-    my @ips = map {trm($_)} split /\,/, $ips_string;
+    my @ips = map {trm($_)} split /\,/, $ip_ranges_str;
     for my $ip_range (@ips) {
         my $may_ip = Net::IP->new($ip_range) or die "Could not read ip-range for `$interface`: " . Net::IP::Error();
         # prepare acquired ip storage
@@ -30,7 +30,16 @@ sub populate_range($self, $interface, $ips_string) {
     return 1;
 }
 
-sub acquire_ip($self, $interface, $ip_string) {
+sub acquire_multiple($self, $interface, $ips_string) {
+    my @ips = map {trm($_)} split /\,/, $ips_string;
+    for my $ip (@ips) {
+        unless ($self->acquire_single($interface, $ip)) {
+            # die "Could not acquire IP `$ip` for interface `$interface`";
+        }
+    }
+}
+
+sub acquire_single($self, $interface, $ip_string) {
     my $may_ip = Net::IP->new($ip_string) or die "Could not read ip for `$ip_string`: " . Net::IP::Error();
     for my $interface_range (@{$self->{interface_ranges}{$interface}}) {
         if ($self->_is_in($may_ip, $interface_range)) {
@@ -73,8 +82,31 @@ sub _is_in($self, $ip, $range) {
     return undef;
 }
 
+sub looks_like_ip($self, $ips_string) {
+    my @ips = map {trm($_)} split /\,/, $ips_string;
+    for my $ip (@ips) {
+        my $may_ip = Net::IP->new($ip) or return Net::IP::Error();
+    }
+    return "";
+}
 
-sub suggest_ip($self, $interface, $n = 1) {
+sub external_is_in($self, $ips_string, $ranges_string) {
+    my @ips = map {trm($_)} split /\,/, $ips_string;
+    my @ranges = map {trm($_)} split /\,/, $ranges_string;
+    for my $ip_str (@ips) {
+        my $may_ip = Net::IP->new($ip_str) or return Net::IP::Error();
+        for my $range_str (@ranges) {
+            my $may_range = Net::IP->new($range_str) or return Net::IP::Error();
+            unless ($self->_is_in($may_ip, $may_range)) {
+                return undef
+            }
+        }
+    }
+    return 1;
+}
+
+
+sub suggest_ip($self, $interface) {
     my @suggested_ips;
     for my $ip_range (@{$self->{interface_ranges}{$interface}}) {
         # get a list of all acquired ip/ranges for this interface and sort them lowest to highest
@@ -89,15 +121,22 @@ sub suggest_ip($self, $interface, $n = 1) {
             if ($self->_is_in($ip_suggestion, $acquired_ip)) {
 
                 $ip_suggestion = $ip_suggestion->ip_add_num($acquired_ip->size());
-                if(!$ip_suggestion){
-                    return "No IPs left for`". $ip_range->ip() ."`";
+                if (!$ip_suggestion) {
+                    # return "No IPs left for`". $ip_range->ip() ."`";
+                    last;
                 }
             }
             else {
                 last;
             }
         }
-        push @suggested_ips, $ip_suggestion->ip();
+        if ($ip_suggestion->version() == 4) {
+            push @suggested_ips, $ip_suggestion->ip() . "/32";
+        }
+        else {
+            push @suggested_ips, $ip_suggestion->ip() . "/128";
+        }
+
     }
     return join ',', @suggested_ips;
 }

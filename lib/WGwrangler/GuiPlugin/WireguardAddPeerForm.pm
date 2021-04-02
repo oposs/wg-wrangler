@@ -79,19 +79,19 @@ has formCfg => sub($self) {
             }
         },
         {
-            key               => 'interface_info',
-            label             => trm('Interface Info'),
-            widget            => 'textArea',
-            reloadOnFormReset => true,
-            set               => {
+            key                   => 'interface_info',
+            label                 => trm('Config Preview'),
+            widget                => 'textArea',
+                reloadOnFormReset => true,
+            set                   => {
                 readOnly => true,
-                height   => 115,
+                height   => 200,
             }
         },
         {
             key    => 'public-key',
             label  => trm('Peer Public Key'),
-            widget => 'text',
+            widget => 'hiddenText',
             set    => {
                 required => true,
                 readOnly => true
@@ -100,48 +100,87 @@ has formCfg => sub($self) {
         {
             key    => 'private-key',
             label  => trm('Peer Private Key'),
-            widget => 'text',
+            widget => 'hiddenText',
             set    => {
                 required => true,
                 readOnly => true
             },
         },
         {
-            key    => 'name',
-            label  => trm('Name'),
-            widget => 'text',
-            validator => sub {
+            key              => 'name',
+            label            => trm('Name'),
+            widget           => 'text',
+            triggerFormReset => true,
+            validator        => sub {
                 my $value = shift;
                 return $self->app->wireguardModel->validate_name($value);
             },
-            set    => {
+            set              => {
                 required    => true,
-                placeholder => 'A name to identfiy this peer (by humans)'
+                placeholder => 'A name to identify this peer (by humans)'
             },
         },
         {
-            key       => 'allowed-ips',
-            label     => trm('Allowed-IPs'),
-            widget    => 'text',
-            validator => sub {
+            key              => 'allowed-ips',
+            label            => trm('Allowed IPs'),
+            widget           => 'text',
+            triggerFormReset => true,
+            validator        => sub {
+                my $value = shift;
+                return $self->app->wireguardModel->looks_like_ip($value);
+            },
+            set              => {
+                required => true,
+                value    => '0.0.0.0/0, ::/0'
+            },
+        },
+        {
+            key              => 'DNS',
+            label            => trm('DNS'),
+            widget           => 'text',
+            triggerFormReset => true,
+            validator        => sub {
+                my $value = shift;
+                return $self->app->wireguardModel->looks_like_ip($value);
+            },
+            set              => {
+                required => false,
+            },
+        },
+        {
+            key              => 'address_override',
+            label            => trm('Address Override'),
+            widget           => 'text',
+            triggerFormReset => true,
+            validator        => sub {
                 my $value = shift;
                 my $parameter = shift;
                 my $formData = shift;
-                if ($formData->{interface}) {
-                    return $self->app->wireguardModel->validate_ips_for_interface($formData->{interface}, $value);
+                if ($formData->{interface} && $formData->{'public-key'}) {
+                    return $self->app->wireguardModel->validate_ips_for_interface($formData->{interface}, $formData->{'public-key'}, $value);
                 }
                 return "";
             },
-            set       => {
-                required    => true,
-                placeholder => 'List of ip addresses, seperarated by comma and in CDIR notation'
+            set              => {
+                required    => false,
+                placeholder => 'List of ip addresses, separated by comma and in CDIR notation'
             },
         },
         {
-            key    => 'alias',
-            label  => trm('Alias'),
-            widget => 'text',
-            validator => sub {
+            key    => 'address',
+            label  => trm('Actual Address'),
+            widget => 'hiddenText',
+            set    => {
+                required => true,
+                readOnly => true
+            },
+        },
+        {
+            key              => 'alias',
+            label            => trm('Alias'),
+            widget           => 'text',
+            triggerFormReset => true,
+            validator        => sub {
                 my $value = shift;
                 my $parameter = shift;
                 my $formData = shift;
@@ -150,7 +189,7 @@ has formCfg => sub($self) {
                 }
                 return "";
             },
-            set    => {
+            set              => {
                 placeholder => 'Unlike the name attribute, this must be unique'
             }
         },
@@ -228,15 +267,55 @@ sub generate_interface_label($self, $interface) {
 
 }
 
+sub generate_preview_config($self, $interface, $formData, $private_key) {
+    my %interface_data = %{$self->app->wireguardModel->get_section_data($interface, $interface)};
+    if (%interface_data) {
+        my $iface_public_key = $self->app->wireguardModel->get_public_key($interface_data{'private-key'});
+        my $out = "[Interface]\n"
+            . "#+Name = " . $formData->{currentFormData}{name} . "\n"
+            . "Address = " . $formData->{currentFormData}{address} . "\n"
+            . "PrivateKey = $private_key\n"
+            . "DNS = " . $formData->{currentFormData}{DNS} . "\n"
+            . "\n"
+            . "[Peer]\n"
+            . "PublicKey = $iface_public_key\n"
+            . "AllowedIPs = " . $formData->{currentFormData}{'allowed-ips'} . "\n"
+            . "Endpoint = $interface_data{fqdn}:$interface_data{'listen-port'}\n";
+    }
+
+}
+
 sub getAllFieldValues {
     my $self = shift;
     my $args = shift;
     my $formData = shift;
 
-    my $data = $self->app->wireguardModel->gen_key_pair();
+    my $data = {};
+    my $may_interface = $formData->{currentFormData}{interface};
 
-    if ($formData->{currentFormData}{interface}) {
-        $data->{'interface_info'} = $self->generate_interface_label($formData->{currentFormData}{interface});
+    if ($self->app->wireguardModel->validate_interface($may_interface)) {
+        # check if an address override is present, otherwise suggest some
+        if ($formData->{currentFormData}{address_override}) {
+            $data->{'address'} = $formData->{currentFormData}{address_override};
+            $formData->{currentFormData}{address} = $formData->{currentFormData}{address_override};
+        }
+        else {
+            $data->{'address'} = $self->app->wireguardModel->suggest_ip($may_interface);
+        }
+        # generate key-pair unless we already have one
+        my $private_key = "";
+        unless ($formData->{currentFormData}{'private-key'}) {
+            my $key_pair = $self->app->wireguardModel->gen_key_pair();
+            $private_key = $key_pair->{'private-key'};
+            $data->{'private-key'} = $key_pair->{'private-key'};
+            $data->{'public-key'} = $key_pair->{'public-key'};
+        }
+        else {
+            $private_key = $formData->{currentFormData}{'$public_key'};
+        }
+
+        $data->{'interface_info'} = $self->generate_preview_config($may_interface, $formData, $private_key);
+        # $data->{'interface_info'} = $self->generate_interface_label($formData->{currentFormData}{interface});
     }
     else {
         $data->{'interface_info'} = 'Select an interface first';

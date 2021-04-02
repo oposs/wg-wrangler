@@ -45,10 +45,10 @@ sub _populate_ip_manager($interface, $wg_metaT, $ip_manager) {
         my $interface_networks = $wg_metaT->{parsed_config}{$interface}{$interface}{address};
         $ip_manager->populate_range($interface, $interface_networks);
     }
-    for my $idenifier (@{$wg_metaT->{parsed_config}{$interface}{section_order}}) {
-        unless ($idenifier eq $interface) {
-            # Dummy loop, needed for later
-            next;
+    for my $identifier (@{$wg_metaT->{parsed_config}{$interface}{section_order}}) {
+        unless ($identifier eq $interface) {
+            my $ips_string = $wg_metaT->{parsed_config}{$interface}{$identifier}{'allowed-ips'};
+            $ip_manager->acquire_multiple($interface, $ips_string);
         }
     }
 }
@@ -69,13 +69,21 @@ sub ip_manager($self) {
     return $self->{ip_manager};
 }
 
-sub suggest_ip($self, $interface, $n) {
-    # return join '/32, ', $self->ip_manager()->ipv4_suggest($interface, $n);
-    return "not implemented yet";
+sub suggest_ip($self, $interface) {
+    return $self->ip_manager()->suggest_ip($interface);
 }
 
-sub validate_ips_for_interface($self, $interface, $ips) {
+sub validate_ips_for_interface($self, $interface, $identifier, $ips) {
+    # First check if it matches the on disk version
+    my %peer_data = $self->wg_meta()->get_interface_section($interface, $identifier);
+    return "" if %peer_data && $self->ip_manager()->external_is_in($ips, $peer_data{'allowed-ips'});
+
+    # If not do the advanced check
     return $self->ip_manager()->is_valid_for_interface($interface, $ips);
+}
+
+sub looks_like_ip($self, $ips_string) {
+    return $self->ip_manager()->looks_like_ip($ips_string);
 }
 
 sub validate_alias_for_interface($self, $interface, $identifier, $alias) {
@@ -92,6 +100,10 @@ sub validate_alias_for_interface($self, $interface, $identifier, $alias) {
         }
     }
     return "";
+}
+
+sub validate_interface($self, $interface) {
+    return $self->wg_meta()->is_valid_interface($interface);
 }
 
 sub validate_name($self, $name) {

@@ -87,8 +87,9 @@ has formCfg => sub($self) {
                 my $value = shift;
                 my $parameter = shift;
                 my $formData = shift;
-                if ($formData->{interface}) {
-                    return $self->app->wireguardModel->validate_ips_for_interface($formData->{interface}, $value);
+                # is there a way to access the old value?
+                if ($formData->{interface} && $formData->{'public-key'}) {
+                    return $self->app->wireguardModel->validate_ips_for_interface($formData->{interface}, $formData->{'public-key'}, $value);
                 }
                 return "";
             },
