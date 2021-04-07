@@ -4,6 +4,7 @@ use Mojo::Base 'CallBackery';
 use CallBackery::Model::ConfigJsonSchema;
 use WGwrangler::User;
 use WGwrangler::Model::WireguardDataAdapter;
+use WGwrangler::Model::MailHandler;
 
 use constant WIREGUARD_HOME => (!defined($ENV{'WIREGUARD_HOME'})) ? "/etc/wireguard" : $ENV{'WIREGUARD_HOME'};
 
@@ -60,6 +61,10 @@ has 'userObject' => sub {
 
 has 'wireguardModel' => sub {
     WGwrangler::Model::WireguardDataAdapter->new(WIREGUARD_HOME);
+};
+
+has 'mailHandler' => sub {
+    WGwrangler::Model::MailHandler->new();
 };
 
 1;

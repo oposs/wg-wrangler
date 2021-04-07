@@ -76,6 +76,9 @@ sub release_ip($self, $interface, $ip_string) {
 sub _is_in($self, $ip, $range) {
     if ($range->version() == $ip->version()) {
         my $ip_result = $ip->overlaps($range);
+        my $s = $ip->ip();
+        my $t = $range->ip();
+        my $c = $ip_result && ($ip_result == $IP_IDENTICAL || $ip_result == $IP_A_IN_B_OVERLAP || $range->intip() == $ip->intip());
 
         return $ip_result && ($ip_result == $IP_IDENTICAL || $ip_result == $IP_A_IN_B_OVERLAP || $range->intip() == $ip->intip());
     }
@@ -97,8 +100,10 @@ sub external_is_in($self, $ips_string, $ranges_string) {
         my $may_ip = Net::IP->new($ip_str) or return Net::IP::Error();
         for my $range_str (@ranges) {
             my $may_range = Net::IP->new($range_str) or return Net::IP::Error();
-            unless ($self->_is_in($may_ip, $may_range)) {
-                return undef
+            my $res = $self->_is_in($may_range, $may_ip);
+
+            if (not $self->_is_in($may_ip, $may_range)) {
+                return undef;
             }
         }
     }
@@ -158,7 +163,8 @@ sub is_valid_for_interface($self, $interface, $ips_string) {
                     }
                     # expensive check
                     for my $acquired_key (keys %{$self->{acquired_ips}{$interface}{$interface_range->ip()}}) {
-                        if ($self->_is_in($may_ip, $self->{acquired_ips}{$interface}{$interface_range->ip()}{$acquired_key})) {
+                        my $t = $self->_is_in($self->{acquired_ips}{$interface}{$interface_range->ip()}{$acquired_key},$may_ip);
+                        if ($self->_is_in($self->{acquired_ips}{$interface}{$interface_range->ip()}{$acquired_key}, $may_ip)) {
                             return "IP/range `" . $may_ip->ip() . "` is within an already acquired network";
                         }
                     }

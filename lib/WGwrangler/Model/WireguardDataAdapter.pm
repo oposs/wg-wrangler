@@ -8,13 +8,20 @@ use Wireguard::WGmeta::Utils;
 use Wireguard::WGmeta::Wrapper::Show;
 use Wireguard::WGmeta::Wrapper::ConfigT;
 use Wireguard::WGmeta::Wrapper::Bridge;
+use Wireguard::WGmeta::Validator;
 use WGwrangler::Model::IPmanager;
 
 
 sub new($class, $wireguard_home) {
 
     my $wg_show_data = read_file('/home/tobias/Documents/wg-wrangler/dummy_wg_home/wg_show_dummy');
-    my $wg_metaT = Wireguard::WGmeta::Wrapper::ConfigT->new($wireguard_home);
+    my $custom_attr_config = {
+        'email' => {
+            'in_config_name' => 'Email',
+            'validator'      => sub($value) {return $value =~ /^\S+@\S+\.\S+$/;}
+        }
+    };
+    my $wg_metaT = Wireguard::WGmeta::Wrapper::ConfigT->new($wireguard_home, '#+', '#-', $custom_attr_config);
     my $wg_meta_show = Wireguard::WGmeta::Wrapper::Show->new($wg_show_data);
     my $ip_manager = WGwrangler::Model::IPmanager->new();
     my $initial_table_data = _generate_table_source($wg_metaT, $wg_meta_show);
@@ -27,7 +34,6 @@ sub new($class, $wireguard_home) {
         'wg_show'        => $wg_meta_show,
         'ip_manager'     => $ip_manager,
         'table_data'     => $initial_table_data,
-        'filterd_data'   => $initial_table_data
     };
     $wg_metaT->register_on_reload_listener(\&_reload_callback, 'reload_callback', [ $self ]);
     bless $self, $class;
@@ -77,6 +83,7 @@ sub validate_ips_for_interface($self, $interface, $identifier, $ips) {
     # First check if it matches the on disk version
     my %peer_data = $self->wg_meta()->get_interface_section($interface, $identifier);
     return "" if %peer_data && $self->ip_manager()->external_is_in($ips, $peer_data{'allowed-ips'});
+    print('adv');
 
     # If not do the advanced check
     return $self->ip_manager()->is_valid_for_interface($interface, $ips);
@@ -120,8 +127,8 @@ sub gen_key_pair($self) {
 }
 
 sub get_peer_count($self, $filter) {
-    $self->wg_meta()->_may_reload_from_disk();
-    my $filtered_data = _apply_filter($self->{table_data}, $filter);
+    my $filtered_data = _apply_filter(_generate_table_source($self->{wg_metaT}, $self->{wg_show}), $filter);
+    $self->{table_data} = $filtered_data;
     return @{$filtered_data};
 }
 
@@ -223,11 +230,9 @@ sub _apply_filter($ref_data, $filter) {
         my @filter_terms = map {s/^\s+|\s+$//g;
             $_} split /\s+/, $filter;
         for my $row_hash (@{$ref_data}) {
+            my $filter_string = join '', map {$row_hash->{$_} if defined $row_hash->{$_}} ('name', 'public-key', 'interface', 'allowed-ips', 'email');
             for my $filter_term (@filter_terms) {
-                if (index(lc $row_hash->{name}, lc $filter_term) != -1
-                    || $row_hash->{'public-key'} eq $filter_term
-                    || $row_hash->{'interface'} eq $filter_term
-                    || $row_hash->{'allowed-ips'} =~ /$filter_term/) {
+                if ($filter_string =~ $filter_term) {
                     push @filtered_data, $row_hash;
                 }
             }
@@ -240,9 +245,10 @@ sub _apply_filter($ref_data, $filter) {
 }
 
 sub get_peer_table_data($self, $first_row, $last_row, $filter) {
+    # we do not filter again here since the filter is already applied at the get_peer_count() step
     my @table_data = @{$self->{table_data}};
     $last_row = $#table_data if ($last_row > $#table_data);
-    return _apply_filter([ @table_data[$first_row .. $last_row] ], $filter);
+    return [ @table_data[$first_row .. $last_row] ];
 }
 
 

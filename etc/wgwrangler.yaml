@@ -24,6 +24,8 @@ PLUGIN:
   - WireguardShow:
       module: WireguardShow
       tab-name: Wireguard
+      default-dns: 192.168.0.1
+      default-allowed-ips: 192.168.0.0/24
 
   - AdminUser:
       module: Users

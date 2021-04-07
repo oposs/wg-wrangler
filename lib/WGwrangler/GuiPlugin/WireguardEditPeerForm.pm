@@ -32,7 +32,7 @@ has formCfg => sub($self) {
 
     return [
         # This does somehow not work $self->{args}{selection}{disabled} is a reference to JSON::PP true
-        $self->{args}{selection}{disabled} ? {
+        1 ? {
             widget => 'header',
             label  => trm('<color="red">Warning</color>'),
             note   => trm('This Peer is disabled!'),
@@ -47,6 +47,14 @@ has formCfg => sub($self) {
             set    => {
                 readOnly => true,
                 required => true
+            }
+        },
+        {
+            key    => 'email',
+            label  => trm('Email'),
+            widget => 'text',
+            set    => {
+                readOnly => true,
             }
         },
         {
@@ -87,11 +95,9 @@ has formCfg => sub($self) {
                 my $value = shift;
                 my $parameter = shift;
                 my $formData = shift;
-                # is there a way to access the old value?
                 if ($formData->{interface} && $formData->{'public-key'}) {
                     return $self->app->wireguardModel->validate_ips_for_interface($formData->{interface}, $formData->{'public-key'}, $value);
                 }
-                return "";
             },
             set       => {
                 required => true

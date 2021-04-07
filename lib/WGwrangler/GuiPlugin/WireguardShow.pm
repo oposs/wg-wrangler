@@ -62,15 +62,14 @@ has formCfg => sub($self) {
         {
             widget => 'header',
             label  => trm('*'),
-            note   => trm('Nice Start')
         },
         {
             key    => 'wg_interface',
             widget => 'text',
-            note   => 'Terms are connected using OR',
+            note   => 'Terms are case-sensitive',
             label  => 'Search',
             set    => {
-                placeholder => 'name, interface, ip or public-key',
+                placeholder => 'name, interface, email, ip, public-key',
                 enabled     => true
             },
         },
@@ -112,6 +111,13 @@ has tableCfg => sub {
             type     => 'string',
             width    => '1*',
             key      => 'name',
+            sortable => true,
+        },
+        {
+            label    => trm('Email'),
+            type     => 'string',
+            width    => '2*',
+            key      => 'email',
             sortable => true,
         },
         {
@@ -195,7 +201,8 @@ has actionCfg => sub {
             backend          => {
                 plugin => 'WireguardAddPeerForm',
                 config => {
-                    type => 'add'
+                    'default-allowed-ips' => $self->config->{'default-allowed-ips'},
+                    'default-dns'         => $self->config->{'default-dns'}
                 }
             }
         },
@@ -293,6 +300,23 @@ has actionCfg => sub {
             }
         }
     ];
+};
+
+has grammar => sub {
+    my $self = shift;
+    $self->mergeGrammar(
+        $self->SUPER::grammar,
+        {
+            _doc => "Wireguard plugin config",
+            _vars => [ qw(default-dns default-allowed-ips) ],
+            'default-dns' => {
+                _doc => 'Default DNS server to be filled in the DNS field',
+            },
+            'default-allowed-ips' => {
+                _doc => 'Default allowed-ips for new peers'
+            }
+        },
+    );
 };
 
 sub db {
