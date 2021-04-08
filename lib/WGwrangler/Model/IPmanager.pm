@@ -96,18 +96,19 @@ sub looks_like_ip($self, $ips_string) {
 sub external_is_in($self, $ips_string, $ranges_string) {
     my @ips = map {trm($_)} split /\,/, $ips_string;
     my @ranges = map {trm($_)} split /\,/, $ranges_string;
+    my $in_counter = 0;
     for my $ip_str (@ips) {
         my $may_ip = Net::IP->new($ip_str) or return Net::IP::Error();
         for my $range_str (@ranges) {
             my $may_range = Net::IP->new($range_str) or return Net::IP::Error();
-            my $res = $self->_is_in($may_range, $may_ip);
+            my $res = $self->_is_in($may_ip, $may_range);
 
-            if (not $self->_is_in($may_ip, $may_range)) {
-                return undef;
+            if ($self->_is_in($may_ip, $may_range)) {
+                $in_counter++;
             }
         }
     }
-    return 1;
+    return $in_counter == @ips;
 }
 
 
@@ -146,36 +147,51 @@ sub suggest_ip($self, $interface) {
     return join ',', @suggested_ips;
 }
 
-sub is_valid_for_interface($self, $interface, $ips_string) {
+sub is_valid_for_interface($self, $interface, $ips_string, $current_peer_ips = undef) {
     if (exists $self->{interface_ranges}{$interface}) {
-        my @ips = map {trm($_)} split /\,/, $ips_string;
-        my $found_matching_version = undef;
+        my @ips_string_to_test = map {trm($_)} split /\,/, $ips_string;
+        my @current_peer_ips = map {trm($_)} split /\,/, $current_peer_ips if defined $current_peer_ips;
+        my $found_matching_version = 0;
 
-        for my $ip_string_tt (@ips) {
-            my $may_ip = Net::IP->new($ip_string_tt) or return Net::IP::Error();
+        for my $ip_string_to_test (@ips_string_to_test) {
+            my $ip_is_within_on_disk_version = undef;
+            my $ip_object_to_test = Net::IP->new($ip_string_to_test) or return Net::IP::Error();
 
-            for my $interface_range (@{$self->{interface_ranges}{$interface}}) {
-                if ($self->_is_in($may_ip, $interface_range)) {
-                    $found_matching_version = 1;
-                    # Cheap check
-                    if (exists $self->{acquired_ips}{$interface}{$interface_range->ip()}{$may_ip->ip()}) {
-                        return "IP/range `" . $may_ip->ip() . "` is already acquired";
+            # First lets test if within on disk range (for this peer)
+            if (defined $current_peer_ips) {
+                for my $current_range_string (@current_peer_ips) {
+                    my $current_range_object = Net::IP->new($current_range_string) or return Net::IP::Error();
+                    if ($self->_is_in($ip_object_to_test, $current_range_object)) {
+                        $ip_is_within_on_disk_version = 1;
+                        $found_matching_version++;
+                        last;
                     }
-                    # expensive check
-                    for my $acquired_key (keys %{$self->{acquired_ips}{$interface}{$interface_range->ip()}}) {
-                        my $t = $self->_is_in($self->{acquired_ips}{$interface}{$interface_range->ip()}{$acquired_key},$may_ip);
-                        if ($self->_is_in($self->{acquired_ips}{$interface}{$interface_range->ip()}{$acquired_key}, $may_ip)) {
-                            return "IP/range `" . $may_ip->ip() . "` is within an already acquired network";
-                        }
-                    }
-                    last;
-                }
-                else {
-                    return "It seems that `$ip_string_tt` does not belong to `$interface`";
                 }
             }
+            if (not defined $ip_is_within_on_disk_version) {
+                for my $interface_range (@{$self->{interface_ranges}{$interface}}) {
+                    my $s = $interface_range->ip();
+                    my $t = $self->_is_in($ip_object_to_test, $interface_range);
+                    if ($self->_is_in($ip_object_to_test, $interface_range)) {
+                        $found_matching_version++;
+                        # Cheap check
+                        if (exists $self->{acquired_ips}{$interface}{$interface_range->ip()}{$ip_object_to_test->ip()}) {
+                            return "IP/range `" . $ip_object_to_test->ip() . "` is already acquired";
+                        }
+                        # expensive check
+                        for my $acquired_key (keys %{$self->{acquired_ips}{$interface}{$interface_range->ip()}}) {
+                            my $t = $self->_is_in($self->{acquired_ips}{$interface}{$interface_range->ip()}{$acquired_key}, $ip_object_to_test);
+                            if ($self->_is_in($self->{acquired_ips}{$interface}{$interface_range->ip()}{$acquired_key}, $ip_object_to_test)) {
+                                return "IP/range `" . $ip_object_to_test->ip() . "` overlaps with an already acquired network";
+                            }
+                        }
+                        last;
+                    }
+                }
+            }
+
         }
-        return $found_matching_version ? "" : "It seems that `$ips_string` does not belong to `$interface`";
+        return $found_matching_version == @ips_string_to_test ? "" : "It seems that some parts of `$ips_string` do not belong to `$interface`";
     }
     else {
         return "Invalid interface `$interface` - Did you call populate_range() before?";

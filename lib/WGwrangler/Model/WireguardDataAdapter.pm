@@ -3,6 +3,7 @@ use strict;
 use warnings FATAL => 'all';
 use experimental 'signatures';
 use Mojo::JSON qw(true false);
+use File::Copy qw(move);
 
 use Wireguard::WGmeta::Utils;
 use Wireguard::WGmeta::Wrapper::Show;
@@ -12,7 +13,7 @@ use Wireguard::WGmeta::Validator;
 use WGwrangler::Model::IPmanager;
 
 
-sub new($class, $wireguard_home) {
+sub new($class, $wireguard_home, $not_applied_prefix) {
 
     my $wg_show_data = read_file('/home/tobias/Documents/wg-wrangler/dummy_wg_home/wg_show_dummy');
     my $custom_attr_config = {
@@ -21,7 +22,7 @@ sub new($class, $wireguard_home) {
             'validator'      => sub($value) {return $value =~ /^\S+@\S+\.\S+$/;}
         }
     };
-    my $wg_metaT = Wireguard::WGmeta::Wrapper::ConfigT->new($wireguard_home, '#+', '#-', $custom_attr_config);
+    my $wg_metaT = Wireguard::WGmeta::Wrapper::ConfigT->new($wireguard_home, '#+', '#-', $not_applied_prefix, $custom_attr_config);
     my $wg_meta_show = Wireguard::WGmeta::Wrapper::Show->new($wg_show_data);
     my $ip_manager = WGwrangler::Model::IPmanager->new();
     my $initial_table_data = _generate_table_source($wg_metaT, $wg_meta_show);
@@ -29,11 +30,12 @@ sub new($class, $wireguard_home) {
         _populate_ip_manager($interface, $wg_metaT, $ip_manager);
     }
     my $self = {
-        'wireguard_home' => $wireguard_home,
-        'wg_metaT'       => $wg_metaT,
-        'wg_show'        => $wg_meta_show,
-        'ip_manager'     => $ip_manager,
-        'table_data'     => $initial_table_data,
+        'wireguard_home'     => $wireguard_home,
+        'not_applied_prefix' => $not_applied_prefix,
+        'wg_metaT'           => $wg_metaT,
+        'wg_show'            => $wg_meta_show,
+        'ip_manager'         => $ip_manager,
+        'table_data'         => $initial_table_data,
     };
     $wg_metaT->register_on_reload_listener(\&_reload_callback, 'reload_callback', [ $self ]);
     bless $self, $class;
@@ -80,13 +82,9 @@ sub suggest_ip($self, $interface) {
 }
 
 sub validate_ips_for_interface($self, $interface, $identifier, $ips) {
-    # First check if it matches the on disk version
     my %peer_data = $self->wg_meta()->get_interface_section($interface, $identifier);
-    return "" if %peer_data && $self->ip_manager()->external_is_in($ips, $peer_data{'allowed-ips'});
-    print('adv');
 
-    # If not do the advanced check
-    return $self->ip_manager()->is_valid_for_interface($interface, $ips);
+    return $self->ip_manager()->is_valid_for_interface($interface, $ips, $peer_data{'allowed-ips'});
 }
 
 sub looks_like_ip($self, $ips_string) {
@@ -97,7 +95,7 @@ sub validate_alias_for_interface($self, $interface, $identifier, $alias) {
     # ToDo: This is just a workaround until wg-meta supports is_valid_alias()
     my $validated_name = $self->validate_name($alias);
     return $validated_name if $validated_name;
-    $self->wg_meta()->_may_reload_from_disk();
+    $self->wg_meta()->may_reload_from_disk($interface);
     if (exists $self->wg_meta()->{parsed_config}{$interface}{alias_map}{$alias}) {
         if ($self->wg_meta()->try_translate_alias($interface, $alias) eq $identifier) {
             return "";
@@ -128,7 +126,6 @@ sub gen_key_pair($self) {
 
 sub get_peer_count($self, $filter) {
     my $filtered_data = _apply_filter(_generate_table_source($self->{wg_metaT}, $self->{wg_show}), $filter);
-    $self->{table_data} = $filtered_data;
     return @{$filtered_data};
 }
 
@@ -151,11 +148,11 @@ sub add_peer($self, $interface, $name, $ip_address, $public_key, $alias, $pre_sh
 
 sub remove_peer($self, $interface, $identifier, $ref_integrity_hash) {
     $self->wg_meta()->remove_peer($interface, $identifier);
-    $self->wg_meta()->commit(1, 0, $ref_integrity_hash);
+    $self->wg_meta()->commit(0, 0, $ref_integrity_hash);
 }
 
 sub commit_changes($self, $ref_integrity_hashes) {
-    $self->wg_meta()->commit(1, 0, $ref_integrity_hashes);
+    $self->wg_meta()->commit(0, 0, $ref_integrity_hashes);
 }
 sub sort_table_data($self, $data, $key, $order) {
     my @keys_to_sort = map {$_->{$key}} @{$data};
@@ -168,7 +165,6 @@ sub sort_table_data($self, $data, $key, $order) {
     }
     return [ @{$data}[ @sorted_indexes ] ];
 }
-
 sub get_section_data($self, $interface, $identifier) {
     my %d = $self->wg_meta()->get_interface_section($interface, $identifier);
     $d{interface} = $interface;
@@ -182,11 +178,22 @@ sub get_interface_selection($self) {
 
 sub disable_peer($self, $interface, $identifier, $integrity_hash) {
     $self->wg_meta()->disable($interface, $identifier);
-    $self->wg_meta()->commit(1, 0, $integrity_hash);
+    $self->wg_meta()->commit(0, 0, $integrity_hash);
 }
 sub enable_peer($self, $interface, $identifier, $integrity_hash) {
     $self->wg_meta()->enable($interface, $identifier);
-    $self->wg_meta()->commit(1, 0, $integrity_hash);
+    $self->wg_meta()->commit(0, 0, $integrity_hash);
+}
+
+sub apply_config($self) {
+    for my $interface ($self->wg_meta()->get_interface_list()) {
+        my $safe_path = $self->{wireguard_home} . $interface . $self->{not_applied_prefix};
+        my $hot_path = $self->{wireguard_home} . $interface . '.conf';
+        if (-e $safe_path) {
+            move($hot_path, $hot_path . 'old') or die "Could not apply for `$interface`" . $!;
+            move($safe_path, $hot_path) or die "Could not apply for `$interface`" . $!;
+        }
+    }
 }
 
 sub _generate_table_source($wg_meta, $wg_show) {
@@ -196,7 +203,7 @@ sub _generate_table_source($wg_meta, $wg_show) {
         for my $identifier ($wg_meta->get_section_list($interface)) {
             # skip interfaces
             unless ($identifier eq $interface) {
-                # add wirguard data
+                # add wireguard data
                 my %wg_section_data = $wg_meta->get_interface_section($interface, $identifier);
                 $wg_section_data{interface} = $interface;
 
@@ -245,8 +252,8 @@ sub _apply_filter($ref_data, $filter) {
 }
 
 sub get_peer_table_data($self, $first_row, $last_row, $filter) {
-    # we do not filter again here since the filter is already applied at the get_peer_count() step
-    my @table_data = @{$self->{table_data}};
+    # unfortunatly we have to apply the filter twice since get_n_rows() and get_table_data() are two separate calls
+    my @table_data = @{_apply_filter(_generate_table_source($self->{wg_metaT}, $self->{wg_show}), $filter)};
     $last_row = $#table_data if ($last_row > $#table_data);
     return [ @table_data[$first_row .. $last_row] ];
 }

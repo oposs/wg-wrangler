@@ -260,7 +260,7 @@ has actionCfg => sub {
             label            => trm('Delete Peer'),
             action           => 'submitVerify',
             addToContextMenu => true,
-            question         => trm('Do you realy want to delete this peer - This cannot be undone!'),
+            question         => trm('Do you really want to delete this peer - This cannot be undone!'),
             key              => 'delete',
             buttonSet        => {
                 enabled => false,
@@ -298,7 +298,29 @@ has actionCfg => sub {
                     action => 'reload',
                 };
             }
-        }
+        },
+        {
+            action => 'separator'
+        },
+        {
+            label            => trm('Apply Config'),
+            action           => 'submitVerify',
+            addToContextMenu => true,
+            question         => trm('Do you really want to apply your changes. Old configuration is keep as `filename.conf.old`'),
+            key              => 'apply_config',
+            buttonSet        => {
+                enabled => true,
+            },
+            actionHandler    => sub {
+                my $self = shift;
+                my $args = shift;
+                $self->app->wireguardModel->apply_config();
+                $self->app->versionManager->checkin_new_version('test');
+                return {
+                    action => 'reload',
+                };
+            }
+        },
     ];
 };
 
@@ -307,9 +329,9 @@ has grammar => sub {
     $self->mergeGrammar(
         $self->SUPER::grammar,
         {
-            _doc => "Wireguard plugin config",
-            _vars => [ qw(default-dns default-allowed-ips) ],
-            'default-dns' => {
+            _doc                  => "Wireguard plugin config",
+            _vars                 => [ qw(default-dns default-allowed-ips) ],
+            'default-dns'         => {
                 _doc => 'Default DNS server to be filled in the DNS field',
             },
             'default-allowed-ips' => {

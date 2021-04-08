@@ -5,6 +5,7 @@ use CallBackery::Model::ConfigJsonSchema;
 use WGwrangler::User;
 use WGwrangler::Model::WireguardDataAdapter;
 use WGwrangler::Model::MailHandler;
+use WGwrangler::Model::VersionManager;
 
 use constant WIREGUARD_HOME => (!defined($ENV{'WIREGUARD_HOME'})) ? "/etc/wireguard" : $ENV{'WIREGUARD_HOME'};
 
@@ -60,11 +61,15 @@ has 'userObject' => sub {
 };
 
 has 'wireguardModel' => sub {
-    WGwrangler::Model::WireguardDataAdapter->new(WIREGUARD_HOME);
+    WGwrangler::Model::WireguardDataAdapter->new(WIREGUARD_HOME, '.not_applied');
 };
 
 has 'mailHandler' => sub {
     WGwrangler::Model::MailHandler->new();
+};
+
+has 'versionManager' => sub {
+    WGwrangler::Model::VersionManager->new(WIREGUARD_HOME);
 };
 
 1;
