@@ -15,7 +15,7 @@ use WGwrangler::Model::IPmanager;
 
 sub new($class, $wireguard_home, $not_applied_prefix) {
 
-    my $wg_show_data = read_file('/home/tobias/Documents/wg-wrangler/dummy_wg_home/wg_show_dummy');
+    my $wg_show_data = read_file($wireguard_home . 'wg_show_dummy');
     my $custom_attr_config = {
         'email' => {
             'in_config_name' => 'Email',
@@ -190,10 +190,29 @@ sub apply_config($self) {
         my $safe_path = $self->{wireguard_home} . $interface . $self->{not_applied_prefix};
         my $hot_path = $self->{wireguard_home} . $interface . '.conf';
         if (-e $safe_path) {
-            move($hot_path, $hot_path . 'old') or die "Could not apply for `$interface`" . $!;
+            move($hot_path, $hot_path . '.old') or die "Could not apply for `$interface`" . $!;
             move($safe_path, $hot_path) or die "Could not apply for `$interface`" . $!;
         }
     }
+}
+
+sub discard_changes($self) {
+    for my $interface ($self->wg_meta()->get_interface_list()) {
+        my $safe_path = $self->{wireguard_home} . $interface . $self->{not_applied_prefix};
+        if (-e $safe_path) {
+            unlink($safe_path);
+        }
+    }
+}
+
+sub has_not_applied_changes($self){
+    for my $interface ($self->wg_meta()->get_interface_list()) {
+        my $safe_path = $self->{wireguard_home} . $interface . $self->{not_applied_prefix};
+        if (-e $safe_path) {
+            return 1;
+        }
+    }
+    return undef;
 }
 
 sub _generate_table_source($wg_meta, $wg_show) {

@@ -6,51 +6,91 @@ use experimental 'signatures';
 use Symbol 'gensym';
 use IPC::Open3;
 use Data::Dumper;
+use File::Copy qw(move copy);
 
 use constant FALSE => 0;
 use constant TRUE => 1;
 
-sub new($class, $versions_dir) {
-    # init git
-    if (-e $versions_dir) {
-        run_external("git init $versions_dir");
-        unless (-e $versions_dir . '.gitignore') {
-            my $git_ignore = do {
-                local $/;
-                <DATA>
-            };
-            run_external("echo '$git_ignore' > $versions_dir.gitignore");
-        }
-    } else {
-        die "`$versions_dir` does not exist";
-    }
-
+sub new($class, $versions_dir, $not_applied_suffix, $git_support = 1) {
     my $self = {
         versions_dir => $versions_dir,
+        git_support  => (-e $versions_dir . '../.git' || not $git_support) ? 0 : 1
     };
+
+    # init git
+    if ($self->{git_support}) {
+        if (-e $versions_dir) {
+            run_external("git init $versions_dir");
+            unless (-e $versions_dir . '.gitignore') {
+                run_external("echo '*.$not_applied_suffix' > $versions_dir.gitignore");
+            }
+
+        }
+        else {
+            die "`$versions_dir` does not exist";
+        }
+    }
+
     bless $self, $class;
     return $self;
 }
 
-sub get_history($self) {
+sub get_history($self, $filter) {
     my @result;
-    my (@output, undef) = run_external("cd $self->{versions_dir} && git log --pretty=reference --date=iso8601 -n 10");
-    chomp(@output);
-    for my $revision (@output) {
-        my ($hash, $message, $date) = $revision =~ /^([a-f|0-9]+)\s+\((.*),\s+(.*)\)$/;
-        $date =~ s/\)//g;
-        push @result, { hash => $hash, date => $date, message => $message };
+    if ($self->{git_support}) {
+        my (@output, undef) = run_external("cd $self->{versions_dir} && git log --pretty=reference --date=unix -n 10");
+        chomp(@output);
+        for my $revision (@output) {
+            my ($hash, $message, $date) = $revision =~ /^([a-f|0-9]+)\s+\((.*),\s+(.*)\)$/;
+            $date =~ s/\)//g;
+            my $date_string = localtime($date);
+            push @result, { hash => $hash, date_unix => $date, date => "$date_string", message => $message };
+        }
+
     }
-    return \@result;
+    else {
+        my @files = _read_dir($self->{versions_dir}, qr/\.old$/);
+        chomp(@files);
+        for my $old_version (@files) {
+            my $date = _get_mtime($old_version);
+            my $date_string = localtime($date);
+            push @result, { 'hash' => $old_version, 'date_unix' => $date, date => "$date_string", 'message' => 'git not activated or not supported' };
+        }
+    }
+    return \@result, scalar @result;
 }
 
-sub checkin_new_version($self, $commit_message) {
-    run_external("cd $self->{versions_dir} && git add .");
-    run_external("cd $self->{versions_dir} && git commit -m '$commit_message'");
+sub get_n_entries($self, $filter) {
+    my (undef, $count) = $self->get_history($filter);
+    return $count;
+}
+
+sub checkin_new_version($self, $commit_message, $user, $user_email) {
+    if ($self->{git_support}) {
+        run_external("cd $self->{versions_dir} && git add .");
+        run_external("cd $self->{versions_dir} && git -c user.name='$user' -c user.email=$user_email commit -m '$commit_message'");
+    }
+    else {
+        # Do nothing
+    }
 }
 
 sub go_back_to_revision($self, $revision) {
-    run_external("cd $self->{versions_dir} && git reset --hard $revision");
+    if ($self->{git_support}) {
+        run_external("cd $self->{versions_dir} && git reset --hard $revision");
+    }
+    else {
+        my $no_old = $revision;
+        $no_old =~ s/\.old$//g;
+        my $old_path = $revision;
+        my $new_path = $no_old;
+        # we have to create a copy here, otherwise the mtime gets not updated
+        copy($old_path, $new_path . '.temp') or die "Create temp file for `$revision`" . $!;
+        move($new_path . '.temp', $new_path) or die "Could not move old->new `$revision`" . $!;
+        #move($new_path . '.temp', $old_path. '') or die "Could not create old config `$revision`" . $!;
+        unlink($old_path);
+    }
+
 }
 
 =head2 run_external($command_line [, $input, $soft_fail])
@@ -110,8 +150,22 @@ sub run_external($command_line, $input = undef, $soft_fail = FALSE) {
     return @output, @err;
 }
 
-1;
+sub _read_dir($path, $pattern) {
+    opendir(DIR, $path) or die "Could not open $path\n";
+    my @files;
 
-# gitignore
-__DATA__
-*.not_applied
+    while (my $file = readdir(DIR)) {
+        if ($file =~ $pattern) {
+            push @files, $path . $file;
+        }
+    }
+    closedir(DIR);
+    return @files;
+}
+
+sub _get_mtime($path) {
+    my @stat = stat($path);
+    return (defined($stat[9])) ? "$stat[9]" : "0";
+}
+
+1;

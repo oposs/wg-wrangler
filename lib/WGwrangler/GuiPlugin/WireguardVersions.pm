@@ -64,7 +64,7 @@ has formCfg => sub($self) {
             label  => trm('*'),
         },
         {
-            key    => 'revision',
+            key    => 'version_filter',
             widget => 'text',
             note   => 'Terms are case-sensitive',
             label  => 'Search',
@@ -89,7 +89,7 @@ has tableCfg => sub {
             type     => 'string',
             width    => '1*',
             key      => 'hash',
-            sortable => true,
+            sortable => false,
         },
         {
             label    => trm('Date'),
@@ -100,6 +100,13 @@ has tableCfg => sub {
             format   => {
                 'dateFormat' => "dd.mm.yy"
             }
+        },
+        {
+            label    => trm('Comment'),
+            type     => 'text',
+            width    => '2*',
+            key      => 'message',
+            sortable => false,
         }
     ];
 };
@@ -158,25 +165,12 @@ has actionCfg => sub {
     ];
 };
 
-sub _getFilter {
-    my $self = shift;
-    my $search = shift;
-    my $filter = $search;
-    return $filter;
+sub getTableRowCount($self, $args, $qx_locale) {
+    return $self->app->versionManager->get_n_entries($args->{formData}{version_filter});
 }
 
-sub getTableRowCount {
-    my $self = shift;
-    my $args = shift;
-    my $filter = $self->_getFilter($args->{formData}{wg_interface});
-    return $self->app->wireguardModel->get_peer_count($filter);
-}
-
-sub getTableData {
-    my $self = shift;
-    my $args = shift;
-    my $filter = $self->_getFilter($args->{formData}{revision});
-    my $data = $self->app->versionManager->get_history();
+sub getTableData($self, $args, $qx_locale) {
+    my ($data, $count) = $self->app->versionManager->get_history($args->{formData}{version_filter});
     # add action set to each row
     for my $row (@{$data}) {
         $row->{_actionSet} = {

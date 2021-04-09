@@ -7,8 +7,6 @@ use WGwrangler::Model::WireguardDataAdapter;
 use WGwrangler::Model::MailHandler;
 use WGwrangler::Model::VersionManager;
 
-use constant WIREGUARD_HOME => (!defined($ENV{'WIREGUARD_HOME'})) ? "/etc/wireguard" : $ENV{'WIREGUARD_HOME'};
-
 =head1 NAME
 
 WGwrangler - the application class
@@ -61,15 +59,19 @@ has 'userObject' => sub {
 };
 
 has 'wireguardModel' => sub {
-    WGwrangler::Model::WireguardDataAdapter->new(WIREGUARD_HOME, '.not_applied');
-};
+    my $self = shift;
 
-has 'mailHandler' => sub {
-    WGwrangler::Model::MailHandler->new();
+    # There is probably a less cumbersome way to access these properties...
+    my $wireguard_home = $self->config->cfgHash->{PLUGIN}{prototype}{WireguardShow}{config}{'wireguard-home'};
+    my $not_applied_suffix = $self->config->cfgHash->{PLUGIN}{prototype}{WireguardShow}{config}{'not-applied-suffix'};
+    WGwrangler::Model::WireguardDataAdapter->new($wireguard_home, $not_applied_suffix);
 };
 
 has 'versionManager' => sub {
-    WGwrangler::Model::VersionManager->new(WIREGUARD_HOME);
+    my $self = shift;
+    my $wireguard_home = $self->config->{cfgHash}{PLUGIN}{prototype}{WireguardShow}{config}{'wireguard-home'};
+    my $not_applied_suffix = $self->config->{cfgHash}{PLUGIN}{prototype}{WireguardShow}{config}{'not-applied-suffix'};
+    WGwrangler::Model::VersionManager->new($wireguard_home, $not_applied_suffix, 1);
 };
 
 1;

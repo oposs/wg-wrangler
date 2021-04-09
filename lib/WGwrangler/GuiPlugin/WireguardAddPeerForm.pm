@@ -1,5 +1,6 @@
 package WGwrangler::GuiPlugin::WireguardAddPeerForm;
 use Mojo::Base 'CallBackery::GuiPlugin::AbstractForm';
+use WGwrangler::Model::MailHandler;
 use CallBackery::Translate qw(trm);
 use CallBackery::Exception qw(mkerror);
 use Mojo::JSON qw(true false);
@@ -17,6 +18,10 @@ WGwrangler::GuiPlugin::WireguardPeerForm - Peer Edit form
 Peer edit form
 
 =cut
+
+has 'mailHandler' => sub($self) {
+    WGwrangler::Model::MailHandler->new(app => $self->app);
+};
 
 =head1 METHODS
 
@@ -107,6 +112,16 @@ has formCfg => sub($self) {
             set    => {
                 required => true,
                 readOnly => true
+            },
+        },
+        # interface fqdn:port (hidden)
+        {
+            key    => 'fqdn',
+            label  => trm('FQDN'),
+            widget => 'hiddenText',
+            set    => {
+                readOnly => true,
+                required => true
             },
         },
         # peer name
@@ -286,6 +301,7 @@ has actionCfg => sub($self) {
         my $desc = $args->{'description'};
         my $ips = $args->{'address'};
         my $alias = $args->{'alias'};
+        my $fqdn = $args->{fqdn};
         my $send_by_email = $args->{'send_by_email'};
         my $config_contents = $args->{config_preview};
 
@@ -298,8 +314,15 @@ has actionCfg => sub($self) {
         # ToDo: Make pretty
         die mkerror(9999, $@) if $@;
 
-        if (defined $send_by_email) {
-            $self->app->mailHandler->send_mail($email, $config_contents);
+        if (defined $send_by_email && $send_by_email == 1) {
+            my $email_cfg = {
+                'name'            => $name,
+                'endpoint'        => $fqdn,
+                'email'           => $email,
+                'device_name'     => 'device',
+                'config_contents' => $config_contents
+            };
+            $self->mailHandler->prepare_and_send($email_cfg);
         }
         return {
             action => 'dataSaved'
@@ -331,47 +354,27 @@ has grammar => sub {
     );
 };
 
-sub generate_interface_label($self, $interface) {
-    my %interface_data = %{$self->app->wireguardModel->get_section_data($interface, $interface)};
-    if (%interface_data) {
-        my $iface_public_key = $self->app->wireguardModel->get_public_key($interface_data{'private-key'});
-        my $label = "Interface: $interface \n"
-            . "Public-Key: $iface_public_key\n"
-            . "Address: $interface_data{'address'}\n"
-            . "FQDN: $interface_data{fqdn}:$interface_data{'listen-port'}\n";
-        return $label;
-    }
-    else {
-        return "";
-    }
-
-}
-
-sub generate_preview_config($self, $interface, $formData, $private_key) {
+sub generate_preview_config($self, $interface, $form_values, $client_private_key, $interface_public_key) {
     # for my $key (keys %{$formData}){
     #     if ($formData->{$key} && $self->validateData($key,$formData)){
     #         return 'There is invalid input in your form data';
     #     }
     # }
-    my %interface_data = %{$self->app->wireguardModel->get_section_data($interface, $interface)};
-    if (%interface_data) {
-        my $iface_public_key = $self->app->wireguardModel->get_public_key($interface_data{'private-key'});
-        my $out = "[Interface]\n"
-            . "#+Name = " . ($formData->{currentFormData}{name} ? $formData->{currentFormData}{name} . "\n" : "\n")
-            . "#+Email = " . ($formData->{currentFormData}{email} ? $formData->{currentFormData}{email} . "\n" : "\n")
-            . "Address = " . $formData->{currentFormData}{address} . "\n"
-            . "PrivateKey = $private_key\n"
-            . ($formData->{currentFormData}{DNS} ? "DNS = " . $formData->{currentFormData}{DNS} . "\n" : '')
-            . ($formData->{currentFormData}{'listen-port'} ? "ListenPort = " . $formData->{currentFormData}{'listen-port'} . "\n" : '')
-            . "\n"
-            . "[Peer]\n"
-            . "PublicKey = $iface_public_key\n"
-            . "AllowedIPs = " . $formData->{currentFormData}{'allowed-ips'} . "\n"
-            . "Endpoint = $interface_data{fqdn}:$interface_data{'listen-port'}\n"
-            . ($formData->{currentFormData}{'persistent-keepalive'} ? "PersistentKeepalive = " . $formData->{currentFormData}{'persistent-keepalive'} . "\n" : '');
-        return $out;
-    }
+    my $out = "[Interface]\n"
+        . "#+Name = " . ($form_values->{name} ? $form_values->{name} . "\n" : "\n")
+        . "#+Email = " . ($form_values->{email} ? $form_values->{email} . "\n" : "\n")
+        . "Address = " . $form_values->{address} . "\n"
+        . "PrivateKey = $client_private_key\n"
+        . ($form_values->{DNS} ? "DNS = " . $form_values->{DNS} . "\n" : '')
+        . ($form_values->{'listen-port'} ? "ListenPort = " . $form_values->{'listen-port'} . "\n" : '')
+        . "\n"
+        . "[Peer]\n"
+        . "PublicKey = $interface_public_key\n"
+        . "AllowedIPs = " . $form_values->{'allowed-ips'} . "\n"
+        . "Endpoint = $form_values->{fqdn}\n"
+        . ($form_values->{'persistent-keepalive' } ? "PersistentKeepalive = " . $form_values->{'persistent-keepalive'} . "\n" : '');
 
+    return $out;
 }
 
 sub getAllFieldValues($self, $args, $formData, $locale) {
@@ -380,6 +383,10 @@ sub getAllFieldValues($self, $args, $formData, $locale) {
     my $may_interface = $formData->{currentFormData}{interface};
 
     if ($self->app->wireguardModel->validate_interface($may_interface)) {
+        my %interface_data = %{$self->app->wireguardModel->get_section_data($may_interface, $may_interface)};
+        $data->{fqdn} = $interface_data{fqdn} . ':' . $interface_data{'listen-port'};
+        $formData->{currentFormData}{fqdn} = $data->{fqdn};
+        my $interface_public_key = $self->app->wireguardModel->get_public_key($interface_data{'private-key'});
         # check if an address override is present, otherwise suggest some
         if ($formData->{currentFormData}{address_override}) {
             $data->{'address'} = $formData->{currentFormData}{address_override};
@@ -403,7 +410,7 @@ sub getAllFieldValues($self, $args, $formData, $locale) {
             $private_key = $formData->{currentFormData}{'private-key'};
         }
 
-        $data->{'config_preview'} = $self->generate_preview_config($may_interface, $formData, $private_key);
+        $data->{'config_preview'} = $self->generate_preview_config($may_interface, $formData->{currentFormData}, $private_key, $interface_public_key);
     }
     else {
         $data->{'config_preview'} = 'Select an interface first';

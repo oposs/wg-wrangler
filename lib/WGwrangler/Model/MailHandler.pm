@@ -1,19 +1,28 @@
 package WGwrangler::Model::MailHandler;
+use Mojo::Base 'HinAgwCommon::Email';
 use strict;
 use warnings FATAL => 'all';
 use experimental 'signatures';
+use SVG::Barcode::QRCode;
+use MIME::Base64 qw(encode_base64);
 
-sub new($class) {
+has mailTransport => sub {
+    Email::Sender::Transport::SMTP->new({
+        host => 'localhost',
+        port => 25,
+    });
+};
 
-    my $self = {};
-    bless $self, $class;
-    return $self;
-}
-
-
-sub send_mail($self, $recipient, $wireguard_config_str) {
-    my $res = `echo "$wireguard_config_str" | mail -s "Your wiregurd configuration" tobias`;
-    print("Sent mail to {$recipient}");
+sub prepare_and_send($self, $mail_cfg) {
+    my $qrcode = SVG::Barcode::QRCode->new();
+    $mail_cfg->{qr} = encode_base64($qrcode->plot($mail_cfg->{config_contents}));
+    my $send_cfg = {
+        from     => 'rt@oetiker.ch',
+        to       => $mail_cfg->{email},
+        template => 'send_config_by_email',
+        args     => $mail_cfg
+    };
+    $self->sendMail($send_cfg);
 }
 
 1;

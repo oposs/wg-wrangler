@@ -303,23 +303,40 @@ has actionCfg => sub {
             action => 'separator'
         },
         {
-            label            => trm('Apply Config'),
+            label            => trm('Apply configuration'),
+            action           => 'popup',
+            addToContextMenu => false,
+            name             => 'apply_confirm',
+            key              => 'apply',
+            popupTitle       => trm('Apply configuration'),
+            set              => {
+                Height => 250,
+                Width  => 500
+            },
+            backend          => {
+                plugin => 'CommitMessageForm',
+            }
+        },
+        {
+            label            => trm('Discard Changes'),
             action           => 'submitVerify',
+            question         => trm('Do you really want to discard all changes?'),
             addToContextMenu => true,
-            question         => trm('Do you really want to apply your changes. Old configuration is keep as `filename.conf.old`'),
-            key              => 'apply_config',
+            key              => 'discard',
             buttonSet        => {
                 enabled => true,
             },
             actionHandler    => sub {
                 my $self = shift;
                 my $args = shift;
-                $self->app->wireguardModel->apply_config();
-                $self->app->versionManager->checkin_new_version('test');
+                $self->app->wireguardModel->discard_changes();
                 return {
                     action => 'reload',
                 };
             }
+        },
+        {
+            action => 'separator'
         },
     ];
 };
@@ -330,12 +347,22 @@ has grammar => sub {
         $self->SUPER::grammar,
         {
             _doc                  => "Wireguard plugin config",
-            _vars                 => [ qw(default-dns default-allowed-ips) ],
+            _vars                 => [ qw(default-dns default-allowed-ips wireguard-home not-applied-suffix) ],
             'default-dns'         => {
                 _doc => 'Default DNS server to be filled in the DNS field',
             },
             'default-allowed-ips' => {
                 _doc => 'Default allowed-ips for new peers'
+            },
+            {
+                'wireguard-home' => {
+                    _doc => 'Path to wireguard configuration usually /etc/wireguard/'
+                }
+            },
+            {
+                'not_applied_suffix' => {
+                    _doc => 'Suffix to append not applied configurations'
+                }
             }
         },
     );

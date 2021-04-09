@@ -26,6 +26,8 @@ PLUGIN:
       tab-name: Wireguard
       default-dns: 192.168.0.1
       default-allowed-ips: 192.168.0.0/24
+      wireguard-home: /home/tobias/Documents/dummy_wg_home/
+      not-applied-suffix: .not_applied
 
   - WireguardVersions:
       module: WireguardVersions
