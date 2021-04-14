@@ -38,13 +38,13 @@ sub new($class, $versions_dir, $not_applied_suffix, $git_support = 1) {
 sub get_history($self, $filter) {
     my @result;
     if ($self->{git_support}) {
-        my (@output, undef) = run_external("cd $self->{versions_dir} && git log --pretty=reference --date=unix -n 10");
+        my (@output, undef) = run_external("cd $self->{versions_dir} && git log --pretty=format:'%h,%an,%s,%ad' --date=unix -n 10");
         chomp(@output);
         for my $revision (@output) {
-            my ($hash, $message, $date) = $revision =~ /^([a-f|0-9]+)\s+\((.*),\s+(.*)\)$/;
+            my ($hash, $user, $message, $date) = split /,/, $revision;
             $date =~ s/\)//g;
             my $date_string = localtime($date);
-            push @result, { hash => $hash, date_unix => $date, date => "$date_string", message => $message };
+            push @result, { hash => $hash, date_unix => $date, user => $user, date => "$date_string", message => $message };
         }
 
     }

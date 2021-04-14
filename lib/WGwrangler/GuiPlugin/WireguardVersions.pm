@@ -102,6 +102,13 @@ has tableCfg => sub {
             }
         },
         {
+            label    => trm('User'),
+            type     => 'string',
+            width    => '2*',
+            key      => 'user',
+            sortable => true,
+        },
+        {
             label    => trm('Comment'),
             type     => 'text',
             width    => '2*',

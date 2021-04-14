@@ -67,6 +67,14 @@ has formCfg => sub($self) {
             }
         },
         {
+            key    => 'device',
+            label  => trm('Device'),
+            widget => 'text',
+            set    => {
+                readOnly => true,
+            }
+        },
+        {
             key    => 'integrity_hash',
             label  => trm('Integrity Hash'),
             widget => 'hiddenText',
@@ -76,14 +84,13 @@ has formCfg => sub($self) {
             }
         },
         {
-            key    => 'name',
-            label  => trm('Name'),
-            widget => 'text',
-            validator => sub {
-                my $value = shift;
-                return $self->app->wireguardModel->validate_name($value);
+            key       => 'name',
+            label     => trm('Name'),
+            widget    => 'text',
+            validator => sub($value, $parameter, $formData) {
+                return $self->app->wireguardModel->validator('name', $value);
             },
-            set    => {
+            set       => {
                 required => true,
             },
         },
@@ -91,35 +98,29 @@ has formCfg => sub($self) {
             key       => 'allowed-ips',
             label     => trm('Allowed-IPs'),
             widget    => 'text',
-            validator => sub {
-                my $value = shift;
-                my $parameter = shift;
-                my $formData = shift;
-                if ($formData->{interface} && $formData->{'public-key'}) {
-                    return $self->app->wireguardModel->validate_ips_for_interface($formData->{interface}, $formData->{'public-key'}, $value);
+            validator => sub($value, $parameter, $formData) {
+                if ($formData->{interface} && $formData->{'public-key'} && $formData->{'public-key'}) {
+                    return $self->app->wireguardModel->validator('address_override', $value, $formData->{interface}, $formData->{'public-key'});
                 }
             },
             set       => {
                 required => true
             },
         },
-        {
-            key    => 'alias',
-            label  => trm('Alias'),
-            widget => 'text',
-            validator => sub {
-                my $value = shift;
-                my $parameter = shift;
-                my $formData = shift;
-                if ($formData->{alias} && $formData->{interface} && $formData->{'public-key'}) {
-                    return $self->app->wireguardModel->validate_alias_for_interface($formData->{interface}, $formData->{'public-key'}, $value);
-                }
-                return "";
-            },
-            set    => {
-                placeholder => 'Unlike the name attribute, this must be unique'
-            }
-        },
+        # {
+        #     key       => 'alias',
+        #     label     => trm('Alias'),
+        #     widget    => 'text',
+        #     validator => sub($value, $parameter, $formData) {
+        #         if ($formData->{alias} && $formData->{interface} && $formData->{'public-key'}) {
+        #             return $self->app->wireguardModel->validator('alias', $value, $formData->{interface}, $formData->{'public-key'});
+        #         }
+        #         return "";
+        #     },
+        #     set       => {
+        #         placeholder => 'Unlike the name attribute, this must be unique'
+        #     }
+        # },
         {
             key    => 'description',
             label  => trm('Description'),
@@ -140,13 +141,29 @@ has actionCfg => sub {
 
         my $interface = $args->{interface};
         my $identifier = $args->{'public-key'};
+        my $before_change = $self->app->wireguardModel->get_section_data($interface, $identifier);
+        eval {
+            for my $attr_key (keys %{$args}) {
+                unless ($attr_key eq 'interface' || $attr_key eq 'public-key' || $attr_key eq 'integrity_hash') {
+                    $self->app->wireguardModel->update_peer_data($interface, $identifier, $attr_key, $args->{$attr_key});
 
-        for my $attr_key (keys %{$args}) {
-            unless ($attr_key eq 'interface' || $attr_key eq 'public-key' || $attr_key eq 'integrity_hash') {
-                $self->app->wireguardModel->update_peer_data($interface, $identifier, $attr_key, $args->{$attr_key});
+                }
             }
+            # Check into VCS if enabled
+            if ($self->app->config->cfgHash->{BACKEND}{'no_apply'} && $self->app->config->cfgHash->{BACKEND}{'enable_git'}) {
+                my $commit_message = 'autoCommit';
+                my $user_string = $self->user->{userInfo}{cbuser_login};
+                $self->app->versionManager->checkin_new_version($commit_message, $user_string, 'dummy@example.com');
+            }
+            # Commit changes
+            $self->app->wireguardModel->commit_changes({ $identifier => $args->{'integrity_hash'} });
+        };
+        if ($@) {
+            my $error_id = int(rand(100000));
+            $self->controller->log->error('error_id: ' . $error_id . ' ' . $@);
+            $self->app->wireguardModel->restore_from_section_data($before_change);
+            die mkerror(9999, 'Could not edit peer. Error ID: ' . $error_id);
         }
-        $self->app->wireguardModel->commit_changes({ $identifier => $args->{'integrity_hash'} });
 
         return {
             action => 'dataSaved'

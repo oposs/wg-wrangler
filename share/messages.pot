@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wgwrangler 0.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-09 13:32+0200\n"
+"POT-Creation-Date: 2021-04-11 10:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,34 +31,34 @@ msgstr ""
 msgid "Access Denied"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:176
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:191
 msgid "Actual Address"
 msgstr ""
 
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:191
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:311
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:334
 msgid "Add Peer"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:205
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:92
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:205
 msgid "Add User"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:159
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:174
 msgid "Address Override"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:186
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:201
 msgid "Advanced Options"
 msgstr ""
 
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:247
 #: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:108
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:232
 msgid "Alias"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:144
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:159
 msgid "Allowed IPs"
 msgstr ""
 
@@ -76,7 +76,7 @@ msgstr ""
 msgid "Apply configuration"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:194
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:209
 msgid "Client specific configuration"
 msgstr ""
 
@@ -92,7 +92,7 @@ msgstr ""
 msgid "Commit message"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:84
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:89
 msgid "Config Preview"
 msgstr ""
 
@@ -100,7 +100,7 @@ msgstr ""
 msgid "Create Admin Account"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:217
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:232
 msgid "DNS"
 msgstr ""
 
@@ -121,8 +121,8 @@ msgstr ""
 msgid "Delete User"
 msgstr ""
 
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:278
 #: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:125
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:263
 msgid "Description"
 msgstr ""
 
@@ -189,21 +189,25 @@ msgstr ""
 msgid "Export %1"
 msgstr ""
 
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:120
+msgid "FQDN"
+msgstr ""
+
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:150
 msgid "Faild to remove user %1"
 msgstr ""
 
-#: lib/HinAgwCommon/Email.pm:120
+#: lib/HinAgwCommon/Email.pm:130
 msgid "Failed to send mail to %1"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:94
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:60
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:94
 msgid "Family Name"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:85
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:53
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:85
 msgid "Given Name"
 msgstr ""
 
@@ -212,18 +216,18 @@ msgid "Integrity Hash"
 msgstr ""
 
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:95
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:67
 #: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:45
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:62
 msgid "Interface"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:202
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:217
 msgid "Interface Port"
 msgstr ""
 
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:110
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:130
 #: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:80
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:115
 msgid "Name"
 msgstr ""
 
@@ -239,8 +243,8 @@ msgstr ""
 msgid "No user selected."
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:104
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:74
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:104
 msgid "Note"
 msgstr ""
 
@@ -252,15 +256,15 @@ msgstr ""
 msgid "Password Again"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:105
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:110
 msgid "Peer Private Key"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:95
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:100
 msgid "Peer Public Key"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:249
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:264
 msgid "Persistent-keepalive"
 msgstr ""
 
@@ -292,7 +296,7 @@ msgstr ""
 msgid "Save Changes"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:273
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:288
 msgid "Send by Email"
 msgstr ""
 
@@ -316,17 +320,17 @@ msgstr ""
 msgid "Upload Missing"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:130
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:145
 msgid "User email"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:50
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:38
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:50
 msgid "UserId"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:59
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:46
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:59
 msgid "Username"
 msgstr ""
 
@@ -334,7 +338,7 @@ msgstr ""
 msgid "Version"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/Config.pm:445
+#: thirdparty/lib/perl5/CallBackery/Config.pm:447
 msgid "Wrong password!"
 msgstr ""
 
@@ -351,10 +355,10 @@ msgstr ""
 msgid "You have to select a user first"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/AbstractCardlist.pm:81
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/AbstractCardlist.pm:82
 msgid "cardCfg must be defined in child plugin class"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/AbstractForm.pm:178
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/AbstractForm.pm:137
 msgid "sorry, don't know the field you are talking about"
 msgstr ""

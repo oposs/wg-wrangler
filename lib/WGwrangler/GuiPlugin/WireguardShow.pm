@@ -69,7 +69,7 @@ has formCfg => sub($self) {
             note   => 'Terms are case-sensitive',
             label  => 'Search',
             set    => {
-                placeholder => 'name, interface, email, ip, public-key',
+                placeholder => 'name, interface, email, ip, public-key, device',
                 enabled     => true
             },
         },
@@ -118,6 +118,13 @@ has tableCfg => sub {
             type     => 'string',
             width    => '2*',
             key      => 'email',
+            sortable => true,
+        },
+        {
+            label    => trm('Device'),
+            type     => 'string',
+            width    => '2*',
+            key      => 'device',
             sortable => true,
         },
         {
@@ -299,10 +306,11 @@ has actionCfg => sub {
                 };
             }
         },
+
         {
             action => 'separator'
         },
-        {
+        !$self->app->config->cfgHash->{BACKEND}{no_apply} ? {
             label            => trm('Apply configuration'),
             action           => 'popup',
             addToContextMenu => false,
@@ -316,8 +324,8 @@ has actionCfg => sub {
             backend          => {
                 plugin => 'CommitMessageForm',
             }
-        },
-        {
+        } : (),
+        !$self->app->config->cfgHash->{BACKEND}{'no_apply'} ? {
             label            => trm('Discard Changes'),
             action           => 'submitVerify',
             question         => trm('Do you really want to discard all changes?'),
@@ -334,7 +342,7 @@ has actionCfg => sub {
                     action => 'reload',
                 };
             }
-        },
+        } : (),
         {
             action => 'separator'
         },
@@ -343,26 +351,21 @@ has actionCfg => sub {
 
 has grammar => sub {
     my $self = shift;
+    my $t = $self->SUPER::grammar;
     $self->mergeGrammar(
         $self->SUPER::grammar,
         {
-            _doc                  => "Wireguard plugin config",
-            _vars                 => [ qw(default-dns default-allowed-ips wireguard-home not-applied-suffix) ],
-            'default-dns'         => {
+            _doc                    => "Wireguard plugin config",
+            _vars                   => [ qw(default-dns default-allowed-ips enforce_email_success) ],
+            'default-dns'           => {
                 _doc => 'Default DNS server to be filled in the DNS field',
             },
-            'default-allowed-ips' => {
+            'default-allowed-ips'   => {
                 _doc => 'Default allowed-ips for new peers'
             },
-            {
-                'wireguard-home' => {
-                    _doc => 'Path to wireguard configuration usually /etc/wireguard/'
-                }
-            },
-            {
-                'not_applied_suffix' => {
-                    _doc => 'Suffix to append not applied configurations'
-                }
+            'enforce_email_success' => {
+                _doc  => 'When the user ticks "send by email" the peer is not created when sending the email fails',
+                _type => 'boolean'
             }
         },
     );

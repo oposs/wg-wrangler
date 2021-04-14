@@ -1,5 +1,4 @@
 package WGwrangler;
-
 use Mojo::Base 'CallBackery';
 use CallBackery::Model::ConfigJsonSchema;
 use WGwrangler::User;
@@ -40,6 +39,21 @@ has config => sub {
         app  => $self,
         file => $ENV{WGwrangler_CONFIG} || $self->home->rel_file('etc/wgwrangler.yaml')
     );
+
+    my $be = $config->schema->{properties}{BACKEND};
+    $be->{properties} = {
+        %{$be->{properties}},
+        vpn_name           => { type => 'string' },
+        enable_git         => { type => 'boolean' },
+        not_applied_suffix => { type => 'string' },
+        wireguard_home     => { type => 'string' },
+        no_apply           => { type => 'boolean' },
+        wg_apply_command   => { type => 'string' },
+        wg_show_command    => { type => 'string' }
+    };
+
+    push @{$config->schema->{properties}{BACKEND}{required}}, 'wireguard_home';
+
     unshift @{$config->pluginPath}, 'WGwrangler::GuiPlugin';
     return $config;
 };
@@ -60,18 +74,18 @@ has 'userObject' => sub {
 
 has 'wireguardModel' => sub {
     my $self = shift;
-
-    # There is probably a less cumbersome way to access these properties...
-    my $wireguard_home = $self->config->cfgHash->{PLUGIN}{prototype}{WireguardShow}{config}{'wireguard-home'};
-    my $not_applied_suffix = $self->config->cfgHash->{PLUGIN}{prototype}{WireguardShow}{config}{'not-applied-suffix'};
-    WGwrangler::Model::WireguardDataAdapter->new($wireguard_home, $not_applied_suffix);
+    my $wireguard_home = $self->config->cfgHash->{BACKEND}{wireguard_home};
+    my $not_applied_suffix = $self->config->cfgHash->{BACKEND}{'not_applied_suffix'};
+    my $no_apply = $self->config->cfgHash->{BACKEND}{'no_apply'};
+    WGwrangler::Model::WireguardDataAdapter->new(wireguard_home => $wireguard_home, is_hot_config => $no_apply, app => $self);
 };
 
 has 'versionManager' => sub {
     my $self = shift;
-    my $wireguard_home = $self->config->{cfgHash}{PLUGIN}{prototype}{WireguardShow}{config}{'wireguard-home'};
-    my $not_applied_suffix = $self->config->{cfgHash}{PLUGIN}{prototype}{WireguardShow}{config}{'not-applied-suffix'};
-    WGwrangler::Model::VersionManager->new($wireguard_home, $not_applied_suffix, 1);
+    my $wireguard_home = $self->config->cfgHash->{BACKEND}{wireguard_home};
+    my $not_applied_suffix = $self->config->cfgHash->{BACKEND}{'not_applied_suffix'};
+    my $git_enabled = $self->config->cfgHash->{BACKEND}{'enable_git'};
+    WGwrangler::Model::VersionManager->new($wireguard_home, $not_applied_suffix, $git_enabled);
 };
 
 1;

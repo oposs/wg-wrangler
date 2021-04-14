@@ -2,7 +2,7 @@ Subject: Wireguard VPN Configuration
 Reply-To: rt@oetiker.ch
 ----
 Dear <%= $name %>
-This is your vpn configuration for your <%= $device_name %> to access <%= $endpoint %>.
+This is your vpn configuration for your device "<%= $device_name %>" to access <%= $endpoint %>.
 Install a Wireguard client https://www.wireguard.com/install
 Add the config file attached to this message
 
@@ -12,7 +12,7 @@ enjoy!
 <head><title></title></head>
 <body>
 <p>Dear <%= $name %></p>
-<p>This is your vpn configuration for your <%= $device_name %> to access <%= $endpoint %>.</p>
+<p>This is your vpn configuration for your device  "<%= $device_name %>" to access <%= $endpoint %>.</p>
 <ol>
 <li>Install a Wireguard <a href="https://www.wireguard.com/install">client</a>.</li>
 <li>Add the config file attached to this message</li>

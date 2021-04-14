@@ -5,7 +5,6 @@ use CallBackery::Translate qw(trm);
 use CallBackery::Exception qw(mkerror);
 use Mojo::JSON qw(true false);
 use experimental 'signatures';
-use Scalar::Util qw(looks_like_number);
 
 use Wireguard::WGmeta::Validator;
 
@@ -20,7 +19,7 @@ Peer edit form
 =cut
 
 has 'mailHandler' => sub($self) {
-    WGwrangler::Model::MailHandler->new(app => $self->app);
+    WGwrangler::Model::MailHandler->new(app => $self->app, log => $self->controller->log);
 };
 
 =head1 METHODS
@@ -31,33 +30,10 @@ All the methods of L<CallBackery::GuiPlugin::AbstractForm> plus:
 
 =head2 formCfg
 
-Returns a Configuration Structure for the Song Entry Form.
+Returns a Configuration Structure for the Wireguard Show form
 
 =cut
 
-
-has screenOpts => sub {
-    my $self = shift;
-    my $opts = $self->SUPER::screenOpts;
-    return {
-        %$opts,
-        # an alternate layout for this screen
-        # and settings accordingly
-        container => {
-            set      => {
-                # see https://www.qooxdoo.org/apps/apiviewer/#qx.ui.core.LayoutItem
-                # for inspiration in properties to set
-                # maxWidth => 700,
-                # maxHeight => 500,
-                alignX => 'left',
-                alignY => 'top',
-            },
-            addProps => {
-                edge => 'west'
-            }
-        }
-    }
-};
 
 has formCfg => sub($self) {
     return [
@@ -130,9 +106,8 @@ has formCfg => sub($self) {
             label            => trm('Name'),
             widget           => 'text',
             triggerFormReset => true,
-            validator        => sub {
-                my $value = shift;
-                return $self->app->wireguardModel->validate_name($value);
+            validator        => sub($value, $parameter, $formData) {
+                return $self->app->wireguardModel->validator('name', $value);
             },
             set              => {
                 required    => true,
@@ -146,12 +121,26 @@ has formCfg => sub($self) {
             widget           => 'text',
             triggerFormReset => true,
             validator        => sub($value, $parameter, $formData) {
-                $value =~ /^\S+@\S+\.\S+$/ ? return '' : return 'Does not look like an email address';
+                return $self->app->wireguardModel->validator('email', $value);
             },
             set              => {
                 required    => true,
                 placeholder => 'This should identify this peer'
             }
+        },
+        # Device name
+        {
+            key              => 'device',
+            label            => trm('Device'),
+            widget           => 'text',
+            triggerFormReset => true,
+            validator        => sub($value, $parameter, $formData) {
+                return $self->app->wireguardModel->validator('device', $value);
+            },
+            set              => {
+                required    => true,
+                placeholder => 'A device name'
+            },
         },
         # allowed ips
         {
@@ -159,9 +148,8 @@ has formCfg => sub($self) {
             label            => trm('Allowed IPs'),
             widget           => 'text',
             triggerFormReset => true,
-            validator        => sub {
-                my $value = shift;
-                return $self->app->wireguardModel->looks_like_ip($value);
+            validator        => sub($value, $parameter, $formData) {
+                return $self->app->wireguardModel->validator('single-ip', $value);
             },
             set              => {
                 required => true,
@@ -176,9 +164,9 @@ has formCfg => sub($self) {
             triggerFormReset => true,
             validator        => sub($value, $parameter, $formData) {
                 if ($formData->{interface} && $formData->{'public-key'}) {
-                    return $self->app->wireguardModel->validate_ips_for_interface($formData->{interface}, $formData->{'public-key'}, $value);
+                    return $self->app->wireguardModel->validator('address_override', $value, $formData->{interface}, $formData->{'public-key'});
                 }
-                return "";
+                return "" eq $value ? "" : "Please select an interface first";
             },
             set              => {
                 required    => false,
@@ -214,12 +202,11 @@ has formCfg => sub($self) {
         # interface listen port (advanced)
         {
             key              => 'listen-port',
-            label            => trm('Interface Port'),
+            label            => trm('Client Interface Port'),
             widget           => 'text',
             triggerFormReset => true,
             validator        => sub($value, $parameter, $formData) {
-                (looks_like_number($value) && $value > 1024 && $value <= 65535) ? return '' : return 'Has to be in range 1025-65535 and a number';
-            },
+                return $self->app->wireguardModel->validator('listen-port', $value);},
             set              => {
                 visibility  => $self->{args}{currentFormData}{show_advanced} ? 'visible' : 'excluded',
                 placeholder => 'The listen port on the peer'
@@ -232,32 +219,31 @@ has formCfg => sub($self) {
             label            => trm('DNS'),
             widget           => 'text',
             triggerFormReset => true,
-            validator        => sub {
-                my $value = shift;
-                return $self->app->wireguardModel->looks_like_ip($value);
+            validator        => sub($value, $parameter, $formData) {
+                return $self->app->wireguardModel->validator('single-ip', $value);
             },
             set              => {
                 visibility => $self->{args}{currentFormData}{show_advanced} ? 'visible' : 'excluded',
                 value      => $self->config->{'default-dns'}
             },
         },
-        # alias (advanced)
-        {
-            key              => 'alias',
-            label            => trm('Alias'),
-            widget           => 'text',
-            triggerFormReset => true,
-            validator        => sub($value, $parameter, $formData) {
-                if ($formData->{alias}) {
-                    return $self->app->wireguardModel->validate_alias_for_interface($formData->{interface}, $formData->{'public-key'}, $value);
-                }
-                return "";
-            },
-            set              => {
-                placeholder => 'Unlike the name attribute, this must be unique',
-                visibility  => $self->{args}{currentFormData}{show_advanced} ? 'visible' : 'excluded'
-            }
-        },
+        # # alias (advanced)
+        # {
+        #     key              => 'alias',
+        #     label            => trm('Alias'),
+        #     widget           => 'text',
+        #     triggerFormReset => true,
+        #     validator        => sub($value, $parameter, $formData) {
+        #         if ($formData->{alias} && $formData->{interface} && $formData->{'public-key'}) {
+        #             return $self->app->wireguardModel->validator('alias', $value, $formData->{interface}, $formData->{'public-key'});
+        #         }
+        #         return "" eq $value ? "" : "Please select an interface first";
+        #     },
+        #     set              => {
+        #         placeholder => 'Unlike the name attribute, this must be unique',
+        #         visibility  => $self->{args}{currentFormData}{show_advanced} ? 'visible' : 'excluded'
+        #     }
+        # },
         # persistent-keepalive (advanced)
         {
             key              => 'persistent-keepalive',
@@ -265,7 +251,8 @@ has formCfg => sub($self) {
             widget           => 'text',
             triggerFormReset => true,
             validator        => sub($value, $parameter, $formData) {
-                (looks_like_number($value) && $value > 0) ? return '' : return 'Has to be larger than 0 and a number';
+                return $self->app->wireguardModel->validator('persistent-keepalive', $value);
+
             },
             set              => {
                 visibility  => $self->{args}{currentFormData}{show_advanced} ? 'visible' : 'excluded',
@@ -302,28 +289,49 @@ has actionCfg => sub($self) {
         my $ips = $args->{'address'};
         my $alias = $args->{'alias'};
         my $fqdn = $args->{fqdn};
+        my $device = $args->{device};
         my $send_by_email = $args->{'send_by_email'};
         my $config_contents = $args->{config_preview};
+        my $vpn_name = $self->app->config->cfgHash->{BACKEND}{vpn_name};
+        my $peer_added = undef;
 
         eval {
             $self->app->wireguardModel->add_peer($interface, $name, $ips, $pub_key, $alias, undef);
+            $peer_added = 1;
             $self->app->wireguardModel->update_peer_data($interface, $pub_key, 'description', $desc) if defined($desc);
             $self->app->wireguardModel->update_peer_data($interface, $pub_key, 'email', $email);
+            $self->app->wireguardModel->update_peer_data($interface, $pub_key, 'device', $device);
+
+            if (defined $send_by_email && $send_by_email == 1) {
+                my $email_cfg = {
+                    'name'        => $name,
+                    'endpoint'    => $fqdn,
+                    'email'       => $email,
+                    'device_name' => $device,
+                    'attachments' => [ {
+                        attributes => {
+                            filename     => "$vpn_name.conf",
+                            content_type => "text/plain",
+                            charset      => "UTF-8",
+                        },
+                        body       => $config_contents
+                    } ]
+                };
+                $self->mailHandler->prepare_and_send($email_cfg);
+            }
             $self->app->wireguardModel->commit_changes({});
         };
-        # ToDo: Make pretty
-        die mkerror(9999, $@) if $@;
+        if ($@) {
+            my $error_id = int(rand(100000));
 
-        if (defined $send_by_email && $send_by_email == 1) {
-            my $email_cfg = {
-                'name'            => $name,
-                'endpoint'        => $fqdn,
-                'email'           => $email,
-                'device_name'     => 'device',
-                'config_contents' => $config_contents
-            };
-            $self->mailHandler->prepare_and_send($email_cfg);
+            # if the peer is already created, lets delete it
+            if (defined $peer_added) {
+                delete $self->app->wireguardModel->wg_meta->{parsed_config}{$interface}{$pub_key};
+            }
+            $self->controller->log->error('error_id: ' . $error_id . ' ' . $@);
+            die mkerror(9999, 'Could not create peer. Error ID: ' . $error_id);
         }
+
         return {
             action => 'dataSaved'
         };
@@ -339,30 +347,17 @@ has actionCfg => sub($self) {
     ];
 };
 
-has grammar => sub {
-    my $self = shift;
-    $self->mergeGrammar(
-        $self->SUPER::grammar,
-        {
-            _doc  => "Tree Node Configuration",
-            _vars => [ qw(type) ],
-            type  => {
-                _doc => 'type of form to show: edit, add',
-                _re  => '(edit|add)'
-            },
-        },
-    );
-};
-
 sub generate_preview_config($self, $interface, $form_values, $client_private_key, $interface_public_key) {
     # for my $key (keys %{$formData}){
     #     if ($formData->{$key} && $self->validateData($key,$formData)){
     #         return 'There is invalid input in your form data';
     #     }
     # }
+    my $pfx = '#+';
     my $out = "[Interface]\n"
-        . "#+Name = " . ($form_values->{name} ? $form_values->{name} . "\n" : "\n")
-        . "#+Email = " . ($form_values->{email} ? $form_values->{email} . "\n" : "\n")
+        . $pfx . "Name = " . ($form_values->{name} ? $form_values->{name} . "\n" : "\n")
+        . $pfx . "Email = " . ($form_values->{email} ? $form_values->{email} . "\n" : "\n")
+        . $pfx . "Device = " . ($form_values->{device} ? $form_values->{device} . "\n" : "\n")
         . "Address = " . $form_values->{address} . "\n"
         . "PrivateKey = $client_private_key\n"
         . ($form_values->{DNS} ? "DNS = " . $form_values->{DNS} . "\n" : '')
@@ -378,7 +373,6 @@ sub generate_preview_config($self, $interface, $form_values, $client_private_key
 }
 
 sub getAllFieldValues($self, $args, $formData, $locale) {
-
     my $data = {};
     my $may_interface = $formData->{currentFormData}{interface};
 
