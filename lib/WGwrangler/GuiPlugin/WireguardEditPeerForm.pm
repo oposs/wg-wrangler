@@ -142,6 +142,7 @@ has actionCfg => sub {
         my $interface = $args->{interface};
         my $identifier = $args->{'public-key'};
         my $before_change = $self->app->wireguardModel->get_section_data($interface, $identifier);
+        my $is_committed = undef;
         eval {
             for my $attr_key (keys %{$args}) {
                 unless ($attr_key eq 'interface' || $attr_key eq 'public-key' || $attr_key eq 'integrity_hash') {
@@ -149,14 +150,16 @@ has actionCfg => sub {
 
                 }
             }
+            # Commit changes
+            $self->app->wireguardModel->commit_changes({ $identifier => $args->{'integrity_hash'} });
+            $is_committed = 1;
+
             # Check into VCS if enabled
             if ($self->app->config->cfgHash->{BACKEND}{'no_apply'} && $self->app->config->cfgHash->{BACKEND}{'enable_git'}) {
-                my $commit_message = 'autoCommit';
+                my $commit_message = "Edited `$identifier` on device `$interface`";
                 my $user_string = $self->user->{userInfo}{cbuser_login};
                 $self->app->versionManager->checkin_new_version($commit_message, $user_string, 'dummy@example.com');
             }
-            # Commit changes
-            $self->app->wireguardModel->commit_changes({ $identifier => $args->{'integrity_hash'} });
         };
         if ($@) {
             my $error_id = int(rand(100000));

@@ -41,6 +41,10 @@ has 'wg_meta' => sub($self) {
             'in_config_name' => 'Device',
             'validator'      => sub($value) {return 1}
 
+        },
+        created => {
+            'in_config_name' => 'Created',
+            'validator'      => sub($value) {return 1}
         }
     };
     my $wg_metaT = Wireguard::WGmeta::Wrapper::ConfigT->new($self->wireguard_home, '#+', '#-', $self->not_applied_suffix, $custom_attr_config);
@@ -49,9 +53,12 @@ has 'wg_meta' => sub($self) {
 };
 
 has 'wg_show' => sub($self) {
-    my $show_command = $self->app->config->cfgHash->{BACKEND}{wg_show_command};
-    my $wg_show_data = `$show_command`;
-    Wireguard::WGmeta::Wrapper::Show->new($wg_show_data);
+    Wireguard::WGmeta::Wrapper::Show->new($self->wg_show_data);
+};
+
+has 'wg_show_data' => sub($self) {
+    my (@output, undef) = run_external($self->app->config->cfgHash->{BACKEND}{wg_show_command});
+    return join '', @output;
 };
 
 has 'ip_manager' => sub($self) {
@@ -61,6 +68,12 @@ has 'ip_manager' => sub($self) {
     }
     return $ip_manager;
 };
+
+sub reload_wg_show($self) {
+    my (@output, undef) = run_external($self->app->config->cfgHash->{BACKEND}{wg_show_command});
+    my $out = join '', @output;
+    $self->wg_show->reload($out);
+}
 
 sub _reload_callback($interface, $ref_list_args) {
     my ($self) = @{$ref_list_args};
@@ -148,7 +161,7 @@ sub add_peer($self, $interface, $name, $ip_address, $public_key, $alias, $pre_sh
 
 sub remove_peer($self, $interface, $identifier, $ref_integrity_hash) {
     $self->wg_meta->remove_peer($interface, $identifier);
-    $self->wg_meta->commit($self->is_hot_config, 0, $ref_integrity_hash);
+    $self->commit_changes($ref_integrity_hash);
 }
 
 sub commit_changes($self, $ref_integrity_hashes) {
@@ -160,10 +173,10 @@ sub sort_table_data($self, $data, $key, $order) {
     my @keys_to_sort = map {$_->{$key}} @{$data};
     my @sorted_indexes;
     if (defined $order) {
-        @sorted_indexes = sort {$keys_to_sort[$b] cmp $keys_to_sort[$a]} 0 .. $#keys_to_sort;
+        @sorted_indexes = sort {$keys_to_sort[$b] // '' cmp $keys_to_sort[$a] // ''} 0 .. $#keys_to_sort;
     }
     else {
-        @sorted_indexes = sort {$keys_to_sort[$a] cmp $keys_to_sort[$b]} 0 .. $#keys_to_sort;
+        @sorted_indexes = sort {$keys_to_sort[$a] // '' cmp $keys_to_sort[$b] // ''} 0 .. $#keys_to_sort;
     }
     return [ @{$data}[ @sorted_indexes ] ];
 }
@@ -181,6 +194,7 @@ sub restore_from_section_data($self, $section_data) {
             $self->wg_meta->set($section_data->{interface}, $section_data->{'public-key'}, $key, $section_data->{$key}, 1);
         }
     }
+    $self->apply_config();
 }
 sub get_interface_selection($self) {
     return [ { title => '', key => '0' }, map {{ title => $_, key => $_ }} $self->wg_meta->get_interface_list() ];
@@ -230,6 +244,7 @@ sub has_not_applied_changes($self) {
 }
 
 sub _generate_table_source($self) {
+    $self->reload_wg_show();
     my @table_data;
     for my $interface ($self->wg_meta->get_interface_list()) {
         my $row_data = {};

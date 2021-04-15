@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wgwrangler 0.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-11 10:53+0200\n"
+"POT-Creation-Date: 2021-04-15 14:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,12 +31,12 @@ msgstr ""
 msgid "Access Denied"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:191
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:192
 msgid "Actual Address"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:191
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:334
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:198
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:371
 msgid "Add Peer"
 msgstr ""
 
@@ -45,42 +45,41 @@ msgstr ""
 msgid "Add User"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:174
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:175
 msgid "Address Override"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:201
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:202
 msgid "Advanced Options"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:247
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:108
-msgid "Alias"
-msgstr ""
-
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:159
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:161
 msgid "Allowed IPs"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:124
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:92
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:131
+#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:99
 msgid "Allowed-IPs"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/CommitMessageForm.pm:91
+#: lib/WGwrangler/GuiPlugin/CommitMessageForm.pm:98
 msgid "Apply Config"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:306
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:311
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:315
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:320
 msgid "Apply configuration"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:209
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:218
+msgid "Client Interface Port"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:210
 msgid "Client specific configuration"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardVersions.pm:105
+#: lib/WGwrangler/GuiPlugin/WireguardVersions.pm:112
 msgid "Comment"
 msgstr ""
 
@@ -92,12 +91,16 @@ msgstr ""
 msgid "Commit message"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:89
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:67
 msgid "Config Preview"
 msgstr ""
 
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:202
 msgid "Create Admin Account"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:108
+msgid "Created"
 msgstr ""
 
 #: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:232
@@ -113,7 +116,7 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:260
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:268
 msgid "Delete Peer"
 msgstr ""
 
@@ -122,11 +125,17 @@ msgid "Delete User"
 msgstr ""
 
 #: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:278
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:125
+#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:126
 msgid "Description"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:408
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:124
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:147
+#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:71
+msgid "Device"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:412
 msgid "Disable Peer"
 msgstr ""
 
@@ -134,7 +143,7 @@ msgstr ""
 msgid "Disabled"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:321
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:330
 msgid "Discard Changes"
 msgstr ""
 
@@ -142,20 +151,20 @@ msgstr ""
 msgid "Do you really want to delete the selected user ?"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:263
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:271
 msgid "Do you really want to delete this peer - This cannot be undone!"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:323
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:332
 msgid "Do you really want to discard all changes?"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardVersions.pm:128
+#: lib/WGwrangler/GuiPlugin/WireguardVersions.pm:135
 msgid "Do you really want to go back to this revision?"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:213
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:222
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:221
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:230
 msgid "Edit Peer"
 msgstr ""
 
@@ -169,15 +178,15 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:408
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:412
 msgid "Enable Peer"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:231
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:239
 msgid "Enable/Disable"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:170
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:177
 msgid "Endpoint"
 msgstr ""
 
@@ -189,7 +198,7 @@ msgstr ""
 msgid "Export %1"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:120
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:98
 msgid "FQDN"
 msgstr ""
 
@@ -197,7 +206,7 @@ msgstr ""
 msgid "Faild to remove user %1"
 msgstr ""
 
-#: lib/HinAgwCommon/Email.pm:130
+#: lib/WGwrangler/Model/Email.pm:135
 msgid "Failed to send mail to %1"
 msgstr ""
 
@@ -211,23 +220,19 @@ msgstr ""
 msgid "Given Name"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:71
+#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:79
 msgid "Integrity Hash"
 msgstr ""
 
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:95
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:67
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:45
 #: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:45
 msgid "Interface"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:217
-msgid "Interface Port"
-msgstr ""
-
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:110
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:130
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:80
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:119
+#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:88
 msgid "Name"
 msgstr ""
 
@@ -235,7 +240,7 @@ msgstr ""
 msgid "New User"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:196
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:203
 msgid "New Wireguard Peer"
 msgstr ""
 
@@ -256,15 +261,15 @@ msgstr ""
 msgid "Password Again"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:110
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:88
 msgid "Peer Private Key"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:100
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:78
 msgid "Peer Public Key"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:264
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:263
 msgid "Persistent-keepalive"
 msgstr ""
 
@@ -278,12 +283,12 @@ msgstr ""
 msgid "Public Key"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:287
-#: lib/WGwrangler/GuiPlugin/WireguardVersions.pm:149
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:295
+#: lib/WGwrangler/GuiPlugin/WireguardVersions.pm:156
 msgid "Reload Data"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardVersions.pm:126
+#: lib/WGwrangler/GuiPlugin/WireguardVersions.pm:133
 msgid "Restore Version"
 msgstr ""
 
@@ -291,7 +296,7 @@ msgstr ""
 msgid "Rights"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:158
+#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:178
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:204
 msgid "Save Changes"
 msgstr ""
@@ -308,11 +313,11 @@ msgstr ""
 msgid "This Peer is disabled!"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:131
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:138
 msgid "Transfer-RX"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:144
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:151
 msgid "Transfer-TX"
 msgstr ""
 
@@ -320,7 +325,11 @@ msgstr ""
 msgid "Upload Missing"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:145
+#: lib/WGwrangler/GuiPlugin/WireguardVersions.pm:105
+msgid "User"
+msgstr ""
+
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:133
 msgid "User email"
 msgstr ""
 

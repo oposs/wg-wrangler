@@ -6,6 +6,8 @@ use CallBackery::Exception qw(mkerror);
 use Mojo::JSON qw(true false);
 use experimental 'signatures';
 
+use POSIX 'strftime';
+
 use Wireguard::WGmeta::Validator;
 
 =head1 NAME
@@ -98,6 +100,17 @@ has formCfg => sub($self) {
             set    => {
                 readOnly => true,
                 required => true
+            },
+        },
+        # Created (hidden)
+        {
+            key    => 'created',
+            label  => trm('Created'),
+            widget => 'hiddenText',
+            set    => {
+                readOnly => true,
+                required => true,
+                value    => strftime("%Y-%m-%d %H:%M:%S %z", localtime)
             },
         },
         # peer name
@@ -282,7 +295,7 @@ has actionCfg => sub($self) {
 
     my $handler = sub($self, $args) {
         my $interface = $args->{interface};
-        my $pub_key = $args->{'public-key'};
+        my $peer_pub_key = $args->{'public-key'};
         my $name = $args->{'name'};
         my $email = $args->{email};
         my $desc = $args->{'description'};
@@ -290,43 +303,59 @@ has actionCfg => sub($self) {
         my $alias = $args->{'alias'};
         my $fqdn = $args->{fqdn};
         my $device = $args->{device};
+        my $created = $args->{created};
         my $send_by_email = $args->{'send_by_email'};
         my $config_contents = $args->{config_preview};
         my $vpn_name = $self->app->config->cfgHash->{BACKEND}{vpn_name};
         my $peer_added = undef;
+        my $peer_committed = undef;
 
         eval {
-            $self->app->wireguardModel->add_peer($interface, $name, $ips, $pub_key, $alias, undef);
+            $self->app->wireguardModel->add_peer($interface, $name, $ips, $peer_pub_key, $alias, undef);
             $peer_added = 1;
-            $self->app->wireguardModel->update_peer_data($interface, $pub_key, 'description', $desc) if defined($desc);
-            $self->app->wireguardModel->update_peer_data($interface, $pub_key, 'email', $email);
-            $self->app->wireguardModel->update_peer_data($interface, $pub_key, 'device', $device);
+            $self->app->wireguardModel->update_peer_data($interface, $peer_pub_key, 'description', $desc) if defined($desc);
+            $self->app->wireguardModel->update_peer_data($interface, $peer_pub_key, 'email', $email);
+            $self->app->wireguardModel->update_peer_data($interface, $peer_pub_key, 'device', $device);
+            $self->app->wireguardModel->update_peer_data($interface, $peer_pub_key, 'created', $created);
 
             if (defined $send_by_email && $send_by_email == 1) {
                 my $email_cfg = {
                     'name'        => $name,
                     'endpoint'    => $fqdn,
                     'email'       => $email,
+                    'sender_email' => $self->config->{'sender-email'},
                     'device_name' => $device,
                     'attachments' => [ {
                         attributes => {
                             filename     => "$vpn_name.conf",
                             content_type => "text/plain",
                             charset      => "UTF-8",
+                            disposition  => 'attachment'
                         },
                         body       => $config_contents
                     } ]
                 };
                 $self->mailHandler->prepare_and_send($email_cfg);
             }
+            # Commit changes
             $self->app->wireguardModel->commit_changes({});
+
+            # Check into VCS if enabled
+            if ($self->app->config->cfgHash->{BACKEND}{'no_apply'} && $self->app->config->cfgHash->{BACKEND}{'enable_git'}) {
+                my $commit_message = "Created peer for `$name` on interface `$interface`";
+                my $user_string = $self->user->{userInfo}{cbuser_login};
+                $self->app->versionManager->checkin_new_version($commit_message, $user_string, 'dummy@example.com');
+            }
         };
         if ($@) {
             my $error_id = int(rand(100000));
 
             # if the peer is already created, lets delete it
-            if (defined $peer_added) {
-                delete $self->app->wireguardModel->wg_meta->{parsed_config}{$interface}{$pub_key};
+            if (defined $peer_added and not $peer_committed) {
+                delete $self->app->wireguardModel->wg_meta->{parsed_config}{$interface}{$peer_pub_key};
+            }
+            if (defined $peer_committed){
+                $self->app->wireguardModel->remove_peer($self, $interface, $peer_pub_key, {});
             }
             $self->controller->log->error('error_id: ' . $error_id . ' ' . $@);
             die mkerror(9999, 'Could not create peer. Error ID: ' . $error_id);
@@ -358,6 +387,7 @@ sub generate_preview_config($self, $interface, $form_values, $client_private_key
         . $pfx . "Name = " . ($form_values->{name} ? $form_values->{name} . "\n" : "\n")
         . $pfx . "Email = " . ($form_values->{email} ? $form_values->{email} . "\n" : "\n")
         . $pfx . "Device = " . ($form_values->{device} ? $form_values->{device} . "\n" : "\n")
+        . $pfx . "Created = " . ($form_values->{created} ? $form_values->{created} . "\n" : "\n")
         . "Address = " . $form_values->{address} . "\n"
         . "PrivateKey = $client_private_key\n"
         . ($form_values->{DNS} ? "DNS = " . $form_values->{DNS} . "\n" : '')

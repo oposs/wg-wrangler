@@ -2,13 +2,15 @@
 BACKEND:
   cfg_db: /tmp/wgwrangler.db
   sesame_user: adfadsfasdf4ee3r
-# perl -MDigest::SHA -e 'print Digest::SHA::hmac_sha1_hex("access"),"\n"'
+  # perl -MDigest::SHA -e 'print Digest::SHA::hmac_sha1_hex("access"),"\n"'
   sesame_pass: 393afhkjhffjj
   vpn_name: your_vpn_name
   enable_git: false
   no_apply: true
   not_applied_suffix: .not_applied
-  wireguard_home: /dummy/dir
+  wireguard_home: /dummy_home/
+  wg_apply_command: sudo -n wg-quick strip %interface% > /tmp/wg_tmp && sudo -n wg syncconf %interface% /tmp/wg_tmp && rm /tmp/wg_tmp
+  wg_show_command: sudo -n wg show all dump
 
 FRONTEND:
 # logo = ../resource/wgwrangler/logo.png
@@ -20,12 +22,18 @@ FRONTEND:
 # max_width = 800
 
 PLUGIN:
+  - InitialUser:
+      module: UserForm
+      mode: init
+      type: add
+      tab-name: Create Initial User
+
   - WireguardShow:
       module: WireguardShow
       tab-name: Wireguard
       default-dns: 192.168.0.1
       default-allowed-ips: 192.168.0.0/24
-      enforce_email_success: '1'
+      sender-email: support@oetiker.ch
 
   - WireguardVersions:
       module: WireguardVersions

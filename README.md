@@ -3,7 +3,7 @@ WGwrangler
 Version: #VERSION#
 Date: #DATE#
 
-WGwrangler is a cool web application.
+WGwrangler is a cool web application
 
 It comes complete with a classic "configure - make - install" setup.
 
@@ -54,6 +54,19 @@ You can now run wgwrangler.pl in reverse proxy mode.
 cd $HOME/opt/wgwrangler/bin
 ./wgwrangler.pl prefork
 ```
+
+OS Preparation
+-------------
+
+Since managing wireguard using its associated `wg*` commands requires root privileges we suggest the following
+setup:
+
+- Create a separate user/group e.g `wireguard_manager`
+- Whitelist the `wg` commands for this group in the `/etc/sudoers` file:
+  ```text
+  %wireguard_manager ALL=NOPASSWD: /usr/bin/wg*
+  ```
+- Set `wireguard_manger` as group on `/etc/wireguard` and adjust permissions to `g+rwx`
 
 Packaging
 ---------

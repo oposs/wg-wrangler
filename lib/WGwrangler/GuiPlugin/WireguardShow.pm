@@ -140,12 +140,12 @@ has tableCfg => sub {
             width    => '2*',
             key      => 'transfer-rx',
             sortable => true,
-            format   => {
-                unitPrefix            => 'metric',
-                maximumFractionDigits => 2,
-                postfix               => 'Byte',
-                locale                => 'en'
-            },
+            # format   => {
+            #     unitPrefix            => 'metric',
+            #     maximumFractionDigits => 2,
+            #     postfix               => 'Byte',
+            #     locale                => 'en'
+            # },
         },
         {
             label    => trm('Transfer-TX'),
@@ -153,12 +153,12 @@ has tableCfg => sub {
             width    => '1*',
             key      => 'transfer-tx',
             sortable => true,
-            format   => {
-                unitPrefix            => 'metric',
-                maximumFractionDigits => 2,
-                postfix               => 'Byte',
-                locale                => 'en'
-            },
+            # format   => {
+            #     unitPrefix            => 'metric',
+            #     maximumFractionDigits => 2,
+            #     postfix               => 'Byte',
+            #     locale                => 'en'
+            # },
         },
         #        {
         #            label => trm('Size'),
@@ -209,7 +209,8 @@ has actionCfg => sub {
                 plugin => 'WireguardAddPeerForm',
                 config => {
                     'default-allowed-ips' => $self->config->{'default-allowed-ips'},
-                    'default-dns'         => $self->config->{'default-dns'}
+                    'default-dns'         => $self->config->{'default-dns'},
+                    'sender-email'        => $self->config->{'sender-email'}
                 }
             }
         },
@@ -356,16 +357,16 @@ has grammar => sub {
         $self->SUPER::grammar,
         {
             _doc                    => "Wireguard plugin config",
-            _vars                   => [ qw(default-dns default-allowed-ips enforce_email_success) ],
+            _vars                   => [ qw(default-dns default-allowed-ips sender-email) ],
             'default-dns'           => {
                 _doc => 'Default DNS server to be filled in the DNS field',
             },
             'default-allowed-ips'   => {
                 _doc => 'Default allowed-ips for new peers'
             },
-            'enforce_email_success' => {
-                _doc  => 'When the user ticks "send by email" the peer is not created when sending the email fails',
-                _type => 'boolean'
+            'sender-email' => {
+                _doc  => 'Value to set in the From: email header',
+                _type => 'string'
             }
         },
     );

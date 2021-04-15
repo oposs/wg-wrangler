@@ -9,10 +9,8 @@ use MIME::Base64 qw(encode_base64);
 
 has mailTransport => sub {
     Email::Sender::Transport::SMTP->new({
-        host          => 'venus.fastpath.ch',
-        ssl           => 'starttls',
-        sasl_username => 'pbx@fastpath.ch',
-        sasl_password => 'KyhQgvkTuwjUj6kmNXmu4NHfj8x',
+        host          => 'localhost',
+        port           => '25'
     });
 };
 
@@ -21,7 +19,7 @@ sub prepare_and_send($self, $mail_cfg) {
     my @attachments = @{$mail_cfg->{attachments}};
     $mail_cfg->{qr} = encode_base64($qrcode->plot($attachments[0]->{body}));
     my $send_cfg = {
-        from        => 'rt@oetiker.ch',
+        from        => $mail_cfg->{sender_email},
         to          => $mail_cfg->{email},
         template    => 'send_config_by_email',
         args        => $mail_cfg,

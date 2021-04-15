@@ -8,7 +8,7 @@ BACKEND:
   no_apply: true
   not_applied_suffix: .not_applied
   wireguard_home: /public/projects/dummy_wg_home/
-#  wg_apply_command: su -c 'wg syncconf %interface% <(wg-quick strip $interface)'
+#  wg_apply_command: su -c 'wg syncconf %interface% <(wg-quick strip %interface%)'
   wg_apply_command: 'echo applied'
 #  wg_show_command: su -c 'wg show dump'
   wg_show_command: 'cat /public/projects/dummy_wg_home/wg_show_dummy'
@@ -34,6 +34,7 @@ PLUGIN:
       tab-name: Wireguard
       default-dns: 192.168.0.1
       default-allowed-ips: 192.168.0.0/24
+      sender-email: support@oetiker.ch
 
   - WireguardVersions:
       module: WireguardVersions
