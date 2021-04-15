@@ -79,7 +79,7 @@ jobs:
           ${{ matrix.os }}-node-${{ matrix.node }}-
 
     - name: Install OS dependencies
-      run: sudo apt install qrencode-dev pkg-config gettext
+      run: sudo apt install libqrencode-dev pkg-config gettext
       
 
     - name: Bootstrap
