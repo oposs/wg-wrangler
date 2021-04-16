@@ -41,8 +41,7 @@ The body of the attachment is converted into a base 64-encoded qr-code
 =cut
 sub prepare_and_send($self, $mail_cfg) {
     my $qrcode = SVG::Barcode::QRCode->new();
-    my @attachments = @{$mail_cfg->{attachments}};
-    $mail_cfg->{qr} = encode_base64($qrcode->plot($attachments[0]->{body}));
+    $mail_cfg->{qr} = encode_base64($qrcode->plot($mail_cfg->{attachment}->{body}));
     my $send_cfg = {
         from        => $mail_cfg->{sender_email},
         to          => $mail_cfg->{email},
