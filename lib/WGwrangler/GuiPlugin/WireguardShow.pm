@@ -6,55 +6,15 @@ use Mojo::JSON qw(true false);
 use Wireguard::WGmeta::Utils;
 use experimental 'signatures';
 
-
 =head1 NAME
 
-WGwrangler::GuiPlugin::Song - Song Table
-
-=head1 SYNOPSIS
-
- use WGwrangler::GuiPlugin::Song;
-
-=head1 DESCRIPTION
-
-The Song Table Gui.
-
-=cut
-
+WGwrangler::GuiPlugin::WireguardShow - Shows contents of WG configs
 
 =head1 METHODS
 
 All the methods of L<CallBackery::GuiPlugin::AbstractTable> plus:
 
 =cut
-
-
-# has screenOpts => sub {
-#     my $self = shift;
-#     my $opts = $self->SUPER::screenOpts;
-#     return {
-#         %$opts,
-#         # an alternate layout for this screen
-#         layout => {
-#             class => 'qx.ui.layout.Dock',
-#             set => {},
-#         },
-#         # and settings accordingly
-#         container => {
-#             set => {
-#                 # see https://www.qooxdoo.org/apps/apiviewer/#qx.ui.core.LayoutItem
-#                 # for inspiration in properties to set
-#                 # maxWidth => 700,
-#                 # maxHeight => 500,
-#                 alignX => 'left',
-#                 alignY => 'top',
-#             },
-#             addProps => {
-#                 edge => 'west'
-#             }
-#         }
-#     }
-# };
 
 has formCfg => sub($self) {
 
@@ -66,7 +26,7 @@ has formCfg => sub($self) {
         {
             key    => 'wg_interface',
             widget => 'text',
-            note   => 'Terms are case-sensitive',
+            note   => 'Terms are case-insensitive',
             label  => 'Search',
             set    => {
                 placeholder => 'name, interface, email, ip, public-key, device',
@@ -75,11 +35,6 @@ has formCfg => sub($self) {
         },
     ]
 };
-
-=head2 tableCfg
-
-
-=cut
 
 has tableCfg => sub {
     my $self = shift;
@@ -183,14 +138,9 @@ has tableCfg => sub {
     ]
 };
 
-=head2 actionCfg
-
-Only users who can write get any actions presented.
-
-=cut
-
 has actionCfg => sub {
     my $self = shift;
+    my $bg_config = $self->app->config->cfgHash->{BACKEND};
     return [] if $self->user and not $self->user->may('write');
 
     return [
@@ -210,7 +160,10 @@ has actionCfg => sub {
                 config => {
                     'default-allowed-ips' => $self->config->{'default-allowed-ips'},
                     'default-dns'         => $self->config->{'default-dns'},
-                    'sender-email'        => $self->config->{'sender-email'}
+                    'sender-email'        => $self->config->{'sender-email'},
+                    'vpn_name'            => $bg_config->{vpn_name},
+                    'no_apply'            => $bg_config->{no_apply},
+                    'enable_git'          => $bg_config->{enable_git}
                 }
             }
         },
@@ -231,7 +184,8 @@ has actionCfg => sub {
             backend          => {
                 plugin => 'WireguardEditPeerForm',
                 config => {
-                    type => 'edit'
+                    'no_apply'            => $bg_config->{no_apply},
+                    'enable_git'          => $bg_config->{enable_git}
                 }
             }
         },
@@ -243,9 +197,7 @@ has actionCfg => sub {
             buttonSet        => {
                 enabled => false,
             },
-            actionHandler    => sub {
-                my $self = shift;
-                my $args = shift;
+            actionHandler    => sub($self, $args) {
                 my $id = $args->{selection}{'public-key'};
                 die mkerror(4992, "You have to select a peer first") if not $id;
 
@@ -273,18 +225,30 @@ has actionCfg => sub {
             buttonSet        => {
                 enabled => false,
             },
-            actionHandler    => sub {
-                my $self = shift;
-                my $args = shift;
+            actionHandler    => sub($self, $args, ) {
                 my $id = $args->{selection}{'public-key'};
-                die mkerror(4992, "You have to select a peer first") if not $id;
+                die mkerror(4992, trm('You have to select a peer first')) if not $id;
 
                 # get most recent section data
                 my $interface = $args->{selection}{interface};
                 my $identifier = $args->{selection}{'public-key'};
                 my $section_data = $self->app->wireguardModel->get_section_data($interface, $identifier);
+                eval {
+                    $self->app->wireguardModel->remove_peer($interface, $identifier, { $identifier => $section_data->{integrity_hash} });
 
-                $self->app->wireguardModel->remove_peer($interface, $identifier, { $identifier => $section_data->{integrity_hash} });
+                    # Check into VCS if enabled
+                    if ($bg_config->{'no_apply'} && $bg_config->{'enable_git'}) {
+                        my $commit_message = "Deleted `$identifier` on device `$interface`";
+                        my $user_string = $self->user->{userInfo}{cbuser_login};
+                        $self->app->versionManager->checkin_new_version($commit_message, $user_string, 'dummy@example.com');
+                    }
+                };
+                if($@){
+                    my $error_id = int(rand(100000));
+                    $self->controller->log->error('error_id: ' . $error_id . ' ' . $@);
+                    # ToDo: Restore peer
+                    die mkerror(9999, trm('Something went wrong while trying to delete this peer. Error ID: ') . $error_id);
+                }
                 return {
                     action => 'reload',
                 };
@@ -300,8 +264,6 @@ has actionCfg => sub {
                 enabled => true,
             },
             actionHandler    => sub {
-                my $self = shift;
-                my $args = shift;
                 return {
                     action => 'reload',
                 };
@@ -311,7 +273,7 @@ has actionCfg => sub {
         {
             action => 'separator'
         },
-        !$self->app->config->cfgHash->{BACKEND}{no_apply} ? {
+        !$bg_config->{no_apply} ? {
             label            => trm('Apply configuration'),
             action           => 'popup',
             addToContextMenu => false,
@@ -326,7 +288,7 @@ has actionCfg => sub {
                 plugin => 'CommitMessageForm',
             }
         } : (),
-        !$self->app->config->cfgHash->{BACKEND}{'no_apply'} ? {
+        !$bg_config->{'no_apply'} ? {
             label            => trm('Discard Changes'),
             action           => 'submitVerify',
             question         => trm('Do you really want to discard all changes?'),
@@ -335,9 +297,7 @@ has actionCfg => sub {
             buttonSet        => {
                 enabled => true,
             },
-            actionHandler    => sub {
-                my $self = shift;
-                my $args = shift;
+            actionHandler    => sub($self, $args) {
                 $self->app->wireguardModel->discard_changes();
                 return {
                     action => 'reload',
@@ -352,28 +312,23 @@ has actionCfg => sub {
 
 has grammar => sub {
     my $self = shift;
-    my $t = $self->SUPER::grammar;
     $self->mergeGrammar(
         $self->SUPER::grammar,
         {
-            _doc                    => "Wireguard plugin config",
-            _vars                   => [ qw(default-dns default-allowed-ips sender-email) ],
-            'default-dns'           => {
+            _doc                  => "Wireguard plugin config",
+            _vars                 => [ qw(default-dns default-allowed-ips sender-email) ],
+            'default-dns'         => {
                 _doc => 'Default DNS server to be filled in the DNS field',
             },
-            'default-allowed-ips'   => {
+            'default-allowed-ips' => {
                 _doc => 'Default allowed-ips for new peers'
             },
-            'sender-email' => {
+            'sender-email'        => {
                 _doc  => 'Value to set in the From: email header',
                 _type => 'string'
             }
         },
     );
-};
-
-sub db {
-    shift->user->mojoSqlDb;
 };
 
 sub _getFilter {

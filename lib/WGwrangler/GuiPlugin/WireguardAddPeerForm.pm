@@ -48,7 +48,7 @@ has formCfg => sub($self) {
             # interestingly the required property is not enough here...
             validator        => sub($value, $parameter, $formData) {
                 unless ($value) {
-                    return "No interface selected";
+                    return trm('No interface selected');
                 }
                 else {
                     return "";
@@ -124,7 +124,7 @@ has formCfg => sub($self) {
             },
             set              => {
                 required    => true,
-                placeholder => 'A name to identify this peer (by humans)'
+                placeholder => trm('Name of the person which this peer belongs to')
             },
         },
         # User email
@@ -138,7 +138,7 @@ has formCfg => sub($self) {
             },
             set              => {
                 required    => true,
-                placeholder => 'This should identify this peer'
+                placeholder => trm('User email - config is sent to this email if desired')
             }
         },
         # Device name
@@ -152,7 +152,7 @@ has formCfg => sub($self) {
             },
             set              => {
                 required    => true,
-                placeholder => 'A device name'
+                placeholder => trm('A device name')
             },
         },
         # allowed ips
@@ -183,7 +183,7 @@ has formCfg => sub($self) {
             },
             set              => {
                 required    => false,
-                placeholder => 'List of ip addresses, separated by comma and in CDIR notation'
+                placeholder => trm('List of ip addresses, separated by comma and in CDIR notation')
             },
         },
         # actual address (read-only)
@@ -222,7 +222,7 @@ has formCfg => sub($self) {
                 return $self->app->wireguardModel->validator('listen-port', $value);},
             set              => {
                 visibility  => $self->{args}{currentFormData}{show_advanced} ? 'visible' : 'excluded',
-                placeholder => 'The listen port on the peer'
+                placeholder => trm('The listen port on the peer')
             }
 
         },
@@ -269,7 +269,7 @@ has formCfg => sub($self) {
             },
             set              => {
                 visibility  => $self->{args}{currentFormData}{show_advanced} ? 'visible' : 'excluded',
-                placeholder => 'Send keep-alive pings every N seconds'
+                placeholder => trm('Send keep-alive pings every N seconds')
             }
         },
         # description (advanced)
@@ -278,7 +278,7 @@ has formCfg => sub($self) {
             label  => trm('Description'),
             widget => 'textArea',
             set    => {
-                placeholder => 'Some extra infos about this peer (Not visible in config preview)',
+                placeholder => trm('Some extra infos about this peer (Not visible in config preview)'),
                 visibility  => $self->{args}{currentFormData}{show_advanced} ? 'visible' : 'excluded'
             }
         },
@@ -291,7 +291,7 @@ has formCfg => sub($self) {
     ];
 };
 
-has actionCfg => sub($self) {
+has actionCfg => sub {
 
     my $handler = sub($self, $args) {
         my $interface = $args->{interface};
@@ -306,7 +306,6 @@ has actionCfg => sub($self) {
         my $created = $args->{created};
         my $send_by_email = $args->{'send_by_email'};
         my $config_contents = $args->{config_preview};
-        my $vpn_name = $self->app->config->cfgHash->{BACKEND}{vpn_name};
         my $peer_added = undef;
         my $peer_committed = undef;
 
@@ -320,20 +319,20 @@ has actionCfg => sub($self) {
 
             if (defined $send_by_email && $send_by_email == 1) {
                 my $email_cfg = {
-                    'name'        => $name,
-                    'endpoint'    => $fqdn,
-                    'email'       => $email,
+                    'name'         => $name,
+                    'endpoint'     => $fqdn,
+                    'email'        => $email,
                     'sender_email' => $self->config->{'sender-email'},
-                    'device_name' => $device,
-                    'attachments' => [ {
+                    'device_name'  => $device,
+                    'attachment'   => {
                         attributes => {
-                            filename     => "$vpn_name.conf",
+                            filename     => $self->config->{vpn_name} . '.conf',
                             content_type => "text/plain",
                             charset      => "UTF-8",
                             disposition  => 'attachment'
                         },
                         body       => $config_contents
-                    } ]
+                    }
                 };
                 $self->mailHandler->prepare_and_send($email_cfg);
             }
@@ -341,7 +340,7 @@ has actionCfg => sub($self) {
             $self->app->wireguardModel->commit_changes({});
 
             # Check into VCS if enabled
-            if ($self->app->config->cfgHash->{BACKEND}{'no_apply'} && $self->app->config->cfgHash->{BACKEND}{'enable_git'}) {
+            if ($self->config->{'no_apply'} && $self->config->{'enable_git'}) {
                 my $commit_message = "Created peer for `$name` on interface `$interface`";
                 my $user_string = $self->user->{userInfo}{cbuser_login};
                 $self->app->versionManager->checkin_new_version($commit_message, $user_string, 'dummy@example.com');
@@ -354,7 +353,7 @@ has actionCfg => sub($self) {
             if (defined $peer_added and not $peer_committed) {
                 delete $self->app->wireguardModel->wg_meta->{parsed_config}{$interface}{$peer_pub_key};
             }
-            if (defined $peer_committed){
+            if (defined $peer_committed) {
                 $self->app->wireguardModel->remove_peer($self, $interface, $peer_pub_key, {});
             }
             $self->controller->log->error('error_id: ' . $error_id . ' ' . $@);
@@ -376,7 +375,7 @@ has actionCfg => sub($self) {
     ];
 };
 
-sub generate_preview_config($self, $interface, $form_values, $client_private_key, $interface_public_key) {
+sub generate_preview_config($form_values, $client_private_key, $interface_public_key) {
     # for my $key (keys %{$formData}){
     #     if ($formData->{$key} && $self->validateData($key,$formData)){
     #         return 'There is invalid input in your form data';
@@ -402,7 +401,7 @@ sub generate_preview_config($self, $interface, $form_values, $client_private_key
     return $out;
 }
 
-sub getAllFieldValues($self, $args, $formData, $locale) {
+sub getAllFieldValues($self, $args, $formData, $qx_locale) {
     my $data = {};
     my $may_interface = $formData->{currentFormData}{interface};
 
@@ -434,7 +433,7 @@ sub getAllFieldValues($self, $args, $formData, $locale) {
             $private_key = $formData->{currentFormData}{'private-key'};
         }
 
-        $data->{'config_preview'} = $self->generate_preview_config($may_interface, $formData->{currentFormData}, $private_key, $interface_public_key);
+        $data->{'config_preview'} = generate_preview_config($formData->{currentFormData}, $private_key, $interface_public_key);
     }
     else {
         $data->{'config_preview'} = 'Select an interface first';
@@ -453,7 +452,7 @@ __END__
 
 =head1 AUTHOR
 
-S<Tobias Bossert E<lt>tobias.bossert@fastpath.chE<gt>>
+S<Tobias Bossert E<lt>bossert _at_ oetiker _this_is_a_dot_ chE<gt>>
 
 =head1 HISTORY
 

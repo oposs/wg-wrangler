@@ -1,3 +1,15 @@
+=head1 NAME
+
+WGwrangler::Model::IPmanager - Manages IPs and Interface-ranges
+
+=head1 DESCRIPTION
+
+Keeps track of acquired and released ips
+
+=head1 METHODS
+
+=cut
+
 package WGwrangler::Model::IPmanager;
 use strict;
 use warnings FATAL => 'all';
@@ -15,10 +27,15 @@ sub new($class) {
     bless $self, $class;
     return $self;
 }
+=head3 populate_range($interface, $ip_ranges_str)
 
+Sets the possible ranges for an interface. Throws an exception if C<$ip_ranges_str> contain invalid values.
+C<$ip_ranges_str> is expected to be a comma-separated list of ip-ranges in CIDR notation
+
+=cut
 sub populate_range($self, $interface, $ip_ranges_str) {
     my @ranges;
-    my @ips = map {trm($_)} split /\,/, $ip_ranges_str;
+    my @ips = map {_trm($_)} split /\,/, $ip_ranges_str;
     for my $ip_range (@ips) {
         my $may_ip = Net::IP->new($ip_range) or die "Could not read ip-range for `$interface`: " . Net::IP::Error();
         # prepare acquired ip storage
@@ -30,14 +47,31 @@ sub populate_range($self, $interface, $ip_ranges_str) {
     return 1;
 }
 
+=head3 acquire_multiple($interface, $ips_string)
+
+Takes a string of comma-separated ip(-ranges) in CIDR notation. Returns 1 if all ips have been acquired successfully
+
+=cut
 sub acquire_multiple($self, $interface, $ips_string) {
-    my @ips = map {trm($_)} split /\,/, $ips_string;
+    my @ips = map {_trm($_)} split /\,/, $ips_string;
     for my $ip (@ips) {
         unless ($self->acquire_single($interface, $ip)) {
             # die "Could not acquire IP `$ip` for interface `$interface`";
         }
     }
+    return 1;
 }
+
+=head3 acquire_single($interface, $ip_string)
+
+Takes an ip string (one single ip) in CIDR notation and tries to acquire it respecting the already acquired ones for
+this interface.
+
+Returns 1 on success.
+
+Raises exception if C<$ip_string> is invalid.
+
+=cut
 
 sub acquire_single($self, $interface, $ip_string) {
     my $may_ip = Net::IP->new($ip_string) or die "Could not read ip for `$ip_string`: " . Net::IP::Error();
@@ -60,7 +94,15 @@ sub acquire_single($self, $interface, $ip_string) {
     }
     return undef;
 }
+=head3 release_ip($interface, $ip_string)
 
+Releases a specific ip from an interface.
+
+Returns 1 on success.
+
+Raises exception if C<$ip_string> is invalid.
+
+=cut
 sub release_ip($self, $interface, $ip_string) {
     my $may_ip = Net::IP->new($ip_string) or die "Could not read ip for `$ip_string`: " . Net::IP::Error();
     for my $interface_range (@{$self->{interface_ranges}{$interface}}) {
@@ -76,56 +118,48 @@ sub release_ip($self, $interface, $ip_string) {
 sub _is_in($self, $ip, $range) {
     if ($range->version() == $ip->version()) {
         my $ip_result = $ip->overlaps($range);
-        my $s = $ip->ip();
-        my $t = $range->ip();
-        my $c = $ip_result && ($ip_result == $IP_IDENTICAL || $ip_result == $IP_A_IN_B_OVERLAP || $range->intip() == $ip->intip());
-
+        # Just for debugging
+        # my $s = $ip->ip();
+        # my $t = $range->ip();
+        # my $c = $ip_result && ($ip_result == $IP_IDENTICAL || $ip_result == $IP_A_IN_B_OVERLAP || $range->intip() == $ip->intip());
         return $ip_result && ($ip_result == $IP_IDENTICAL || $ip_result == $IP_A_IN_B_OVERLAP || $range->intip() == $ip->intip());
     }
     return undef;
 }
 
+=head3 looks_like_ip($ips_string)
+
+Checks whether C<$ips_string> looks like a valid ip in CIDR notation
+
+=cut
 sub looks_like_ip($self, $ips_string) {
-    my @ips = map {trm($_)} split /\,/, $ips_string;
+    my @ips = map {_trm($_)} split /\,/, $ips_string;
     for my $ip (@ips) {
-        my $may_ip = Net::IP->new($ip) or return Net::IP::Error();
+        my $may_ip = Net::IP->new($ip) or undef;
     }
-    return "";
+    return 1;
 }
 
-sub external_is_in($self, $ips_string, $ranges_string) {
-    my @ips = map {trm($_)} split /\,/, $ips_string;
-    my @ranges = map {trm($_)} split /\,/, $ranges_string;
-    my $in_counter = 0;
-    for my $ip_str (@ips) {
-        my $may_ip = Net::IP->new($ip_str) or return Net::IP::Error();
-        for my $range_str (@ranges) {
-            my $may_range = Net::IP->new($range_str) or return Net::IP::Error();
-            my $res = $self->_is_in($may_ip, $may_range);
+=head3 suggest_ip($interface)
 
-            if ($self->_is_in($may_ip, $may_range)) {
-                $in_counter++;
-            }
-        }
-    }
-    return $in_counter == @ips;
-}
+Returns a comma separated string of the next free ip(s) for C<$interface>. If no ips are left, an empty string is returned
 
-
+=cut
 sub suggest_ip($self, $interface) {
     my @suggested_ips;
-    for my $ip_range (@{$self->{interface_ranges}{$interface}}) {
+    for my $interface_range (@{$self->{interface_ranges}{$interface}}) {
         # get a list of all acquired ip/ranges for this interface and sort them lowest to highest
-        my $ip_range_string = $ip_range->ip();
+        my $ip_range_string = $interface_range->ip();
         my @acquired_ip_list = map {$self->{acquired_ips}{$interface}{$ip_range_string}{$_}} keys(%{$self->{acquired_ips}{$interface}{$ip_range_string}});
         my @acquired_ips_sorted = sort {$a->intip() <=> $b->intip()} @acquired_ip_list;
 
         # prepare suggestion
-        my $ip_suggestion = $ip_range->ip_add_num(1);
+        my $ip_suggestion = $interface_range->ip_add_num(1);
 
         for my $acquired_ip (@acquired_ips_sorted) {
             if ($self->_is_in($ip_suggestion, $acquired_ip)) {
 
+                # Jump subnet size
                 $ip_suggestion = $ip_suggestion->ip_add_num($acquired_ip->size());
                 if (!$ip_suggestion) {
                     # return "No IPs left for`". $ip_range->ip() ."`";
@@ -147,10 +181,20 @@ sub suggest_ip($self, $interface) {
     return join ',', @suggested_ips;
 }
 
+=head3 is_valid_for_interface($interface, $ips_string [, $current_peer_ips])
+
+Takes a string of ip(s), and checks whether they are a) not yes acquired and b) valid for the specified interface.
+By providing C<$current_peer_ips>, reassigning the same ip as before is allowed.
+
+Returns empty string on success and an error string on failure
+
+=cut
+
 sub is_valid_for_interface($self, $interface, $ips_string, $current_peer_ips = undef) {
+    # First check if the requested interface is indeed valid
     if (exists $self->{interface_ranges}{$interface}) {
-        my @ips_string_to_test = map {trm($_)} split /\,/, $ips_string;
-        my @current_peer_ips = map {trm($_)} split /\,/, $current_peer_ips if defined $current_peer_ips;
+        my @ips_string_to_test = map {_trm($_)} split /\,/, $ips_string;
+        my @current_peer_ips = map {_trm($_)} split /\,/, $current_peer_ips if defined $current_peer_ips;
         my $found_matching_version = 0;
 
         for my $ip_string_to_test (@ips_string_to_test) {
@@ -164,7 +208,7 @@ sub is_valid_for_interface($self, $interface, $ips_string, $current_peer_ips = u
                     if ($self->_is_in($ip_object_to_test, $current_range_object)) {
                         $ip_is_within_on_disk_version = 1;
                         $found_matching_version++;
-                        last;
+                        last; # No further checks for this ip needed
                     }
                 }
             }
@@ -198,6 +242,12 @@ sub is_valid_for_interface($self, $interface, $ips_string, $current_peer_ips = u
     }
 
 }
+
+=head3 extract_ips($ip_string)
+
+Utility method to parse the individual ip-string from a comma separated list
+
+=cut
 sub extract_ips($ip_string) {
     my @ips = split /\,/, $ip_string;
     chomp(@ips);
@@ -211,7 +261,7 @@ sub extract_ips($ip_string) {
     return \@results
 }
 
-sub trm($str) {
+sub _trm($str) {
     $str =~ s/^\s+|\s+$//g;
     return $str;
 }

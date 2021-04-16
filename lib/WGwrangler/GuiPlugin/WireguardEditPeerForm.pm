@@ -15,19 +15,6 @@ Peer edit form
 
 =cut
 
-=head1 METHODS
-
-All the methods of L<CallBackery::GuiPlugin::AbstractForm> plus:
-
-=cut
-
-=head2 formCfg
-
-Returns a Configuration Structure for the Song Entry Form.
-
-=cut
-
-
 has formCfg => sub($self) {
 
     return [
@@ -70,9 +57,12 @@ has formCfg => sub($self) {
             key    => 'device',
             label  => trm('Device'),
             widget => 'text',
-            set    => {
-                readOnly => true,
-            }
+            validator        => sub($value, $parameter, $formData) {
+                return $self->app->wireguardModel->validator('device', $value);
+            },
+            set              => {
+                placeholder => trm('A device name')
+            },
         },
         {
             key    => 'integrity_hash',
@@ -126,23 +116,19 @@ has formCfg => sub($self) {
             label  => trm('Description'),
             widget => 'textArea',
             set    => {
-                placeholder => 'Some extra infos about this peer',
+                placeholder => trm('Some extra infos about this peer'),
             }
         },
     ];
 };
 
 has actionCfg => sub {
-    my $self = shift;
 
-    my $handler = sub {
-        my $self = shift;
-        my $args = shift;
+    my $handler = sub($self, $args) {
 
         my $interface = $args->{interface};
         my $identifier = $args->{'public-key'};
         my $before_change = $self->app->wireguardModel->get_section_data($interface, $identifier);
-        my $is_committed = undef;
         eval {
             for my $attr_key (keys %{$args}) {
                 unless ($attr_key eq 'interface' || $attr_key eq 'public-key' || $attr_key eq 'integrity_hash') {
@@ -152,10 +138,9 @@ has actionCfg => sub {
             }
             # Commit changes
             $self->app->wireguardModel->commit_changes({ $identifier => $args->{'integrity_hash'} });
-            $is_committed = 1;
 
             # Check into VCS if enabled
-            if ($self->app->config->cfgHash->{BACKEND}{'no_apply'} && $self->app->config->cfgHash->{BACKEND}{'enable_git'}) {
+            if ($self->config->{'no_apply'} && $self->config->{'enable_git'}) {
                 my $commit_message = "Edited `$identifier` on device `$interface`";
                 my $user_string = $self->user->{userInfo}{cbuser_login};
                 $self->app->versionManager->checkin_new_version($commit_message, $user_string, 'dummy@example.com');
@@ -165,7 +150,7 @@ has actionCfg => sub {
             my $error_id = int(rand(100000));
             $self->controller->log->error('error_id: ' . $error_id . ' ' . $@);
             $self->app->wireguardModel->restore_from_section_data($before_change);
-            die mkerror(9999, 'Could not edit peer. Error ID: ' . $error_id);
+            die mkerror(9999, trm('Could not edit peer. Error ID: ') . $error_id);
         }
 
         return {
@@ -181,21 +166,6 @@ has actionCfg => sub {
             actionHandler => $handler
         }
     ];
-};
-
-has grammar => sub {
-    my $self = shift;
-    $self->mergeGrammar(
-        $self->SUPER::grammar,
-        {
-            _doc  => "Tree Node Configuration",
-            _vars => [ qw(type) ],
-            type  => {
-                _doc => 'type of form to show: edit, add',
-                _re  => '(edit|add)'
-            },
-        },
-    );
 };
 
 sub getAllFieldValues {
@@ -214,7 +184,7 @@ __END__
 
 =head1 AUTHOR
 
-S<Tobias Bossert E<lt>tobias.bossert@fastpath.chE<gt>>
+S<Tobias Bossert E<lt>bossert _at_ oetiker _this_is_a_dot_ chE<gt>>
 
 =head1 HISTORY
 

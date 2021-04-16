@@ -1,14 +1,6 @@
-package WGwrangler;
-use Mojo::Base 'CallBackery';
-use CallBackery::Model::ConfigJsonSchema;
-use WGwrangler::User;
-use WGwrangler::Model::WireguardDataAdapter;
-use WGwrangler::Model::MailHandler;
-use WGwrangler::Model::VersionManager;
-
 =head1 NAME
 
-WGwrangler - the application class
+WGwrangler - Main application class
 
 =head1 SYNOPSIS
 
@@ -27,11 +19,21 @@ WGwrangler has all the attributes of L<CallBackery> plus:
 
 =cut
 
-=head2 config
+=head3 config
 
 use our own plugin directory and our own configuration file:
 
 =cut
+
+package WGwrangler;
+use Mojo::Base 'CallBackery';
+use CallBackery::Model::ConfigJsonSchema;
+use WGwrangler::User;
+use WGwrangler::Model::WireguardDataAdapter;
+use WGwrangler::Model::MailHandler;
+use WGwrangler::Model::VersionManager;
+
+our $VERSION = "0.0.0";
 
 has config => sub {
     my $self = shift;
@@ -58,6 +60,11 @@ has config => sub {
     return $config;
 };
 
+=head3 database
+
+Database instance (currently only for user management)
+
+=cut
 has database => sub {
     my $self = shift;
     my $database = $self->SUPER::database(@_);
@@ -68,24 +75,49 @@ has database => sub {
     return $database;
 };
 
-has 'userObject' => sub {
-    WGwrangler::User->new();
+# has 'userObject' => sub {
+#     WGwrangler::User->new();
+# };
+
+
+=head3 bgc
+
+Shortcut to $self->config->cfgHash->{BACKEND}.
+
+=cut
+
+has 'bgc' => sub {
+    my $self = shift;
+    $self->config->cfgHash->{BACKEND};
 };
 
+
+=head3 wireguardModel
+
+An instance of L<WGwrangler::Model::WireguardDataAdapter>
+
+=cut
 has 'wireguardModel' => sub {
     my $self = shift;
-    my $wireguard_home = $self->config->cfgHash->{BACKEND}{wireguard_home};
-    my $not_applied_suffix = $self->config->cfgHash->{BACKEND}{'not_applied_suffix'};
-    my $no_apply = $self->config->cfgHash->{BACKEND}{'no_apply'};
-    WGwrangler::Model::WireguardDataAdapter->new(wireguard_home => $wireguard_home, is_hot_config => $no_apply, app => $self);
+    WGwrangler::Model::WireguardDataAdapter->new(
+        wireguard_home     => $self->bgc->{wireguard_home},
+        is_hot_config      => $self->bgc->{no_apply},
+        app                => $self,
+        not_applied_suffix => $self->bgc->{not_applied_suffix}
+    );
 };
 
+=head3 versionManager
+
+An instance of L<WGwrangler::Model::VersionManager>
+
+=cut
 has 'versionManager' => sub {
     my $self = shift;
-    my $wireguard_home = $self->config->cfgHash->{BACKEND}{wireguard_home};
-    my $not_applied_suffix = $self->config->cfgHash->{BACKEND}{'not_applied_suffix'};
-    my $git_enabled = $self->config->cfgHash->{BACKEND}{'enable_git'};
-    WGwrangler::Model::VersionManager->new($wireguard_home, $not_applied_suffix, $git_enabled);
+    WGwrangler::Model::VersionManager->new(
+        $self->bgc->{wireguard_home},
+        $self->bgc->{not_applied_suffix},
+        $self->bgc->{enable_git});
 };
 
 1;
@@ -96,7 +128,7 @@ Copyright (c) 2021 by Tobias Bossert. All rights reserved.
 
 =head1 AUTHOR
 
-S<Tobias Bossert E<lt>tobias.bossert@fastpath.chE<gt>>
+S<Tobias Bossert E<lt>bossert _at_ oetiker _this_is_a_dot_ chE<gt>>
 
 =cut
 
@@ -105,15 +137,6 @@ __DATA__
 @@ appdb.sql
 
 -- 1 up
-
-CREATE TABLE song (
-    song_id    INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    song_title TEXT NOT NULL,
-    song_voices TEXT,
-    song_composer TEXT,
-    song_page INTEGER,
-    song_note TEXT
-);
 
 -- add an extra right for people who can edit
 

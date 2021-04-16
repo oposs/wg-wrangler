@@ -9,11 +9,36 @@ use MIME::Base64 qw(encode_base64);
 
 has mailTransport => sub {
     Email::Sender::Transport::SMTP->new({
-        host          => 'localhost',
-        port           => '25'
+        host => 'localhost',
+        port => '25'
     });
 };
 
+
+=head3 prepare_and_send($mail_cfg)
+
+Expects the following structure:
+
+    {
+        'name'         => Recipients name,
+        'endpoint'     => Wireguard Endpoint,
+        'email'        => Recipients email,
+        'sender_email' => Senders email,
+        'device_name'  => Device name,
+        'attachment'  => {
+            attributes => {
+                filename     => filename.txt,
+                content_type => "text/plain",
+                charset      => "UTF-8",
+                disposition  => 'attachment'
+                ...
+            },
+            body       => body of attachment
+        }
+    }
+
+The body of the attachment is converted into a base 64-encoded qr-code
+=cut
 sub prepare_and_send($self, $mail_cfg) {
     my $qrcode = SVG::Barcode::QRCode->new();
     my @attachments = @{$mail_cfg->{attachments}};
@@ -23,7 +48,7 @@ sub prepare_and_send($self, $mail_cfg) {
         to          => $mail_cfg->{email},
         template    => 'send_config_by_email',
         args        => $mail_cfg,
-        attachments => $mail_cfg->{attachments}
+        attachments => [ $mail_cfg->{attachment} ]
     };
     $self->sendMail($send_cfg);
 }

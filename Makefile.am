@@ -11,7 +11,7 @@ SHARE := $(shell test -d share && find -L share -type d -name ".??*" -prune -o -
 PERLTESTS := $(shell find -L t -name "*.t")
 PM := $(shell find -L lib -name "*.pm")
 
-EXTRA_DIST = VERSION cpanfile COPYRIGHT LICENSE CHANGES AUTHORS bootstrap $(PUB) $(wildcard t/*.t) $(POD) $(TEMPL) $(PERLTESTS) $(SHARE)
+EXTRA_DIST = VERSION cpanfile COPYRIGHT LICENSE README.md CHANGES AUTHORS bootstrap $(PUB) $(wildcard t/*.t) $(POD) $(TEMPL) $(PERLTESTS) $(SHARE)
 
 YEAR := $(shell date +%Y)
 DATE := $(shell date +%Y-%m-%d)

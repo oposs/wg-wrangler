@@ -1626,10 +1626,10 @@ DISTRIBUTIONS
       Fcntl 0
       URI 1.10
       perl 5.008001
-  Wireguard-WGmeta-0.2.2
-    pathname: T/TO/TOBIB/Wireguard-WGmeta-0.2.2.tar.gz
+  Wireguard-WGmeta-0.2.3
+    pathname: T/TO/TOBIB/Wireguard-WGmeta-0.2.3.tar.gz
     provides:
-      Wireguard::WGmeta 0.002002
+      Wireguard::WGmeta 0.002003
       Wireguard::WGmeta::Cli::Commands::Add undef
       Wireguard::WGmeta::Cli::Commands::Apply undef
       Wireguard::WGmeta::Cli::Commands::Command undef
@@ -1639,17 +1639,17 @@ DISTRIBUTIONS
       Wireguard::WGmeta::Cli::Commands::Set undef
       Wireguard::WGmeta::Cli::Commands::Show undef
       Wireguard::WGmeta::Cli::Human undef
-      Wireguard::WGmeta::Cli::Router 0.002002
+      Wireguard::WGmeta::Cli::Router 0.002003
       Wireguard::WGmeta::Cli::TerminalHelpers undef
-      Wireguard::WGmeta::Parser::Config 0.002002
-      Wireguard::WGmeta::Parser::Show 0.002002
+      Wireguard::WGmeta::Parser::Config 0.002003
+      Wireguard::WGmeta::Parser::Show 0.002003
       Wireguard::WGmeta::Utils undef
       Wireguard::WGmeta::ValidAttributes undef
       Wireguard::WGmeta::Validator undef
       Wireguard::WGmeta::Wrapper::Bridge undef
-      Wireguard::WGmeta::Wrapper::Config 0.002002
-      Wireguard::WGmeta::Wrapper::ConfigT 0.002002
-      Wireguard::WGmeta::Wrapper::Show 0.002002
+      Wireguard::WGmeta::Wrapper::Config 0.002003
+      Wireguard::WGmeta::Wrapper::ConfigT 0.002003
+      Wireguard::WGmeta::Wrapper::Show 0.002003
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.020000

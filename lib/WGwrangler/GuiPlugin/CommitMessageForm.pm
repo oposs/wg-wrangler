@@ -63,7 +63,7 @@ has formCfg => sub($self) {
             label  => trm('Commit Message'),
             widget => 'textArea',
             set    => {
-                placeholder => 'Briefly describe your changes',
+                placeholder => trm('Briefly describe your changes'),
                 required    => true
             }
         },
@@ -86,7 +86,7 @@ has actionCfg => sub {
         if($@){
             my $error_id = int(rand(100000));
             $self->controller->log->error('error_id: ' . $error_id . ' ' . $@);
-            die mkerror(9999, "Could not checkin new version. Error ID: $error_id");
+            die mkerror(9999, trm('Could not checkin new version. Error ID: ') . $error_id);
         }
         return {
             action => 'dataSaved',
@@ -119,7 +119,7 @@ __END__
 
 =head1 AUTHOR
 
-S<Tobias Bossert E<lt>tobias.bossert@fastpath.chE<gt>>
+S<Tobias Bossert E<lt>bossert _at_ oetiker _this_is_a_dot_ chE<gt>>
 
 =head1 HISTORY
 

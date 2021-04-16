@@ -9,22 +9,7 @@ use experimental 'signatures';
 
 =head1 NAME
 
-WGwrangler::GuiPlugin::Song - Song Table
-
-=head1 SYNOPSIS
-
- use WGwrangler::GuiPlugin::Song;
-
-=head1 DESCRIPTION
-
-The Song Table Gui.
-
-=cut
-
-
-=head1 METHODS
-
-All the methods of L<CallBackery::GuiPlugin::AbstractTable> plus:
+WGwrangler::GuiPlugin::WireguardVersions - Lists config versions
 
 =cut
 
@@ -70,16 +55,11 @@ has formCfg => sub($self) {
             label  => 'Search',
             set    => {
                 placeholder => 'name, interface, email, ip, public-key',
-                enabled     => true
+                enabled     => false
             },
         },
     ]
 };
-
-=head2 tableCfg
-
-
-=cut
 
 has tableCfg => sub {
     my $self = shift;
@@ -118,12 +98,6 @@ has tableCfg => sub {
     ];
 };
 
-=head2 actionCfg
-
-Only users who can write get any actions presented.
-
-=cut
-
 has actionCfg => sub {
     my $self = shift;
     return [] if $self->user and not $self->user->may('write');
@@ -161,8 +135,6 @@ has actionCfg => sub {
                 enabled => true,
             },
             actionHandler    => sub {
-                my $self = shift;
-                my $args = shift;
                 return {
                     action => 'reload',
                 };

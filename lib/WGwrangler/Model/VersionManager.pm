@@ -1,3 +1,15 @@
+=head1 NAME
+
+WGwrangler::Model::VersionManager - Manages different config versions
+
+=head1 DESCRIPTION
+
+Manages configuration version either by maintaining a git repository or by relieving on I<.old> files
+
+=head1 METHODS
+
+=cut
+
 package WGwrangler::Model::VersionManager;
 use strict;
 use warnings FATAL => 'all';
@@ -7,11 +19,20 @@ use Symbol 'gensym';
 use IPC::Open3;
 use Data::Dumper;
 use File::Copy qw(move copy);
+use Wireguard::WGmeta::Wrapper::Bridge;
+use Wireguard::WGmeta::Utils;
 
 use constant FALSE => 0;
 use constant TRUE => 1;
 
-sub new($class, $versions_dir, $not_applied_suffix, $git_support = 1) {
+=head3 new($versions_dir, $not_applied_suffix [, $git_support])
+
+Initializes a git repo in C<$versions_dis> if no I<.git> directory is found the parent dir and C<$git_support> is set to one.
+
+Please note that all methods in this class raise Exceptions on failure!
+
+=cut
+sub new($class, $versions_dir, $not_applied_suffix, $git_support = 0) {
     my $self = {
         versions_dir => $versions_dir,
         git_support  => (-e $versions_dir . '../.git' || not $git_support) ? 0 : 1
@@ -35,6 +56,12 @@ sub new($class, $versions_dir, $not_applied_suffix, $git_support = 1) {
     return $self;
 }
 
+=head3 get_history($filter)
+
+Runs the external I<git log> command and returns the obtained data in a Callbackery-compatible way. If git support is
+disabled, the list of I<.old> files is returned instead.
+
+=cut
 sub get_history($self, $filter) {
     my @result;
     if ($self->{git_support}) {
@@ -49,10 +76,10 @@ sub get_history($self, $filter) {
 
     }
     else {
-        my @files = _read_dir($self->{versions_dir}, qr/\.old$/);
+        my @files = read_dir($self->{versions_dir}, qr/\.old$/);
         chomp(@files);
         for my $old_version (@files) {
-            my $date = _get_mtime($old_version);
+            my $date = get_mtime($old_version);
             my $date_string = localtime($date);
             push @result, { 'hash' => $old_version, 'date_unix' => $date, date => "$date_string", 'message' => 'git not activated or not supported' };
         }
@@ -60,11 +87,21 @@ sub get_history($self, $filter) {
     return \@result, scalar @result;
 }
 
+=head3 get_n_entries($filter)
+
+Returns how many entries are present
+
+=cut
 sub get_n_entries($self, $filter) {
     my (undef, $count) = $self->get_history($filter);
     return $count;
 }
 
+=head3 checkin_new_version($commit_message, $user, $user_email)
+
+Checks in a new version. If git support is disabled, this method is a No-op.
+
+=cut
 sub checkin_new_version($self, $commit_message, $user, $user_email) {
     if ($self->{git_support}) {
         run_external("cd $self->{versions_dir} && git add .");
@@ -74,7 +111,11 @@ sub checkin_new_version($self, $commit_message, $user, $user_email) {
         # Do nothing
     }
 }
+=head3 go_back_to_revision($revision)
 
+If git support is enabled C<$revision> is expected to be a commit hash. Otherwise a a path to a I<.old> configuration file.
+
+=cut
 sub go_back_to_revision($self, $revision) {
     if ($self->{git_support}) {
         run_external("cd $self->{versions_dir} && git reset --hard $revision");
@@ -91,81 +132,6 @@ sub go_back_to_revision($self, $revision) {
         unlink($old_path);
     }
 
-}
-
-=head2 run_external($command_line [, $input, $soft_fail])
-
-Runs an external program and throws an exception (or a warning if C<$soft_fail> is true) if the return code is != 0
-
-B<Parameters>
-
-=over 1
-
-=item *
-
-C<$command_line> Complete commandline for the external program to execute.
-
-=item *
-
-C<[$input = undef]> If defined, this is feed into STD_IN of C<$command_line>.
-
-=item *
-
-C<[$soft_fail = FALSE]> If set to true, a warning is thrown instead of an exception
-
-=back
-
-B<Raises>
-
-Exception if return code is not 0 (if C<$soft_fail> is set to true, just a warning)
-
-B<Returns>
-
-Returns two lists with all lines of I<STDout> and I<STDerr>
-
-=cut
-sub run_external($command_line, $input = undef, $soft_fail = FALSE) {
-    my $pid = open3(my $std_in, my $std_out, my $std_err = gensym, $command_line);
-    if (defined($input)) {
-        print $std_in $input;
-    }
-    close $std_in;
-    my @output = <$std_out>;
-    my @err = <$std_err>;
-    close $std_out;
-    close $std_err;
-
-    waitpid($pid, 0);
-
-    my $child_exit_status = $? >> 8;
-    if ($child_exit_status != 0) {
-        if ($soft_fail == TRUE) {
-            warn "Command `$command_line` failed @err";
-        }
-        else {
-            die "Command `$command_line` failed @err";
-        }
-
-    }
-    return @output, @err;
-}
-
-sub _read_dir($path, $pattern) {
-    opendir(DIR, $path) or die "Could not open $path\n";
-    my @files;
-
-    while (my $file = readdir(DIR)) {
-        if ($file =~ $pattern) {
-            push @files, $path . $file;
-        }
-    }
-    closedir(DIR);
-    return @files;
-}
-
-sub _get_mtime($path) {
-    my @stat = stat($path);
-    return (defined($stat[9])) ? "$stat[9]" : "0";
 }
 
 1;
