@@ -51,7 +51,7 @@ has formCfg => sub($self) {
                     return trm('No interface selected');
                 }
                 else {
-                    return "";
+                    return $self->app->wireguardModel->validator('interface', $value);
                 }
             },
             set              => {

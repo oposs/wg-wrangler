@@ -125,6 +125,7 @@ sub validator($self, $attribute, $value, $interface = undef, $identifier = undef
     }
     my $validator_mapping = {
         'device'               => sub($device_name, $int, $ident) {return $device_name =~ /[^a-zA-Z0-9_\-]/g ? trm('Only a-Z, 0-9 and -/_ allowed') : ''},
+        'interface'            => sub($interface_name, $int, $ident) {return $interface_name =~ /[^a-zA-Z0-9_\-]/g ? trm('Only a-Z, 0-9 and -/_ allowed') : ''},
         'email'                => sub($email, $int, $ident) {return $email =~ /^\S+@\S+\.\S+$/ ? '' : trm('Does not look like an email address')},
         'name'                 => sub($name, $int, $ident) {return $name =~ /[^a-zA-Z0-9_\-\s{1}]/g ? trm('Only a-Z, 0-9, -/_ and one space are allowed') : ''},
         'single-ip'            => sub($ip_address, $int, $ident) {$self->ip_manager->looks_like_ip($ip_address) == 1 ? '' : trm('Does not look like an ip address')},
