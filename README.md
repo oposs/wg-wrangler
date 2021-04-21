@@ -1,9 +1,10 @@
 WGwrangler
 ===========
-Version: #VERSION#
-Date: #DATE#
+Version: 0.1.0
+Date: 2021-04-16
 
-WGwrangler is a cool web application.
+WGwrangler is a web application to manage local Wireguard Configuration using 
+[wg-meta](https://metacpan.org/release/Wireguard-WGmeta) in its backend. 
 
 It comes complete with a classic "configure - make - install" setup.
 
@@ -12,6 +13,9 @@ Setup
 In your app source directory and start building.
 
 ```console
+# Install os dependencies
+sudo apt install libqrencode-dev
+
 ./configure --prefix=$HOME/opt/wgwrangler
 make
 ```
@@ -34,6 +38,8 @@ using the built-in Mojo webserver.
 
 You can now connect to the CallBackery app with your web browser.
 
+
+
 If you need any additional perl modules, write their names into the PERL_MODULES
 file and run ./bootstrap.
 
@@ -53,6 +59,34 @@ cd $HOME/opt/wgwrangler/bin
 ./wgwrangler.pl prefork
 ```
 
+OS Preparation
+-------------
+
+Since managing wireguard using its associated `wg*` commands requires root privileges we suggest the following
+setup:
+
+- Create a separate user/group e.g `wireguard_manager`
+- Whitelist the `wg` commands for this group in the `/etc/sudoers` file:
+  ```text
+  %wireguard_manager ALL=NOPASSWD: /usr/bin/wg*
+  ```
+- Set `wireguard_manger` as group on `/etc/wireguard` and adjust permissions to `g+rwx`
+- Additionally, creating a `wg-wrangler.service` file may improve usability quite a bit:
+  ```text
+  # This is to be considered as a (very) simple example of such a .service file
+  [Unit]
+  Description=wg-wranger wireguard manager
+  
+  [Service]
+  Type=simple
+  User=wireguard_manager
+  Group=wireguard_manager
+  ExecStart=/usr/bin/perl /home/wireguard_manager/opt/wgwrangler/bin/wgwrangler.pl prefork --listen 'http://0.1.0.1:7171'
+  
+  [Install]
+  WantedBy=multi-user.target
+   ```
+
 Packaging
 ---------
 
@@ -63,7 +97,7 @@ You can also package the application as a nice tar.gz file, it uses carton to
 install dependent module. If you want to make sure that your project builds with perl
 5.22, make sure to set the `PERL` environment variable to a perl 5.22
 interpreter, make sure to delete any `PERL5LIB` environment variable, and run
-`make clean && make`. This will cause a `cpanfile-5.22.1.snapshot` file to be included
+`make clean && make`. This will cause a `cpanfile-0.1.0.snapshot` file to be included
 with your tar ball, when building the app this snapshot will be used to make sure
 all the right versions of the dependent modules get installed.
 
@@ -71,6 +105,16 @@ all the right versions of the dependent modules get installed.
 make dist
 ```
 
+Screenshots
+-----------
+
+![](.github/img/overview.png)
+
+![](.github/img/create.png)
+
+![](.github/img/email.png)
+
+
 Enjoy!
 
-Tobias Bossert <tobias.bossert@fastpath.ch>
+Tobias Bossert <bossert _at_ oetiker _this_is_a_dot_ ch>

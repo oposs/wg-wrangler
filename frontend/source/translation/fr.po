@@ -1,0 +1,3 @@
+#. NO LONGER USED
+msgid "dd.MM.yyyy"
+msgstr ""

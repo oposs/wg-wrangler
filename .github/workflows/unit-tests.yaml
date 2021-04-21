@@ -26,7 +26,8 @@ jobs:
           - '5.30'
         node:
           # - '10.x'
-          - '13.x'
+          # - '13.x'
+          - '12.x'
         # exclude:
           #- os: ubuntu-16.04
           #  perl: '5.26'
@@ -76,9 +77,9 @@ jobs:
         key: ${{ matrix.os }}-node-${{ matrix.node }}-${{ hashFiles('**/package.json') }}
         restore-keys: |
           ${{ matrix.os }}-node-${{ matrix.node }}-
-          
-    - name: Install Gettext
-      run: sudo apt-get install gettext
+
+    - name: Install OS dependencies
+      run: sudo apt install libqrencode-dev pkg-config gettext
       
 
     - name: Bootstrap

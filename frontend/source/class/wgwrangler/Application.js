@@ -1,7 +1,7 @@
 /* ************************************************************************
    Copyright: 2021 Tobias Bossert
    License:   ???
-   Authors:   Tobias Bossert <tobias.bossert@fastpath.ch>
+   Authors:   Tobias Bossert <bossert _at_ oetiker _this_is_a_dot_ ch>
  *********************************************************************** */
 
 /**

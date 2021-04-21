@@ -1,6 +1,6 @@
 #  Copyright (C) 2021 Tobias Bossert
 
-AC_INIT([wgwrangler],m4_esyscmd([tr -d '\n' < VERSION]),[tobias.bossert@fastpath.ch])
+AC_INIT([wgwrangler],m4_esyscmd([tr -d '\n' < VERSION]),[bossert _at_ oetiker _this_is_a_dot_ ch])
 AC_PREREQ([2.59])
 AC_CONFIG_AUX_DIR(conftools)
 
