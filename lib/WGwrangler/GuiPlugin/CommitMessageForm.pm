@@ -1,41 +1,26 @@
 package WGwrangler::GuiPlugin::CommitMessageForm;
-use Mojo::Base 'CallBackery::GuiPlugin::AbstractForm';
+use Mojo::Base 'CallBackery::GuiPlugin::AbstractForm', -signatures;
 use CallBackery::Translate qw(trm);
 use CallBackery::Exception qw(mkerror);
 use Mojo::JSON qw(true false);
-use experimental 'signatures';
 
 =head1 NAME
 
-WGwrangler::GuiPlugin::WireguardPeerForm - Peer Edit form
+WGwrangler::GuiPlugin::WireguardPeerForm - Commit message Form
 
 =head1 DESCRIPTION
 
-Peer edit form
+Commit message form
 
 =cut
 
-=head1 METHODS
-
-All the methods of L<CallBackery::GuiPlugin::AbstractForm> plus:
-
-=cut
-
-=head2 formCfg
-
-Returns a Configuration Structure for the Song Entry Form.
-
-=cut
-
-
-has screenOpts => sub {
-    my $self = shift;
+has screenOpts => sub ($self) {
     my $opts = $self->SUPER::screenOpts;
     return {
         %$opts,
         # and settings accordingly
         container => {
-            set => {
+            set      => {
                 # see https://www.qooxdoo.org/apps/apiviewer/#qx.ui.core.LayoutItem
                 # for inspiration in properties to set
                 maxWidth  => 400,
@@ -51,7 +36,7 @@ has screenOpts => sub {
     }
 };
 
-has formCfg => sub($self) {
+has formCfg => sub ($self) {
     return [
         {
             key    => 'header_commit',
@@ -70,20 +55,16 @@ has formCfg => sub($self) {
     ];
 };
 
-has actionCfg => sub {
-    my $self = shift;
+has actionCfg => sub ($self) {
 
-    my $handler = sub {
-        my $self = shift;
-        my $args = shift;
-
+    my $handler = sub ($self, $args) {
         my $commit_message = $args->{'commit_message'};
         my $user_string = $self->user->{userInfo}{cbuser_login};
         $self->app->wireguardModel->apply_config();
         eval {
             $self->app->versionManager->checkin_new_version($commit_message, $user_string, 'dummy@example.com');
         };
-        if($@){
+        if ($@) {
             my $error_id = int(rand(100000));
             $self->controller->log->error('error_id: ' . $error_id . ' ' . $@);
             die mkerror(9999, trm('Could not checkin new version. Error ID: ') . $error_id);
@@ -103,14 +84,11 @@ has actionCfg => sub {
     ];
 };
 
-sub getAllFieldValues {
-    my $self = shift;
-    my $args = shift;
+sub getAllFieldValues ($self, $args) {
     return [];
 }
 
-has checkAccess => sub {
-    my $self = shift;
+has checkAccess => sub ($self) {
     return $self->user->may('write');
 };
 

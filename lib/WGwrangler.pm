@@ -28,7 +28,6 @@ use our own plugin directory and our own configuration file:
 package WGwrangler;
 use Mojo::Base 'CallBackery';
 use CallBackery::Model::ConfigJsonSchema;
-use WGwrangler::User;
 use WGwrangler::Model::WireguardDataAdapter;
 use WGwrangler::Model::MailHandler;
 use WGwrangler::Model::VersionManager;
@@ -75,10 +74,6 @@ has database => sub {
     return $database;
 };
 
-# has 'userObject' => sub {
-#     WGwrangler::User->new();
-# };
-
 
 =head3 bgc
 
@@ -115,9 +110,9 @@ An instance of L<WGwrangler::Model::VersionManager>
 has 'versionManager' => sub {
     my $self = shift;
     WGwrangler::Model::VersionManager->new(
-        $self->bgc->{wireguard_home},
-        $self->bgc->{not_applied_suffix},
-        $self->bgc->{enable_git});
+        versions_dir       => $self->bgc->{wireguard_home},
+        not_applied_suffix => $self->bgc->{not_applied_suffix},
+        git_support        => $self->bgc->{enable_git});
 };
 
 1;

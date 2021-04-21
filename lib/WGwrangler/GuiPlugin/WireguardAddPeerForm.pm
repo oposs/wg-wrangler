@@ -1,11 +1,9 @@
 package WGwrangler::GuiPlugin::WireguardAddPeerForm;
-use Mojo::Base 'CallBackery::GuiPlugin::AbstractForm';
+use Mojo::Base 'CallBackery::GuiPlugin::AbstractForm', -signatures;
 use WGwrangler::Model::MailHandler;
 use CallBackery::Translate qw(trm);
 use CallBackery::Exception qw(mkerror);
 use Mojo::JSON qw(true false);
-use experimental 'signatures';
-
 use POSIX 'strftime';
 
 use Wireguard::WGmeta::Validator;
@@ -20,7 +18,7 @@ Peer edit form
 
 =cut
 
-has 'mailHandler' => sub($self) {
+has 'mailHandler' => sub ($self) {
     WGwrangler::Model::MailHandler->new(app => $self->app, log => $self->controller->log);
 };
 
@@ -37,7 +35,8 @@ Returns a Configuration Structure for the Wireguard Show form
 =cut
 
 
-has formCfg => sub($self) {
+has formCfg => sub ($self) {
+    my $show_advanced = $self->{args}{currentFormData}{show_advanced};
     return [
         # interface selection
         {
@@ -46,7 +45,7 @@ has formCfg => sub($self) {
             widget           => 'selectBox',
             triggerFormReset => true,
             # interestingly the required property is not enough here...
-            validator        => sub($value, $parameter, $formData) {
+            validator        => sub ($value, $parameter, $formData) {
                 unless ($value) {
                     return trm('No interface selected');
                 }
@@ -119,7 +118,7 @@ has formCfg => sub($self) {
             label            => trm('Name'),
             widget           => 'text',
             triggerFormReset => true,
-            validator        => sub($value, $parameter, $formData) {
+            validator        => sub ($value, $parameter, $formData) {
                 return $self->app->wireguardModel->validator('name', $value);
             },
             set              => {
@@ -133,7 +132,7 @@ has formCfg => sub($self) {
             label            => trm('User email'),
             widget           => 'text',
             triggerFormReset => true,
-            validator        => sub($value, $parameter, $formData) {
+            validator        => sub ($value, $parameter, $formData) {
                 return $self->app->wireguardModel->validator('email', $value);
             },
             set              => {
@@ -147,7 +146,7 @@ has formCfg => sub($self) {
             label            => trm('Device'),
             widget           => 'text',
             triggerFormReset => true,
-            validator        => sub($value, $parameter, $formData) {
+            validator        => sub ($value, $parameter, $formData) {
                 return $self->app->wireguardModel->validator('device', $value);
             },
             set              => {
@@ -161,7 +160,7 @@ has formCfg => sub($self) {
             label            => trm('Allowed IPs'),
             widget           => 'text',
             triggerFormReset => true,
-            validator        => sub($value, $parameter, $formData) {
+            validator        => sub ($value, $parameter, $formData) {
                 return $self->app->wireguardModel->validator('single-ip', $value);
             },
             set              => {
@@ -175,7 +174,7 @@ has formCfg => sub($self) {
             label            => trm('Address Override'),
             widget           => 'text',
             triggerFormReset => true,
-            validator        => sub($value, $parameter, $formData) {
+            validator        => sub ($value, $parameter, $formData) {
                 if ($formData->{interface} && $formData->{'public-key'}) {
                     return $self->app->wireguardModel->validator('address_override', $value, $formData->{interface}, $formData->{'public-key'});
                 }
@@ -209,7 +208,7 @@ has formCfg => sub($self) {
             widget => 'header',
             label  => trm('Client specific configuration'),
             set    => {
-                visibility => $self->{args}{currentFormData}{show_advanced} ? 'visible' : 'excluded',
+                visibility => $show_advanced ? 'visible' : 'excluded',
             }
         },
         # interface listen port (advanced)
@@ -218,10 +217,10 @@ has formCfg => sub($self) {
             label            => trm('Client Interface Port'),
             widget           => 'text',
             triggerFormReset => true,
-            validator        => sub($value, $parameter, $formData) {
+            validator        => sub ($value, $parameter, $formData) {
                 return $self->app->wireguardModel->validator('listen-port', $value);},
             set              => {
-                visibility  => $self->{args}{currentFormData}{show_advanced} ? 'visible' : 'excluded',
+                visibility  => $show_advanced ? 'visible' : 'excluded',
                 placeholder => trm('The listen port on the peer')
             }
 
@@ -232,11 +231,11 @@ has formCfg => sub($self) {
             label            => trm('DNS'),
             widget           => 'text',
             triggerFormReset => true,
-            validator        => sub($value, $parameter, $formData) {
+            validator        => sub ($value, $parameter, $formData) {
                 return $self->app->wireguardModel->validator('single-ip', $value);
             },
             set              => {
-                visibility => $self->{args}{currentFormData}{show_advanced} ? 'visible' : 'excluded',
+                visibility => $show_advanced ? 'visible' : 'excluded',
                 value      => $self->config->{'default-dns'}
             },
         },
@@ -254,7 +253,7 @@ has formCfg => sub($self) {
         #     },
         #     set              => {
         #         placeholder => 'Unlike the name attribute, this must be unique',
-        #         visibility  => $self->{args}{currentFormData}{show_advanced} ? 'visible' : 'excluded'
+        #         visibility  => $show_advanced ? 'visible' : 'excluded'
         #     }
         # },
         # persistent-keepalive (advanced)
@@ -263,12 +262,12 @@ has formCfg => sub($self) {
             label            => trm('Persistent-keepalive'),
             widget           => 'text',
             triggerFormReset => true,
-            validator        => sub($value, $parameter, $formData) {
+            validator        => sub ($value, $parameter, $formData) {
                 return $self->app->wireguardModel->validator('persistent-keepalive', $value);
 
             },
             set              => {
-                visibility  => $self->{args}{currentFormData}{show_advanced} ? 'visible' : 'excluded',
+                visibility  => $show_advanced ? 'visible' : 'excluded',
                 placeholder => trm('Send keep-alive pings every N seconds')
             }
         },
@@ -279,7 +278,7 @@ has formCfg => sub($self) {
             widget => 'textArea',
             set    => {
                 placeholder => trm('Some extra infos about this peer (Not visible in config preview)'),
-                visibility  => $self->{args}{currentFormData}{show_advanced} ? 'visible' : 'excluded'
+                visibility  => $show_advanced ? 'visible' : 'excluded'
             }
         },
         # Send by email
@@ -291,9 +290,9 @@ has formCfg => sub($self) {
     ];
 };
 
-has actionCfg => sub {
+has actionCfg => sub ($self) {
 
-    my $handler = sub($self, $args) {
+    my $handler = sub ($self, $args) {
         my $interface = $args->{interface};
         my $peer_pub_key = $args->{'public-key'};
         my $name = $args->{'name'};
@@ -375,7 +374,7 @@ has actionCfg => sub {
     ];
 };
 
-sub generate_preview_config($form_values, $client_private_key, $interface_public_key) {
+sub generate_preview_config ($form_values, $client_private_key, $interface_public_key) {
     # for my $key (keys %{$formData}){
     #     if ($formData->{$key} && $self->validateData($key,$formData)){
     #         return 'There is invalid input in your form data';
@@ -401,7 +400,7 @@ sub generate_preview_config($form_values, $client_private_key, $interface_public
     return $out;
 }
 
-sub getAllFieldValues($self, $args, $formData, $qx_locale) {
+sub getAllFieldValues ($self, $args, $formData, $qx_locale) {
     my $data = {};
     my $may_interface = $formData->{currentFormData}{interface};
 
@@ -442,8 +441,7 @@ sub getAllFieldValues($self, $args, $formData, $qx_locale) {
     return $data;
 }
 
-has checkAccess => sub {
-    my $self = shift;
+has checkAccess => sub($self) {
     return $self->user->may('write');
 };
 

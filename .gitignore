@@ -37,3 +37,5 @@ etc/*.cfg
 .idea
 _Deparsed_XSubs.pm
 conftools
+etc/wgwrangler.yaml
+etc/wgwrangler.yaml.secret

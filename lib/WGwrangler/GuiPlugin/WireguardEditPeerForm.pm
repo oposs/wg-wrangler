@@ -1,10 +1,8 @@
 package WGwrangler::GuiPlugin::WireguardEditPeerForm;
-use Mojo::Base 'CallBackery::GuiPlugin::AbstractForm';
+use Mojo::Base 'CallBackery::GuiPlugin::AbstractForm', -signatures;
 use CallBackery::Translate qw(trm);
 use CallBackery::Exception qw(mkerror);
 use Mojo::JSON qw(true false);
-use experimental 'signatures';
-
 =head1 NAME
 
 WGwrangler::GuiPlugin::WireguardPeerForm - Peer Edit form
@@ -15,7 +13,7 @@ Peer edit form
 
 =cut
 
-has formCfg => sub($self) {
+has formCfg => sub ($self) {
 
     return [
         # This does somehow not work $self->{args}{selection}{disabled} is a reference to JSON::PP true
@@ -54,13 +52,13 @@ has formCfg => sub($self) {
             }
         },
         {
-            key    => 'device',
-            label  => trm('Device'),
-            widget => 'text',
-            validator        => sub($value, $parameter, $formData) {
+            key       => 'device',
+            label     => trm('Device'),
+            widget    => 'text',
+            validator => sub ($value, $parameter, $formData) {
                 return $self->app->wireguardModel->validator('device', $value);
             },
-            set              => {
+            set       => {
                 placeholder => trm('A device name')
             },
         },
@@ -77,7 +75,7 @@ has formCfg => sub($self) {
             key       => 'name',
             label     => trm('Name'),
             widget    => 'text',
-            validator => sub($value, $parameter, $formData) {
+            validator => sub ($value, $parameter, $formData) {
                 return $self->app->wireguardModel->validator('name', $value);
             },
             set       => {
@@ -88,7 +86,7 @@ has formCfg => sub($self) {
             key       => 'allowed-ips',
             label     => trm('Allowed-IPs'),
             widget    => 'text',
-            validator => sub($value, $parameter, $formData) {
+            validator => sub ($value, $parameter, $formData) {
                 if ($formData->{interface} && $formData->{'public-key'} && $formData->{'public-key'}) {
                     return $self->app->wireguardModel->validator('address_override', $value, $formData->{interface}, $formData->{'public-key'});
                 }
@@ -122,9 +120,9 @@ has formCfg => sub($self) {
     ];
 };
 
-has actionCfg => sub {
+has actionCfg => sub ($self) {
 
-    my $handler = sub($self, $args) {
+    my $handler = sub ($self, $args) {
 
         my $interface = $args->{interface};
         my $identifier = $args->{'public-key'};
@@ -168,14 +166,11 @@ has actionCfg => sub {
     ];
 };
 
-sub getAllFieldValues {
-    my $self = shift;
-    my $args = shift;
+sub getAllFieldValues ($self, $args, $form_data, $qx_locale) {
     return $self->app->wireguardModel->get_section_data($args->{selection}{interface}, $args->{selection}{'public-key'});
 }
 
-has checkAccess => sub {
-    my $self = shift;
+has checkAccess => sub ($self) {
     return $self->user->may('write');
 };
 

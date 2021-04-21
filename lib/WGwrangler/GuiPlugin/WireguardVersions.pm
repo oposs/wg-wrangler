@@ -1,10 +1,9 @@
 package WGwrangler::GuiPlugin::WireguardVersions;
-use Mojo::Base 'CallBackery::GuiPlugin::AbstractTable';
+use Mojo::Base 'CallBackery::GuiPlugin::AbstractTable', -signatures;
 use CallBackery::Translate qw(trm);
 use CallBackery::Exception qw(mkerror);
 use Mojo::JSON qw(true false);
 use Wireguard::WGmeta::Utils;
-use experimental 'signatures';
 
 
 =head1 NAME
@@ -41,7 +40,7 @@ WGwrangler::GuiPlugin::WireguardVersions - Lists config versions
 #     }
 # };
 
-has formCfg => sub($self) {
+has formCfg => sub ($self) {
 
     return [
         {
@@ -98,8 +97,7 @@ has tableCfg => sub {
     ];
 };
 
-has actionCfg => sub {
-    my $self = shift;
+has actionCfg => sub ($self) {
     return [] if $self->user and not $self->user->may('write');
 
     return [
@@ -113,9 +111,7 @@ has actionCfg => sub {
             buttonSet        => {
                 enabled => false,
             },
-            actionHandler    => sub {
-                my $self = shift;
-                my $args = shift;
+            actionHandler    => sub ($self, $args) {
                 my $hash = $args->{selection}{'hash'};
                 die mkerror(4992, "You have to select a peer first") if not $hash;
 
@@ -144,11 +140,11 @@ has actionCfg => sub {
     ];
 };
 
-sub getTableRowCount($self, $args, $qx_locale) {
+sub getTableRowCount ($self, $args, $qx_locale) {
     return $self->app->versionManager->get_n_entries($args->{formData}{version_filter});
 }
 
-sub getTableData($self, $args, $qx_locale) {
+sub getTableData ($self, $args, $qx_locale) {
     my ($data, $count) = $self->app->versionManager->get_history($args->{formData}{version_filter});
     # add action set to each row
     for my $row (@{$data}) {

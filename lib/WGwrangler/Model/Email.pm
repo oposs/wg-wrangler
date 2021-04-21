@@ -12,25 +12,25 @@ has app => sub {
     die "app property must be set";
 };
 
-has log => sub($self) {
+has log => sub ($self) {
     $self->app->log;
 };
 
-has home => sub($self) {
+has home => sub ($self) {
     $self->app->home;
 };
 
-has template => sub($self) {
+has template => sub ($self) {
     Mojo::Template->new(
         vars => 1,
     );
 };
 
-has mailTransport => sub($self) {
+has mailTransport => sub ($self) {
     $self->app->mailTransport;
 };
 
-sub getText($self, $template, $args) {
+sub getText ($self, $template, $args) {
     my $render = $self->template->render_file(
         $self->home->child('templates', $template . '.email.ep'),
         $args);
@@ -62,7 +62,7 @@ sub getText($self, $template, $args) {
 
 =cut
 
-sub sendMail($self, $cfg) {
+sub sendMail ($self, $cfg) {
 
     my $in = $self->getText($cfg->{template}, $cfg->{args});
     my $bcfg = $self->app->config->cfgHash->{BACKEND};

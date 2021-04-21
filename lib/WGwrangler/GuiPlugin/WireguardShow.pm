@@ -1,10 +1,9 @@
 package WGwrangler::GuiPlugin::WireguardShow;
-use Mojo::Base 'CallBackery::GuiPlugin::AbstractTable';
+use Mojo::Base 'CallBackery::GuiPlugin::AbstractTable', -signatures;
 use CallBackery::Translate qw(trm);
 use CallBackery::Exception qw(mkerror);
 use Mojo::JSON qw(true false);
 use Wireguard::WGmeta::Utils;
-use experimental 'signatures';
 
 =head1 NAME
 
@@ -16,7 +15,7 @@ All the methods of L<CallBackery::GuiPlugin::AbstractTable> plus:
 
 =cut
 
-has formCfg => sub($self) {
+has formCfg => sub ($self) {
 
     return [
         {
@@ -36,8 +35,7 @@ has formCfg => sub($self) {
     ]
 };
 
-has tableCfg => sub {
-    my $self = shift;
+has tableCfg => sub ($self) {
     return [
         {
             label    => trm('Disabled'),
@@ -138,8 +136,7 @@ has tableCfg => sub {
     ]
 };
 
-has actionCfg => sub {
-    my $self = shift;
+has actionCfg => sub ($self) {
     my $bg_config = $self->app->config->cfgHash->{BACKEND};
     return [] if $self->user and not $self->user->may('write');
 
@@ -184,8 +181,8 @@ has actionCfg => sub {
             backend          => {
                 plugin => 'WireguardEditPeerForm',
                 config => {
-                    'no_apply'            => $bg_config->{no_apply},
-                    'enable_git'          => $bg_config->{enable_git}
+                    'no_apply'   => $bg_config->{no_apply},
+                    'enable_git' => $bg_config->{enable_git}
                 }
             }
         },
@@ -197,7 +194,7 @@ has actionCfg => sub {
             buttonSet        => {
                 enabled => false,
             },
-            actionHandler    => sub($self, $args) {
+            actionHandler    => sub ($self, $args) {
                 my $id = $args->{selection}{'public-key'};
                 die mkerror(4992, "You have to select a peer first") if not $id;
 
@@ -225,7 +222,7 @@ has actionCfg => sub {
             buttonSet        => {
                 enabled => false,
             },
-            actionHandler    => sub($self, $args, ) {
+            actionHandler    => sub ($self, $args,) {
                 my $id = $args->{selection}{'public-key'};
                 die mkerror(4992, trm('You have to select a peer first')) if not $id;
 
@@ -243,7 +240,7 @@ has actionCfg => sub {
                         $self->app->versionManager->checkin_new_version($commit_message, $user_string, 'dummy@example.com');
                     }
                 };
-                if($@){
+                if ($@) {
                     my $error_id = int(rand(100000));
                     $self->controller->log->error('error_id: ' . $error_id . ' ' . $@);
                     # ToDo: Restore peer
@@ -297,7 +294,7 @@ has actionCfg => sub {
             buttonSet        => {
                 enabled => true,
             },
-            actionHandler    => sub($self, $args) {
+            actionHandler    => sub ($self, $args) {
                 $self->app->wireguardModel->discard_changes();
                 return {
                     action => 'reload',
@@ -310,8 +307,7 @@ has actionCfg => sub {
     ];
 };
 
-has grammar => sub {
-    my $self = shift;
+has grammar => sub ($self) {
     $self->mergeGrammar(
         $self->SUPER::grammar,
         {
@@ -331,24 +327,13 @@ has grammar => sub {
     );
 };
 
-sub _getFilter {
-    my $self = shift;
-    my $search = shift;
-    my $filter = $search;
-    return $filter;
-}
-
-sub getTableRowCount {
-    my $self = shift;
-    my $args = shift;
-    my $filter = $self->_getFilter($args->{formData}{wg_interface});
+sub getTableRowCount ($self, $args, $qx_locale) {
+    my $filter = $args->{formData}{wg_interface};
     return $self->app->wireguardModel->get_peer_count($filter);
 }
 
-sub getTableData {
-    my $self = shift;
-    my $args = shift;
-    my $filter = $self->_getFilter($args->{formData}{wg_interface});
+sub getTableData ($self, $args, $qx_locale) {
+    my $filter = $args->{formData}{wg_interface};
     my $data = $self->app->wireguardModel->get_peer_table_data($args->{firstRow}, $args->{lastRow}, $filter);
     if ($args->{sortColumn}) {
         $data = $self->app->wireguardModel->sort_table_data($data, $args->{sortColumn}, $args->{sortDesc});

@@ -11,13 +11,7 @@ Manages configuration version either by maintaining a git repository or by relie
 =cut
 
 package WGwrangler::Model::VersionManager;
-use strict;
-use warnings FATAL => 'all';
-use experimental 'signatures';
-
-use Symbol 'gensym';
-use IPC::Open3;
-use Data::Dumper;
+use Mojo::Base -base, -signatures;
 use File::Copy qw(move copy);
 use Wireguard::WGmeta::Wrapper::Bridge;
 use Wireguard::WGmeta::Utils;
@@ -25,34 +19,48 @@ use Wireguard::WGmeta::Utils;
 use constant FALSE => 0;
 use constant TRUE => 1;
 
-=head3 new($versions_dir, $not_applied_suffix [, $git_support])
 
-Initializes a git repo in C<$versions_dis> if no I<.git> directory is found the parent dir and C<$git_support> is set to one.
+=head3 versions_dir
 
-Please note that all methods in this class raise Exceptions on failure!
+Usually set to /etc/wireguard
 
 =cut
-sub new($class, $versions_dir, $not_applied_suffix, $git_support = 0) {
-    my $self = {
-        versions_dir => $versions_dir,
-        git_support  => (-e $versions_dir . '../.git' || not $git_support) ? 0 : 1
-    };
+has 'versions_dir' => sub ($self) {
+    die 'Must not be empty';
+};
 
+=head3 git_support
+
+Should we use git as versioning system. Default:No (-> Fallback to simple I<.old> files)
+
+=cut
+has 'git_support' => sub ($self) {
+    FALSE;
+};
+
+=head3 not_applied_suffix
+
+customize not applied suffix
+
+=cut
+has 'not_applied_suffix' => sub ($self) {
+    return '.not_applied'
+};
+sub new {
+    my $self = shift->SUPER::new(@_);
     # init git
-    if ($self->{git_support}) {
-        if (-e $versions_dir) {
-            run_external("git init $versions_dir");
-            unless (-e $versions_dir . '.gitignore') {
-                run_external("echo '*.$not_applied_suffix' > $versions_dir.gitignore");
+    if ($self->git_support) {
+        if (-e $self->versions_dir) {
+            run_external("git init " . $self->versions_dir);
+            unless (-e $self->versions_dir . '.gitignore') {
+                run_external("echo '*." . $self->not_applied_suffix . "' > " . $self->versions_dir . ".gitignore");
             }
 
         }
         else {
-            die "`$versions_dir` does not exist";
+            die "`." . $self->versions_dir . "` does not exist";
         }
     }
-
-    bless $self, $class;
     return $self;
 }
 
@@ -62,10 +70,10 @@ Runs the external I<git log> command and returns the obtained data in a Callback
 disabled, the list of I<.old> files is returned instead.
 
 =cut
-sub get_history($self, $filter) {
+sub get_history ($self, $filter) {
     my @result;
-    if ($self->{git_support}) {
-        my (@output, undef) = run_external("cd $self->{versions_dir} && git log --pretty=format:'%h,%an,%s,%ad' --date=unix -n 10");
+    if ($self->git_support) {
+        my (@output, undef) = run_external("cd " . $self->versions_dir . " && git log --pretty=format:'%h,%an,%s,%ad' --date=unix -n 20");
         chomp(@output);
         for my $revision (@output) {
             my ($hash, $user, $message, $date) = split /,/, $revision;
@@ -76,7 +84,7 @@ sub get_history($self, $filter) {
 
     }
     else {
-        my @files = read_dir($self->{versions_dir}, qr/\.old$/);
+        my @files = read_dir($self->versions_dir, qr/\.old$/);
         chomp(@files);
         for my $old_version (@files) {
             my $date = get_mtime($old_version);
@@ -92,7 +100,7 @@ sub get_history($self, $filter) {
 Returns how many entries are present
 
 =cut
-sub get_n_entries($self, $filter) {
+sub get_n_entries ($self, $filter) {
     my (undef, $count) = $self->get_history($filter);
     return $count;
 }
@@ -102,10 +110,10 @@ sub get_n_entries($self, $filter) {
 Checks in a new version. If git support is disabled, this method is a No-op.
 
 =cut
-sub checkin_new_version($self, $commit_message, $user, $user_email) {
-    if ($self->{git_support}) {
-        run_external("cd $self->{versions_dir} && git add .");
-        run_external("cd $self->{versions_dir} && git -c user.name='$user' -c user.email=$user_email commit -m '$commit_message'");
+sub checkin_new_version ($self, $commit_message, $user, $user_email) {
+    if ($self->git_support) {
+        run_external("cd " . $self->versions_dir . " && git add .");
+        run_external("cd " . $self->versions_dir . " && git -c user.name='$user' -c user.email=$user_email commit -m '$commit_message'");
     }
     else {
         # Do nothing
@@ -116,9 +124,9 @@ sub checkin_new_version($self, $commit_message, $user, $user_email) {
 If git support is enabled C<$revision> is expected to be a commit hash. Otherwise a a path to a I<.old> configuration file.
 
 =cut
-sub go_back_to_revision($self, $revision) {
-    if ($self->{git_support}) {
-        run_external("cd $self->{versions_dir} && git reset --hard $revision");
+sub go_back_to_revision ($self, $revision) {
+    if ($self->git_support) {
+        run_external("cd " . $self->versions_dir . " && git reset --hard $revision");
     }
     else {
         my $no_old = $revision;

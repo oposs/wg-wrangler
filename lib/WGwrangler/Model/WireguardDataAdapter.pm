@@ -28,7 +28,7 @@ has app => sub {
     die 'app property must be set';
 };
 
-has log => sub($self) {
+has log => sub ($self) {
     $self->app->log;
 };
 
@@ -36,7 +36,7 @@ has 'wireguard_home' => sub {
     die 'This is a required attribute';
 };
 
-has 'backend_config' => sub($self) {
+has 'backend_config' => sub ($self) {
     $self->app->config->cfgHash->{BACKEND}
 };
 
@@ -48,20 +48,20 @@ has 'not_applied_suffix' => sub {
     return '.not_applied';
 };
 
-has 'wg_meta' => sub($self) {
+has 'wg_meta' => sub ($self) {
     my $custom_attr_config = {
         'email' => {
             'in_config_name' => 'Email',
-            'validator'      => sub($value) {return $value =~ /^\S+@\S+\.\S+$/;}
+            'validator'      => sub ($value) {return $value =~ /^\S+@\S+\.\S+$/;}
         },
         device  => {
             'in_config_name' => 'Device',
-            'validator'      => sub($value) {return 1}
+            'validator'      => sub ($value) {return 1}
 
         },
         created => {
             'in_config_name' => 'Created',
-            'validator'      => sub($value) {return 1}
+            'validator'      => sub ($value) {return 1}
         }
     };
     my $wg_metaT = Wireguard::WGmeta::Wrapper::ConfigT->new($self->wireguard_home, '#+', '#-', $self->not_applied_suffix, $custom_attr_config);
@@ -69,11 +69,11 @@ has 'wg_meta' => sub($self) {
     return $wg_metaT;
 };
 
-has 'wg_show' => sub($self) {
+has 'wg_show' => sub ($self) {
     Wireguard::WGmeta::Wrapper::Show->new($self->_get_wg_show_data());
 };
 
-has 'ip_manager' => sub($self) {
+has 'ip_manager' => sub ($self) {
     my $ip_manager = WGwrangler::Model::IPmanager->new();
     for my $interface (keys %{$self->wg_meta->{parsed_config}}) {
         _populate_ip_manager($interface, $self->wg_meta, $ip_manager);
@@ -81,17 +81,17 @@ has 'ip_manager' => sub($self) {
     return $ip_manager;
 };
 
-sub _get_wg_show_data($self) {
+sub _get_wg_show_data ($self) {
     my (@output, undef) = run_external($self->backend_config->{wg_show_command});
     return join '', @output;
 }
 
-sub _reload_callback($interface, $ref_list_args) {
+sub _reload_callback ($interface, $ref_list_args) {
     my ($self) = @{$ref_list_args};
     _populate_ip_manager($interface, $self->wg_meta, $self->ip_manager);
 }
 
-sub _populate_ip_manager($interface, $wg_metaT, $ip_manager) {
+sub _populate_ip_manager ($interface, $wg_metaT, $ip_manager) {
     if (exists $wg_metaT->{parsed_config}{$interface}{$interface}{address}) {
         my $interface_networks = $wg_metaT->{parsed_config}{$interface}{$interface}{address};
         $ip_manager->populate_range($interface, $interface_networks);
@@ -109,7 +109,7 @@ sub _populate_ip_manager($interface, $wg_metaT, $ip_manager) {
 Suggests the next free ip(s) for a given interface
 
 =cut
-sub suggest_ip($self, $interface) {
+sub suggest_ip ($self, $interface) {
     return $self->ip_manager->suggest_ip($interface);
 }
 
@@ -119,17 +119,17 @@ Collection of all validator functions. Each validation function takes 3 argument
 an empty string on success and an error message on failure
 
 =cut
-sub validator($self, $attribute, $value, $interface = undef, $identifier = undef) {
+sub validator ($self, $attribute, $value, $interface = undef, $identifier = undef) {
     unless (defined $value) {
         return 'Value must be defined';
     }
     my $validator_mapping = {
-        'device'               => sub($device_name, $int, $ident) {return $device_name =~ /[^a-zA-Z0-9_\-]/g ? trm('Only a-Z, 0-9 and -/_ allowed') : ''},
-        'interface'            => sub($interface_name, $int, $ident) {return $interface_name =~ /[^a-zA-Z0-9_\-]/g ? trm('Only a-Z, 0-9 and -/_ allowed') : ''},
-        'email'                => sub($email, $int, $ident) {return $email =~ /^\S+@\S+\.\S+$/ ? '' : trm('Does not look like an email address')},
-        'name'                 => sub($name, $int, $ident) {return $name =~ /[^a-zA-Z0-9_\-\s{1}]/g ? trm('Only a-Z, 0-9, -/_ and one space are allowed') : ''},
-        'single-ip'            => sub($ip_address, $int, $ident) {$self->ip_manager->looks_like_ip($ip_address) == 1 ? '' : trm('Does not look like an ip address')},
-        'address_override'     => sub($ips, $int, $ident) {
+        'device'               => sub ($device_name, $int, $ident) {return $device_name =~ /[^a-zA-Z0-9_\-]/g ? trm('Only a-Z, 0-9 and -/_ allowed') : ''},
+        'interface'            => sub ($interface_name, $int, $ident) {return $interface_name =~ /[^a-zA-Z0-9_\-]/g ? trm('Only a-Z, 0-9 and -/_ allowed') : ''},
+        'email'                => sub ($email, $int, $ident) {return $email =~ /^\S+@\S+\.\S+$/ ? '' : trm('Does not look like an email address')},
+        'name'                 => sub ($name, $int, $ident) {return $name =~ /[^a-zA-Z0-9_\-\s{1}]/g ? trm('Only a-Z, 0-9, -/_ and one space are allowed') : ''},
+        'single-ip'            => sub ($ip_address, $int, $ident) {$self->ip_manager->looks_like_ip($ip_address) == 1 ? '' : trm('Does not look like an ip address')},
+        'address_override'     => sub ($ips, $int, $ident) {
             unless (defined $ident && defined $int) {
                 return trm('Not enough arguments for validator `address_override`');
             }
@@ -137,16 +137,16 @@ sub validator($self, $attribute, $value, $interface = undef, $identifier = undef
             return $self->ip_manager->is_valid_for_interface($int, $ips, $peer_data{'allowed-ips'});
 
         },
-        'listen-port'          => sub($port, $int, $ident) {
+        'listen-port'          => sub ($port, $int, $ident) {
             (looks_like_number($port) && $port > 1024 && $port <= 65535) ? return '' : return trm('Has to be in range 1025-65535 and a number')
         },
-        'alias'                => sub($alias, $int, $ident) {
+        'alias'                => sub ($alias, $int, $ident) {
             unless (defined $int) {
                 return trm('Not enough arguments for validator `alias`');
             }
             return $self->wg_meta->is_valid_alias($int, $alias) ? trm('Alias is already defined for this interface') : '';
         },
-        'persistent-keepalive' => sub($val, $int, $ident) {return (looks_like_number($val) && $val > 0) ? '' : trm('Has to be larger than 0 and a number')}
+        'persistent-keepalive' => sub ($val, $int, $ident) {return (looks_like_number($val) && $val > 0) ? '' : trm('Has to be larger than 0 and a number')}
     };
     if (exists $validator_mapping->{$attribute}) {
         return &{$validator_mapping->{$attribute}}($value, $interface, $identifier);
@@ -161,7 +161,7 @@ sub validator($self, $attribute, $value, $interface = undef, $identifier = undef
 Simply returns true if the interface is valid
 
 =cut
-sub validate_interface($self, $interface) {
+sub validate_interface ($self, $interface) {
     return $self->wg_meta->is_valid_interface($interface);
 }
 
@@ -170,7 +170,7 @@ sub validate_interface($self, $interface) {
 Takes a private key and returns the derived public key. Throws an exception on command failure
 
 =cut
-sub get_public_key($self, $private_key) {
+sub get_public_key ($self, $private_key) {
     return get_pub_key($private_key);
 }
 
@@ -179,7 +179,7 @@ sub get_public_key($self, $private_key) {
 Generates a key pair and returns them embedded in a hash reference
 
 =cut
-sub gen_key_pair($self) {
+sub gen_key_pair ($self) {
     my @keypair = gen_keypair();
     return { 'private-key' => $keypair[0], 'public-key' => $keypair[1] }
 }
@@ -189,7 +189,7 @@ sub gen_key_pair($self) {
 Returns the number of peers with respect to the current filter string
 
 =cut
-sub get_peer_count($self, $filter) {
+sub get_peer_count ($self, $filter) {
     my $filtered_data = _apply_filter($self->_generate_table_source(), $filter);
     return @{$filtered_data};
 }
@@ -201,7 +201,7 @@ To allow for batch processing, you have to call L</commit_changes($ref_integrity
 as you finished updating attributes.
 
 =cut
-sub update_peer_data($self, $interface, $identifier, $attr, $value) {
+sub update_peer_data ($self, $interface, $identifier, $attr, $value) {
     $self->wg_meta->set($interface, $identifier, $attr, $value, 1);
 }
 
@@ -212,7 +212,7 @@ L</commit_changes($ref_integrity_hashes)> manually to allow setting additional a
 to disk.
 
 =cut
-sub add_peer($self, $interface, $name, $ip_address, $public_key, $alias, $pre_shared_key) {
+sub add_peer ($self, $interface, $name, $ip_address, $public_key, $alias, $pre_shared_key) {
     $self->wg_meta->add_peer($interface, $name, $ip_address, $public_key, $alias, $pre_shared_key);
 }
 
@@ -221,7 +221,7 @@ sub add_peer($self, $interface, $name, $ip_address, $public_key, $alias, $pre_sh
 Removes a peer identified by its interface and public-key followed by an automatic commit()
 
 =cut
-sub remove_peer($self, $interface, $identifier, $ref_integrity_hash) {
+sub remove_peer ($self, $interface, $identifier, $ref_integrity_hash) {
     $self->wg_meta->remove_peer($interface, $identifier);
     $self->commit_changes($ref_integrity_hash);
 }
@@ -233,13 +233,13 @@ Writes current local config to disk. If the property C<is_hot_config> is set to 
 a call to L</apply_config()>
 
 =cut
-sub commit_changes($self, $ref_integrity_hashes) {
+sub commit_changes ($self, $ref_integrity_hashes) {
     $self->wg_meta->commit($self->is_hot_config, 0, $ref_integrity_hashes);
     # Apply directly when is_hot_config
     $self->apply_config() if $self->is_hot_config;
 }
 
-sub sort_table_data($self, $data, $key, $order) {
+sub sort_table_data ($self, $data, $key, $order) {
     my @keys_to_sort = map {$_->{$key}} @{$data};
     my @sorted_indexes;
     if (defined $order) {
@@ -251,14 +251,14 @@ sub sort_table_data($self, $data, $key, $order) {
     return [ @{$data}[ @sorted_indexes ] ];
 }
 
-sub get_section_data($self, $interface, $identifier) {
+sub get_section_data ($self, $interface, $identifier) {
     my %d = $self->wg_meta->get_interface_section($interface, $identifier);
     $d{interface} = $interface;
     $d{integrity_hash} = $self->wg_meta->calculate_sha_from_internal($interface, $identifier);
     return \%d;
 }
 
-sub restore_from_section_data($self, $section_data) {
+sub restore_from_section_data ($self, $section_data) {
     for my $key (keys %{$section_data}) {
         unless ($key eq 'interface' || $key eq 'integrity_hash' || $key eq 'order' || $key eq 'type') {
             $self->wg_meta->set($section_data->{interface}, $section_data->{'public-key'}, $key, $section_data->{$key}, 1);
@@ -266,15 +266,15 @@ sub restore_from_section_data($self, $section_data) {
     }
     $self->apply_config();
 }
-sub get_interface_selection($self) {
+sub get_interface_selection ($self) {
     return [ { title => '', key => '0' }, map {{ title => $_, key => $_ }} $self->wg_meta->get_interface_list() ];
 }
 
-sub disable_peer($self, $interface, $identifier, $integrity_hash) {
+sub disable_peer ($self, $interface, $identifier, $integrity_hash) {
     $self->wg_meta->disable($interface, $identifier);
     $self->commit_changes($integrity_hash);
 }
-sub enable_peer($self, $interface, $identifier, $integrity_hash) {
+sub enable_peer ($self, $interface, $identifier, $integrity_hash) {
     $self->wg_meta->enable($interface, $identifier);
     $self->commit_changes($integrity_hash);
 }
@@ -284,7 +284,7 @@ sub enable_peer($self, $interface, $identifier, $integrity_hash) {
 Runs the external I<wireguard apply command>
 
 =cut
-sub apply_config($self) {
+sub apply_config ($self) {
     my $apply_command = $self->backend_config->{wg_apply_command};
 
     for my $interface ($self->wg_meta->get_interface_list()) {
@@ -304,7 +304,7 @@ sub apply_config($self) {
 If there is a I<.not_applied> config delete it
 
 =cut
-sub discard_changes($self) {
+sub discard_changes ($self) {
     for my $interface ($self->wg_meta->get_interface_list()) {
         my $safe_path = $self->{wireguard_home} . $interface . $self->{not_applied_prefix};
         if (-e $safe_path) {
@@ -313,7 +313,7 @@ sub discard_changes($self) {
     }
 }
 
-sub _generate_table_source($self) {
+sub _generate_table_source ($self) {
     $self->wg_show->reload($self->_get_wg_show_data());
     my @table_data;
     for my $interface ($self->wg_meta->get_interface_list()) {
@@ -349,7 +349,7 @@ sub _generate_table_source($self) {
 }
 
 
-sub _apply_filter($ref_data, $filter) {
+sub _apply_filter ($ref_data, $filter) {
     if ($filter) {
         my @filtered_data;
         my @filter_terms = map {s/^\s+|\s+$//g;
@@ -369,7 +369,7 @@ sub _apply_filter($ref_data, $filter) {
     }
 }
 
-sub get_peer_table_data($self, $first_row, $last_row, $filter) {
+sub get_peer_table_data ($self, $first_row, $last_row, $filter) {
     # unfortunately we have to apply the filter twice since get_n_rows() and get_table_data() are two separate calls
     my @table_data = @{_apply_filter($self->_generate_table_source(), $filter)};
     $last_row = $#table_data if ($last_row > $#table_data);

@@ -1,9 +1,6 @@
 package WGwrangler::Model::MailHandler;
 use Email::Sender::Transport::SMTP;
-use Mojo::Base 'WGwrangler::Model::Email';
-use strict;
-use warnings FATAL => 'all';
-use experimental 'signatures';
+use Mojo::Base 'WGwrangler::Model::Email', -signatures;
 use SVG::Barcode::QRCode;
 use MIME::Base64 qw(encode_base64);
 
@@ -39,7 +36,7 @@ Expects the following structure:
 
 The body of the attachment is converted into a base 64-encoded qr-code
 =cut
-sub prepare_and_send($self, $mail_cfg) {
+sub prepare_and_send ($self, $mail_cfg) {
     my $qrcode = SVG::Barcode::QRCode->new();
     $mail_cfg->{qr} = encode_base64($qrcode->plot($mail_cfg->{attachment}->{body}));
     my $send_cfg = {
