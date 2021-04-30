@@ -5,6 +5,6 @@ requires 'Net::IP', '>=1.26';
 requires 'Email::MIME';
 requires 'Email::Sender';
 requires 'Text::QRCode';
-requires 'YAML:XS';
+requires 'YAML::XS';
 requires 'SVG::Barcode';
 requires 'SVG::Barcode::QRCode';

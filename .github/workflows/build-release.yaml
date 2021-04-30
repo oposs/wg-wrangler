@@ -17,7 +17,7 @@ jobs:
             image_version_tag: '20.04'
 
     runs-on: ubuntu-latest
-    name: Build package defined in ${{ matrix.RELEASE.docker_file }} for tag {{$matrix.RELEASE.image_version_tag}}
+    name: Build package defined in ${{ matrix.RELEASE.docker_file }} for tag ${{ matrix.RELEASE.image_version_tag }}
     steps:
       - uses: actions/checkout@v1
       - name: Run docker build
