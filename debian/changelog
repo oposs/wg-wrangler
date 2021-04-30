@@ -3,7 +3,7 @@ wg-wrangler (0.1.1) unstable; urgency=medium
    * Initial deb release
 
    -- Tobias Bossert <bossert@oetiker.ch> Thu, 30 Apr 2021 11:02:58 +0200
-
+   
 wg-wrangler (0.1.0) unstable; urgency=medium
 
    * Initial release

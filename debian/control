@@ -1,0 +1,10 @@
+Source: wg-wrangler
+Section: system
+Priority: optional
+Maintainer: Tobias Bossert <bossert@oetiker.ch>
+Build-Depends: build-essential, debhelper (>= 9)
+
+Package: wg-wrangler
+Architecture: any
+Depends: ${shlibs:Depends}, perl, wireguard, sudo
+Description: An web-frontend for managing wireguard peer configuration

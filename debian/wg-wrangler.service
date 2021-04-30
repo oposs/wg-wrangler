@@ -1,0 +1,11 @@
+[Unit]
+Description=wg-wranger wireguard manager
+
+[Service]
+Type=simple
+User=wg-wrangler_manager
+Group=wg-wrangler_manager
+ExecStart=/usr/bin/perl opt/wg-wrangler/bin/wgwrangler.pl prefork --listen 'http://127.0.0.1:7171'
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,36 @@
+name: 'Docker release builder'
+description: 'Build release packages using a docker image'
+
+inputs:
+  docker_file:
+    description: Target Docker file to build package
+    required: true
+  image_version_tag:
+    description: Tag which is prepended on the FROM directive
+    required: false
+    default: latest
+
+outputs:
+  package_name:
+    description: name of the generated package
+    value: ${{ steps.run.outputs.package_name }}
+
+runs:
+  using: 'composite'
+  steps:
+    - id: build
+      name: Build Docker Image
+      run: |
+        docker build \
+        --build-arg IMAGE_VERSION_TAG=${{inputs.image_version_tag}} \
+        -f $(pwd)/.github/actions/build-release-action/${{inputs.docker_file}} \
+        $(pwd)/.github/actions/build-release-action/ \
+        -t deb_builder:latest
+      shell: bash
+    - id: run
+      name: Run Docker Image
+      run: docker run -v $(pwd):/github/workspace --workdir /github/workspace deb_builder:latest
+      shell: bash
+
+  
+

@@ -38,4 +38,4 @@ share/messages.pot: $(PM) $(CALLBACKERY_PM)
 	for lang in $(LANGUAGES); do 		( test -f $$lang || cp share/messages.pot $$lang ); 		$(MSGMERGE) -s --force-po -U $$lang share/messages.pot; 	done
 
 test:
-	prove -w
+	$(MJ_CLASS)_CONFIG=t/etc/wgwrangler.yaml prove -w
