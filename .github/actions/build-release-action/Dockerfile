@@ -24,7 +24,8 @@ RUN apt-get -y update && \
         nodejs \
         libkrb5-dev \
         libqrencode-dev \
-        g++
+        g++ \
+        zlib1g-dev
         
 COPY make-deb.sh /make-deb.sh
 
