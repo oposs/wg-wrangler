@@ -2,6 +2,8 @@
 Description=wg-wranger wireguard manager
 
 [Service]
+Environment=MOJO_MODE=production
+Environment=MOJO_LOG_LEVEL=info
 Type=simple
 User=wg-wrangler_manager
 Group=wg-wrangler_manager

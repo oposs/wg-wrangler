@@ -9,9 +9,14 @@ adduser --system --group --no-create-home $USERNAME
 
 # set permissions and group membership on /etc/wireguard
 chgrp --silent --recursive $GROUPNAME /etc/wireguard/
-
 # set group permissions
+chmod g+rwx /etc/wireguard
 chmod -R g+rw /etc/wireguard
+
+# set permissions for /opt/wg-wrangler/etc dir
+chgrp --silent --recursive $GROUPNAME /opt/wg-wrangler/etc
+# set group permissions
+chmod -R g+rwx /opt/wg-wrangler/etc
 
 # Whitelist wg* commands for us
 echo "%$GROUPNAME ALL=NOPASSWD: /usr/bin/wg*" >> /etc/sudoers.d/wg-wrangler

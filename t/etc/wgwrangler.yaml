@@ -8,9 +8,9 @@ BACKEND:
   enable_git: false
   no_apply: true
   not_applied_suffix: .not_applied
-  wireguard_home: /dummy_home/
+  wireguard_home: /public/projects/dummy_wg_home/
   wg_apply_command: sudo -n wg-quick strip %interface% > /tmp/wg_tmp && sudo -n wg syncconf %interface% /tmp/wg_tmp && rm /tmp/wg_tmp
-  wg_show_command: sudo -n wg show all dump
+  wg_show_command: cat /public/projects/dummy_wg_home/wg_show_dummy
 
 FRONTEND:
 # logo = ../resource/wgwrangler/logo.png

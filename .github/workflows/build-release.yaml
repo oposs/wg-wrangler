@@ -7,6 +7,7 @@ on:
 jobs:
   build_deb:
     strategy:
+      fail-fast: false
       matrix:
         RELEASE:
           - Ubuntu:
