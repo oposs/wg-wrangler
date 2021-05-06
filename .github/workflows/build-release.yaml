@@ -7,25 +7,26 @@ on:
 jobs:
   build_deb:
     strategy:
+      fail-fast: false
       matrix:
-        RELEASE:
-          - Ubuntu:
+        include:
+          - ubuntu: 18.04
             docker_file: Dockerfile
             image_version_tag: '18.04'
-          - Ubuntu:
+          - ubuntu: 20.04
             docker_file: Dockerfile
             image_version_tag: '20.04'
 
     runs-on: ubuntu-latest
-    name: Build package defined in ${{ matrix.RELEASE.docker_file }} for tag ${{ matrix.RELEASE.image_version_tag }}
+    name: Build package defined in ${{ matrix.docker_file }} for tag ${{ matrix.image_version_tag }}
     steps:
       - uses: actions/checkout@v1
       - name: Run docker build
         id: build_package
         uses: ./.github/actions/build-release-action
         with:
-          docker_file: ${{ matrix.RELEASE.docker_file }}
-          image_version_tag: ${{ matrix.RELEASE.image_version_tag }}
+          docker_file: ${{ matrix.docker_file }}
+          image_version_tag: ${{ matrix.image_version_tag }}
 
       - name: Release deb files
         uses: softprops/action-gh-release@v1
