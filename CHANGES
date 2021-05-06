@@ -1,3 +1,10 @@
+wg-wrangler (0.1.2) unstable; urgency=medium
+
+   * package: added config options for the --listen argument
+   * development: Allow development without having wireguard installed
+
+   -- Tobias Bossert <bossert@oetiker.ch> Thu, 06 Apr 2021 15:56:58 +0200
+
 wg-wrangler (0.1.1) unstable; urgency=medium
 
    * Initial deb release
@@ -9,4 +16,3 @@ wg-wrangler (0.1.0) unstable; urgency=medium
    * Initial release
 
    -- Tobias Bossert <bossert@oetiker.ch> Thu, 16 Apr 2021 09:02:58 +0200
-

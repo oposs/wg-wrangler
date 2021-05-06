@@ -1,4 +1,4 @@
-requires 'CallBackery', '>= 0.35.5';
+requires 'CallBackery', '>= 0.36.9';
 requires 'Mojo::SQLite';
 requires 'Wireguard::WGmeta', '>= 0.2.3';
 requires 'Net::IP', '>=1.26';
@@ -8,3 +8,4 @@ requires 'Text::QRCode';
 requires 'YAML::XS';
 requires 'SVG::Barcode';
 requires 'SVG::Barcode::QRCode';
+requires 'YAML::PP';

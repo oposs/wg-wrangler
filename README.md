@@ -38,10 +38,13 @@ using the built-in Mojo webserver.
 
 You can now connect to the CallBackery app with your web browser.
 
-
-
 If you need any additional perl modules, write their names into the PERL_MODULES
 file and run ./bootstrap.
+
+**Honored Environment Variables**
+
+- `WGwrangler_NO_WG` If defined, we do not call any wg* command from code (e.g. to generate pub/private-keys)
+- `WGwrangler_CONFIG` Use this variable to set the path to the main `wgwrangler.yaml` file, defaults to `etc/wgrangler.yaml`
 
 Installation
 ------------

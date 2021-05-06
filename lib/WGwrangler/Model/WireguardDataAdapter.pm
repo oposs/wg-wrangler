@@ -48,6 +48,10 @@ has 'not_applied_suffix' => sub {
     return '.not_applied';
 };
 
+has 'wg_not_installed' => sub {
+    return defined $ENV{'WGwrangler_NO_WG'}
+};
+
 has 'wg_meta' => sub ($self) {
     my $custom_attr_config = {
         'email' => {
@@ -171,7 +175,7 @@ Takes a private key and returns the derived public key. Throws an exception on c
 
 =cut
 sub get_public_key ($self, $private_key) {
-    return get_pub_key($private_key);
+    return $self->wg_not_installed ? 'dummy_pub_key' : get_pub_key($private_key);
 }
 
 =head3 gen_key_pair()
@@ -180,7 +184,7 @@ Generates a key pair and returns them embedded in a hash reference
 
 =cut
 sub gen_key_pair ($self) {
-    my @keypair = gen_keypair();
+    my @keypair = $self->wg_not_installed ? ('dummy_priv_key', 'dummy_pub_key') : gen_keypair();
     return { 'private-key' => $keypair[0], 'public-key' => $keypair[1] }
 }
 
