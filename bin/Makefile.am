@@ -1,4 +1,4 @@
-dist_bin_SCRIPTS = $(MJ_SCRIPT)
+dist_bin_SCRIPTS = wgwrangler
 
 install-exec-hook:
 	[ "$(PERL5LIB)" == "" ] || cd "$(DESTDIR)$(bindir)" && $(PERL) -i -p -e 's{.*# PERL5LIB}{use lib qw($(PERL5LIB)); # PERL5LIB}' $(dist_bin_SCRIPTS) || true

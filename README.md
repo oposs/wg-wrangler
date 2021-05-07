@@ -84,7 +84,7 @@ setup:
   Type=simple
   User=wireguard_manager
   Group=wireguard_manager
-  ExecStart=/usr/bin/perl /home/wireguard_manager/opt/wgwrangler/bin/wgwrangler.pl prefork --listen 'http://0.1.0.1:7171'
+  ExecStart=/usr/bin/perl /home/wireguard_manager/opt/wgwrangler/bin/wgwrangler prefork --listen 'http://127.0.0.1:7171'
   
   [Install]
   WantedBy=multi-user.target
