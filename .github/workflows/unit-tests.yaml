@@ -109,7 +109,7 @@ jobs:
         make install
         cd $HOME/test-install
         cp etc/wgwrangler.dist.yaml  etc/wgwrangler.yaml
-        ./bin/wgwrangler.pl
+        ./bin/wgwrangler
 
     - name: Cache Prep
       run: |
