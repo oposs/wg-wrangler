@@ -1,0 +1,22 @@
+#!/bin/sh
+
+USERNAME=wg-wrangler_manager
+
+# Revert group of /etc/wireguard
+chgrp --silent --recursive root /etc/wireguard/
+
+# remove sudoers entry
+if [ ! -f /etc/sudoers.d/wg-wrangler ]
+then
+  echo "File does not exist. Skipping..."
+else
+  rm /etc/sudoers.d/wg-wrangler
+fi
+
+# and finally remove the wg-wrangler user
+if [ -x "$(command -v deluser)" ]; then
+  deluser --quiet --system $USERNAME > /dev/null || true
+else
+  echo >&2 "not removing $USERNAME system account because deluser command was not found"
+fi
+

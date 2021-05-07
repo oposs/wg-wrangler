@@ -1,10 +1,5 @@
 
 
-ETC = wgwrangler.dist.yaml
+ETC = wgwrangler.dist.yaml env.dist.conf
 EXTRA_DIST = $(ETC)
 sysconf_DATA = $(ETC)
-
-wgwrangler.conf:
-	cp wgwrangler.dist.yaml wgwrangler.yaml
-
-.PHONY: wgwrangler.conf

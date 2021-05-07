@@ -1,0 +1,19 @@
+[Unit]
+Description=wg-wrangler wireguard manager
+
+[Service]
+Type=simple
+Environment=LISTEN_ON=http://127.0.0.1:7171
+Environment=MOJO_MODE=production
+Environment=MOJO_LOG_LEVEL=info
+Environment=WGwrangler_CONFIG=/etc/opt/wg-wrangler/wgwrangler.yaml
+
+# Environment variables defined in this file (if it exists) override previously defined ones
+EnvironmentFile=-/etc/opt/wg-wrangler/env.conf
+
+User=wg-wrangler_manager
+Group=wg-wrangler_manager
+ExecStart=/usr/bin/perl opt/wg-wrangler/bin/wgwrangler.pl prefork --listen $LISTEN_ON
+
+[Install]
+WantedBy=multi-user.target

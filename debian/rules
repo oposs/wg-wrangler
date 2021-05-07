@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+export DH_ALWAYS_EXCLUDE=CVS:.svn:.git:
+
+override_dh_auto_configure:
+	./bootstrap
+	./configure --prefix=/opt/wg-wrangler --sysconfdir=/etc/opt/wg-wrangler --localstatedir=/var/opt/wg-wrangler
+
+%:
+	dh $@

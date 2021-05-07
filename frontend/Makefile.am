@@ -1,7 +1,7 @@
 
 AUTOMAKE_OPTIONS=foreign
 
-EXTRA_DIST = compile.js  compile.json Manifest.json package.json package-lock.json $(shell find source -not -name ".*" -a -not -name "*~" -a -not -name "*.tmp" -a -not -name "Makefile*" -a -type f -print )
+EXTRA_DIST = compile.js compile.json Manifest.json package.json package-lock.json $(shell find source -not -name ".*" -a -not -name "*~" -a -not -name "*.tmp" -a -not -name "Makefile*" -a -type f -print )
 
 if BUILD_QOOXDOO_APP
 
