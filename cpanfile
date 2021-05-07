@@ -1,4 +1,4 @@
-requires 'CallBackery', '>= 0.36.9';
+requires 'CallBackery', '>= 0.37.0';
 requires 'Mojo::SQLite';
 requires 'Wireguard::WGmeta', '>= 0.2.3';
 requires 'Net::IP', '>=1.26';

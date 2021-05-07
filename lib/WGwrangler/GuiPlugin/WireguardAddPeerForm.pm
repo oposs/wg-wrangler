@@ -109,7 +109,6 @@ has formCfg => sub ($self) {
             set    => {
                 readOnly => true,
                 required => true,
-                value    => strftime("%Y-%m-%d %H:%M:%S %z", localtime)
             },
         },
         # peer name
@@ -235,8 +234,7 @@ has formCfg => sub ($self) {
                 return $self->app->wireguardModel->validator('single-ip', $value);
             },
             set              => {
-                visibility => $show_advanced ? 'visible' : 'excluded',
-                value      => $self->config->{'default-dns'}
+                visibility => $show_advanced ? 'visible' : 'excluded'
             },
         },
         # # alias (advanced)
@@ -437,6 +435,9 @@ sub getAllFieldValues ($self, $args, $formData, $qx_locale) {
     else {
         $data->{'config_preview'} = 'Select an interface first';
     }
+
+    $data->{'created'} = strftime("%Y-%m-%d %H:%M:%S %z", localtime);
+    $data->{'DNS'} = $self->config->{'default-dns'};
 
     return $data;
 }
