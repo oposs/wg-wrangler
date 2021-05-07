@@ -13,7 +13,7 @@ EnvironmentFile=-/etc/opt/wg-wrangler/env.conf
 
 User=wg-wrangler_manager
 Group=wg-wrangler_manager
-ExecStart=/usr/bin/perl opt/wg-wrangler/bin/wgwrangler.pl prefork --listen $LISTEN_ON
+ExecStart=/opt/wg-wrangler/bin/wgwrangler prefork --listen $LISTEN_ON
 
 [Install]
 WantedBy=multi-user.target

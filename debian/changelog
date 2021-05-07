@@ -1,3 +1,9 @@
+wg-wrangler (0.1.4) unstable; urgency=medium
+
+   * wg-wrangler: removed .pl extension from main "binary" (to make it compatible for apparmor profiles)
+
+   -- Tobias Bossert <bossert@oetiker.ch> Thu, 07 Apr 2021 15:59:06 +0200
+
 wg-wrangler (0.1.3) unstable; urgency=medium
 
    * package: store config in /etc/opt/wg-wrangler, made systemd-service configurable
