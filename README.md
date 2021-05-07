@@ -55,11 +55,11 @@ To install the application, just run
 make install
 ```
 
-You can now run wgwrangler.pl in reverse proxy mode.
+You can now run wgwrangler in reverse proxy mode.
 
 ```console
 cd $HOME/opt/wgwrangler/bin
-./wgwrangler.pl prefork
+./wgwrangler prefork
 ```
 
 OS Preparation
