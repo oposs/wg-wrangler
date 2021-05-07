@@ -14,10 +14,14 @@ chmod g+rwx /etc/wireguard
 chmod -R g+rw /etc/wireguard
 
 # set permissions for /opt/wg-wrangler/etc dir
-chgrp --silent --recursive $GROUPNAME /opt/wg-wrangler/etc
+chgrp --silent --recursive $GROUPNAME /etc/opt/$PKGNAME/
 # set group permissions
-chmod -R g+rwx /opt/wg-wrangler/etc
+chmod -R g+rwx /etc/opt/$PKGNAME/
+
+# create var directory
+mkdir -p /var/opt/$PKGNAME
+chown --silent --recursive $USERNAME /var/opt/$PKGNAME
 
 # Whitelist wg* commands for us
-echo "%$GROUPNAME ALL=NOPASSWD: /usr/bin/wg*" >> /etc/sudoers.d/wg-wrangler
+echo "%$GROUPNAME ALL=NOPASSWD: /usr/bin/wg*" >> /etc/sudoers.d/$PKGNAME
 

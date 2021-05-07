@@ -1,6 +1,6 @@
 
 BACKEND:
-  cfg_db: /tmp/wgwrangler.db
+  cfg_db: /var/opt/wg-wrangler/wgwrangler.db
   sesame_user: adfadsfasdf4ee3r
   # perl -MDigest::SHA -e 'print Digest::SHA::hmac_sha1_hex("access"),"\n"'
   sesame_pass: 393afhkjhffjj
