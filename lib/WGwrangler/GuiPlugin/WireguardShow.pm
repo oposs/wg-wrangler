@@ -329,7 +329,7 @@ has grammar => sub ($self) {
 
 sub getTableRowCount ($self, $args, $qx_locale) {
     my $filter = $args->{formData}{wg_interface};
-    return $self->app->wireguardModel->get_peer_count($filter);
+    return scalar $self->app->wireguardModel->get_peer_count($filter);
 }
 
 sub getTableData ($self, $args, $qx_locale) {
