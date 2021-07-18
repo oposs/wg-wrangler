@@ -350,7 +350,6 @@ sub getTableData ($self, $args, $qx_locale) {
             toggle => {
                 enabled => true,
                 label   => ($row->{'disabled'}) ? trm('Enable Peer') : trm('Disable Peer')
-
             }
         }
     }

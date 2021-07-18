@@ -1,6 +1,6 @@
-requires 'CallBackery', '>= 0.37.0';
+requires 'CallBackery', '>= 0.38.0';
 requires 'Mojo::SQLite';
-requires 'Wireguard::WGmeta', '>= 0.2.3';
+requires 'Wireguard::WGmeta', '>= 0.3.0';
 requires 'Net::IP', '>=1.26';
 requires 'Email::MIME';
 requires 'Email::Sender';

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wgwrangler 0.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-30 16:13+0200\n"
+"POT-Creation-Date: 2021-07-18 13:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,57 +17,55 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:23
 #: lib/WGwrangler/GuiPlugin/WireguardVersions.pm:48
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:23
 msgid "*"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:22
-msgid "<color=\"red\">Warning</color>"
-msgstr ""
-
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:154
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:62
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:153
 msgid "A device name"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:451
-#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:547
+#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:423
+#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:500
 msgid "Access Denied"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:191
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:189
 msgid "Actual Address"
 msgstr ""
 
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:367
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:145
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:369
 msgid "Add Peer"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:92
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:205
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:92
 msgid "Add User"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:174
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:172
 msgid "Address Override"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:201
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:199
 msgid "Advanced Options"
 msgstr ""
 
-#: lib/WGwrangler/Model/WireguardDataAdapter.pm:147
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:242
+msgid "Alias"
+msgstr ""
+
+#: lib/WGwrangler/Model/WireguardDataAdapter.pm:151
 msgid "Alias is already defined for this interface"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:160
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:159
 msgid "Allowed IPs"
 msgstr ""
 
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:84
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:87
 msgid "Allowed-IPs"
 msgstr ""
 
@@ -84,11 +82,11 @@ msgstr ""
 msgid "Briefly describe your changes"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:217
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:215
 msgid "Client Interface Port"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:209
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:207
 msgid "Client specific configuration"
 msgstr ""
 
@@ -112,10 +110,6 @@ msgstr ""
 msgid "Could not checkin new version. Error ID: "
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:151
-msgid "Could not edit peer. Error ID: "
-msgstr ""
-
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:202
 msgid "Create Admin Account"
 msgstr ""
@@ -124,12 +118,12 @@ msgstr ""
 msgid "Created"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:231
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:229
 msgid "DNS"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:471
-#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:564
+#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:443
+#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:517
 msgid "Data Decoding Problem %1"
 msgstr ""
 
@@ -145,14 +139,12 @@ msgstr ""
 msgid "Delete User"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:277
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:114
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:274
 msgid "Description"
 msgstr ""
 
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:145
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:77
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:146
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:56
 msgid "Device"
 msgstr ""
 
@@ -184,11 +176,11 @@ msgstr ""
 msgid "Do you really want to go back to this revision?"
 msgstr ""
 
-#: lib/WGwrangler/Model/WireguardDataAdapter.pm:129
+#: lib/WGwrangler/Model/WireguardDataAdapter.pm:133
 msgid "Does not look like an email address"
 msgstr ""
 
-#: lib/WGwrangler/Model/WireguardDataAdapter.pm:131
+#: lib/WGwrangler/Model/WireguardDataAdapter.pm:135
 msgid "Does not look like an ip address"
 msgstr ""
 
@@ -203,7 +195,6 @@ msgid "Edit User"
 msgstr ""
 
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:70
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:39
 msgid "Email"
 msgstr ""
 
@@ -239,31 +230,26 @@ msgstr ""
 msgid "Failed to send mail to %1"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:60
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:94
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:60
 msgid "Family Name"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:53
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:85
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:53
 msgid "Given Name"
 msgstr ""
 
-#: lib/WGwrangler/Model/WireguardDataAdapter.pm:141
+#: lib/WGwrangler/Model/WireguardDataAdapter.pm:145
 msgid "Has to be in range 1025-65535 and a number"
 msgstr ""
 
-#: lib/WGwrangler/Model/WireguardDataAdapter.pm:149
+#: lib/WGwrangler/Model/WireguardDataAdapter.pm:153
 msgid "Has to be larger than 0 and a number"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:67
-msgid "Integrity Hash"
-msgstr ""
-
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:48
 #: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:44
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:30
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:48
 msgid "Interface"
 msgstr ""
 
@@ -271,17 +257,16 @@ msgstr ""
 msgid "It seems that some parts of"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:185
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:183
 msgid "List of ip addresses, separated by comma and in CDIR notation"
 msgstr ""
 
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:117
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:63
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:118
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:76
 msgid "Name"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:126
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:125
 msgid "Name of the person which this peer belongs to"
 msgstr ""
 
@@ -301,25 +286,25 @@ msgstr ""
 msgid "No user selected."
 msgstr ""
 
-#: lib/WGwrangler/Model/WireguardDataAdapter.pm:134
+#: lib/WGwrangler/Model/WireguardDataAdapter.pm:138
 msgid "Not enough arguments for validator `address_override`"
 msgstr ""
 
-#: lib/WGwrangler/Model/WireguardDataAdapter.pm:145
+#: lib/WGwrangler/Model/WireguardDataAdapter.pm:149
 msgid "Not enough arguments for validator `alias`"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:74
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:104
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:74
 msgid "Note"
 msgstr ""
 
-#: lib/WGwrangler/Model/WireguardDataAdapter.pm:127
-#: lib/WGwrangler/Model/WireguardDataAdapter.pm:128
+#: lib/WGwrangler/Model/WireguardDataAdapter.pm:131
+#: lib/WGwrangler/Model/WireguardDataAdapter.pm:132
 msgid "Only a-Z, 0-9 and -/_ allowed"
 msgstr ""
 
-#: lib/WGwrangler/Model/WireguardDataAdapter.pm:130
+#: lib/WGwrangler/Model/WireguardDataAdapter.pm:134
 msgid "Only a-Z, 0-9, -/_ and one space are allowed"
 msgstr ""
 
@@ -339,22 +324,21 @@ msgstr ""
 msgid "Peer Public Key"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:262
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:259
 msgid "Persistent-keepalive"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:456
-#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:554
+#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:428
+#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:507
 msgid "Plugin Name missing"
 msgstr ""
 
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:55
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:47
 msgid "Public Key"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:256
 #: lib/WGwrangler/GuiPlugin/WireguardVersions.pm:126
+#: lib/WGwrangler/GuiPlugin/WireguardShow.pm:256
 msgid "Reload Data"
 msgstr ""
 
@@ -366,24 +350,19 @@ msgstr ""
 msgid "Rights"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:161
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:204
 msgid "Save Changes"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:287
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:284
 msgid "Send by Email"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:271
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:268
 msgid "Send keep-alive pings every N seconds"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:117
-msgid "Some extra infos about this peer"
-msgstr ""
-
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:280
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:277
 msgid "Some extra infos about this peer (Not visible in config preview)"
 msgstr ""
 
@@ -391,16 +370,12 @@ msgstr ""
 msgid "Something went wrong while trying to delete this peer. Error ID: "
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:224
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:222
 msgid "The listen port on the peer"
 msgstr ""
 
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:156
 msgid "The password instances did not match."
-msgstr ""
-
-#: lib/WGwrangler/GuiPlugin/WireguardEditPeerForm.pm:23
-msgid "This Peer is disabled!"
 msgstr ""
 
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:91
@@ -411,7 +386,7 @@ msgstr ""
 msgid "Transfer-TX"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:462
+#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:434
 msgid "Upload Missing"
 msgstr ""
 
@@ -419,21 +394,21 @@ msgstr ""
 msgid "User"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:132
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:131
 msgid "User email"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:140
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:139
 msgid "User email - config is sent to this email if desired"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:38
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:50
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:38
 msgid "UserId"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:46
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:59
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:46
 msgid "Username"
 msgstr ""
 
@@ -441,7 +416,7 @@ msgstr ""
 msgid "Version"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/Config.pm:478
+#: thirdparty/lib/perl5/CallBackery/Config.pm:491
 msgid "Wrong password!"
 msgstr ""
 
@@ -478,6 +453,6 @@ msgstr ""
 msgid "overlaps with an already acquired network"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/AbstractForm.pm:137
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/AbstractForm.pm:139
 msgid "sorry, don't know the field you are talking about"
 msgstr ""

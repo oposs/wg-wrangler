@@ -164,7 +164,6 @@ has formCfg => sub ($self) {
             },
             set              => {
                 required => true,
-                value    => $self->config->{'default-allowed-ips'}
             },
         },
         # peer Address override
@@ -199,7 +198,7 @@ has formCfg => sub ($self) {
             key              => 'show_advanced',
             label            => trm('Advanced Options'),
             widget           => 'checkBox',
-            triggerFormReset => true,
+            triggerFormReset => true
         },
         # Header
         {
@@ -237,23 +236,23 @@ has formCfg => sub ($self) {
                 visibility => $show_advanced ? 'visible' : 'excluded'
             },
         },
-        # # alias (advanced)
-        # {
-        #     key              => 'alias',
-        #     label            => trm('Alias'),
-        #     widget           => 'text',
-        #     triggerFormReset => true,
-        #     validator        => sub($value, $parameter, $formData) {
-        #         if ($formData->{alias} && $formData->{interface} && $formData->{'public-key'}) {
-        #             return $self->app->wireguardModel->validator('alias', $value, $formData->{interface}, $formData->{'public-key'});
-        #         }
-        #         return "" eq $value ? "" : "Please select an interface first";
-        #     },
-        #     set              => {
-        #         placeholder => 'Unlike the name attribute, this must be unique',
-        #         visibility  => $show_advanced ? 'visible' : 'excluded'
-        #     }
-        # },
+        # alias (advanced)
+        {
+            key              => 'alias',
+            label            => trm('Alias'),
+            widget           => 'text',
+            triggerFormReset => true,
+            validator        => sub($value, $parameter, $formData) {
+                if ($formData->{alias} && $formData->{interface} && $formData->{'public-key'}) {
+                    return $self->app->wireguardModel->validator('alias', $value, $formData->{interface}, $formData->{'public-key'});
+                }
+                return "" eq $value ? "" : "Please select an interface first";
+            },
+            set              => {
+                placeholder => 'This attribute is useful for CLI access. Unlike the name attribute, this must be unique',
+                visibility  => $show_advanced ? 'visible' : 'excluded'
+            }
+        },
         # persistent-keepalive (advanced)
         {
             key              => 'persistent-keepalive',
@@ -307,9 +306,10 @@ has actionCfg => sub ($self) {
         my $peer_committed = undef;
 
         eval {
-            $self->app->wireguardModel->add_peer($interface, $name, $ips, $peer_pub_key, $alias, undef);
+            $self->app->wireguardModel->add_peer($interface, $ips, $peer_pub_key, $alias, undef);
             $peer_added = 1;
             $self->app->wireguardModel->update_peer_data($interface, $peer_pub_key, 'description', $desc) if defined($desc);
+            $self->app->wireguardModel->update_peer_data($interface, $peer_pub_key, 'name', $name);
             $self->app->wireguardModel->update_peer_data($interface, $peer_pub_key, 'email', $email);
             $self->app->wireguardModel->update_peer_data($interface, $peer_pub_key, 'device', $device);
             $self->app->wireguardModel->update_peer_data($interface, $peer_pub_key, 'created', $created);
@@ -380,10 +380,10 @@ sub generate_preview_config ($form_values, $client_private_key, $interface_publi
     # }
     my $pfx = '#+';
     my $out = "[Interface]\n"
-        . $pfx . "Name = " . ($form_values->{name} ? $form_values->{name} . "\n" : "\n")
-        . $pfx . "Email = " . ($form_values->{email} ? $form_values->{email} . "\n" : "\n")
-        . $pfx . "Device = " . ($form_values->{device} ? $form_values->{device} . "\n" : "\n")
-        . $pfx . "Created = " . ($form_values->{created} ? $form_values->{created} . "\n" : "\n")
+        . $pfx . "name = " . ($form_values->{name} ? $form_values->{name} . "\n" : "\n")
+        . $pfx . "email = " . ($form_values->{email} ? $form_values->{email} . "\n" : "\n")
+        . $pfx . "device = " . ($form_values->{device} ? $form_values->{device} . "\n" : "\n")
+        . $pfx . "created = " . ($form_values->{created} ? $form_values->{created} . "\n" : "\n")
         . "Address = " . $form_values->{address} . "\n"
         . "PrivateKey = $client_private_key\n"
         . ($form_values->{DNS} ? "DNS = " . $form_values->{DNS} . "\n" : '')
@@ -420,23 +420,25 @@ sub getAllFieldValues ($self, $args, $formData, $qx_locale) {
         }
         # generate key-pair unless we already have one
         my $private_key = "";
+        my $public_key = "";
         unless ($formData->{currentFormData}{'private-key'}) {
             my $key_pair = $self->app->wireguardModel->gen_key_pair();
             $private_key = $key_pair->{'private-key'};
-            $data->{'private-key'} = $key_pair->{'private-key'};
-            $data->{'public-key'} = $key_pair->{'public-key'};
+            $public_key = $key_pair->{'public-key'};
         }
         else {
             $private_key = $formData->{currentFormData}{'private-key'};
+            $public_key = $formData->{currentFormData}{'public-key'};
         }
-
+        $data->{'private-key'} = $private_key;
+        $data->{'public-key'} = $public_key;
         $data->{'config_preview'} = generate_preview_config($formData->{currentFormData}, $private_key, $interface_public_key);
     }
     else {
         $data->{'config_preview'} = 'Select an interface first';
     }
-
     $data->{'created'} = strftime("%Y-%m-%d %H:%M:%S %z", localtime);
+    $data->{'allowed-ips'} = $self->config->{'default-allowed-ips'};
     $data->{'DNS'} = $self->config->{'default-dns'};
 
     return $data;

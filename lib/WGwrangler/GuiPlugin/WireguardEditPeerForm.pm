@@ -14,10 +14,8 @@ Peer edit form
 =cut
 
 has formCfg => sub ($self) {
-
     return [
-        # This does somehow not work $self->{args}{selection}{disabled} is a reference to JSON::PP true
-        1 ? {
+        $self->{args}{selection}{disabled} == true ? {
             widget => 'header',
             label  => trm('<color="red">Warning</color>'),
             note   => trm('This Peer is disabled!'),
@@ -129,7 +127,7 @@ has actionCfg => sub ($self) {
         my $before_change = $self->app->wireguardModel->get_section_data($interface, $identifier);
         eval {
             for my $attr_key (keys %{$args}) {
-                unless ($attr_key eq 'interface' || $attr_key eq 'public-key' || $attr_key eq 'integrity_hash') {
+                unless ($attr_key eq 'interface' || $attr_key eq 'public-key' || $attr_key eq 'integrity_hash' || not defined($args->{$attr_key})) {
                     $self->app->wireguardModel->update_peer_data($interface, $identifier, $attr_key, $args->{$attr_key});
 
                 }

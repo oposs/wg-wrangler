@@ -55,17 +55,17 @@ has 'wg_not_installed' => sub {
 has 'wg_meta' => sub ($self) {
     my $custom_attr_config = {
         'email' => {
-            'in_config_name' => 'Email',
-            'validator'      => sub ($value) {return $value =~ /^\S+@\S+\.\S+$/;}
+            'validator' => sub($value) {return $value =~ /^\S+@\S+\.\S+$/;}
         },
         device  => {
-            'in_config_name' => 'Device',
-            'validator'      => sub ($value) {return 1}
+            'validator' => sub($value) {return 1}
 
         },
         created => {
-            'in_config_name' => 'Created',
-            'validator'      => sub ($value) {return 1}
+            'validator' => sub($value) {return 1}
+        },
+        fqdn    => {
+            'validator' => sub($value) {return 1}
         }
     };
     my $wg_metaT = Wireguard::WGmeta::Wrapper::ConfigT->new($self->wireguard_home, '#+', '#-', $self->not_applied_suffix, $custom_attr_config);
@@ -195,7 +195,7 @@ Returns the number of peers with respect to the current filter string
 =cut
 sub get_peer_count ($self, $filter) {
     my $filtered_data = _apply_filter($self->_generate_table_source(), $filter);
-    return @{$filtered_data};
+    return scalar @{$filtered_data};
 }
 
 =head3 update_peer_data($interface, $identifier, $attr, $value)
@@ -216,8 +216,8 @@ L</commit_changes($ref_integrity_hashes)> manually to allow setting additional a
 to disk.
 
 =cut
-sub add_peer ($self, $interface, $name, $ip_address, $public_key, $alias, $pre_shared_key) {
-    $self->wg_meta->add_peer($interface, $name, $ip_address, $public_key, $alias, $pre_shared_key);
+sub add_peer ($self, $interface, $ip_address, $public_key, $alias, $pre_shared_key) {
+    $self->wg_meta->add_peer($interface, $ip_address, $public_key, $alias, $pre_shared_key);
 }
 
 =head3 remove_peer($interface, $identifier, $ref_integrity_hash)

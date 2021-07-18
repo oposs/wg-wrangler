@@ -1,3 +1,11 @@
+wg-wrangler (0.2.0) unstable; urgency=medium
+
+   * fixed: Validation on hidden field when adding a new peer
+   * fixed: Disabled Peer warning when editing a peer
+   * changed: lifted wg-meta compatibility to 0.3.x. This version may be incompatible to older (wg-meta) metadata! See changes of wg-meta
+
+   -- Tobias Bossert <bossert@oetiker.ch> Sun, 18 Jul 2021 13:48:02 +0200
+
 wg-wrangler (0.1.4) unstable; urgency=medium
 
    * wg-wrangler: removed .pl extension from main "binary" (to make it compatible for apparmor profiles)
