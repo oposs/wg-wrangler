@@ -13,9 +13,15 @@ jobs:
           - ubuntu: 18.04
             docker_file: Dockerfile
             image_version_tag: '18.04'
+            node_version: 16.x
           - ubuntu: 20.04
             docker_file: Dockerfile
             image_version_tag: '20.04'
+            node_version: 18.x
+          - ubuntu: 22.04
+            docker_file: Dockerfile
+            image_version_tag: '22.04'
+            node_version: 18.x
 
     runs-on: ubuntu-latest
     name: Build package defined in ${{ matrix.docker_file }} for tag ${{ matrix.image_version_tag }}

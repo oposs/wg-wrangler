@@ -7,4 +7,5 @@ Build-Depends: build-essential, debhelper (>= 9)
 Package: wg-wrangler
 Architecture: any
 Depends: ${shlibs:Depends}, perl, wireguard, sudo
+Recommends: git
 Description: An web-frontend for managing wireguard peer configuration

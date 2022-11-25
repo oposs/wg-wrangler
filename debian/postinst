@@ -5,7 +5,12 @@ USERNAME=wg-wrangler_manager
 GROUPNAME=wg-wrangler_manager
 
 # Create user and group
-adduser --system --group --no-create-home $USERNAME
+adduser --system --group --home /opt/wg-wrangler/home $USERNAME
+
+# make sure /etc/wireguard is considered as safe by git
+echo "[safe]
+directory = /etc/wireguard
+" > /opt/wg-wrangler/home/.gitconfig
 
 # set permissions and group membership on /etc/wireguard
 chgrp --silent --recursive $GROUPNAME /etc/wireguard/
@@ -24,4 +29,5 @@ chown --silent --recursive $USERNAME /var/opt/$PKGNAME
 
 # Whitelist wg* commands for us
 echo "%$GROUPNAME ALL=NOPASSWD: /usr/bin/wg*" >> /etc/sudoers.d/$PKGNAME
+
 

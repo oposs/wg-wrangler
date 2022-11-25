@@ -9,6 +9,10 @@ inputs:
     description: Tag which is prepended on the FROM directive
     required: false
     default: latest
+  node_version:
+    description: Node version for building the debian package
+    required: false
+    default: 18.x
 
 outputs:
   package_name:
@@ -23,6 +27,7 @@ runs:
       run: |
         docker build \
         --build-arg IMAGE_VERSION_TAG=${{inputs.image_version_tag}} \
+        --build-arg NODE_VERSION=${{inputs.node_version}} \
         -f $(pwd)/.github/actions/build-release-action/${{inputs.docker_file}} \
         $(pwd)/.github/actions/build-release-action/ \
         -t deb_builder:latest

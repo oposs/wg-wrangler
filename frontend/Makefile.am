@@ -1,7 +1,6 @@
-
 AUTOMAKE_OPTIONS=foreign
 
-EXTRA_DIST = compile.js compile.json Manifest.json package.json package-lock.json $(shell find source -not -name ".*" -a -not -name "*~" -a -not -name "*.tmp" -a -not -name "Makefile*" -a -type f -print )
+EXTRA_DIST = compile.js  compile.json Manifest.json package.json package-lock.json $(shell find source -not -name ".*" -a -not -name "*~" -a -not -name "*.tmp" -a -not -name "Makefile*" -a -type f -print )
 
 if BUILD_QOOXDOO_APP
 
@@ -19,10 +18,22 @@ source: node_modules compiled/source/.built
 source-watch: node_modules
 	CALLBACKERY_QX=$(CALLBACKERY_QX) $(NPX) qx compile --watch --feedback=false --erase --update-po-files
 
+YEAR := $(shell date +%Y)
+DATE := $(shell date +%Y-%m-%d)
+
+if DEB_BUILD
 build: ../public/.built
+	echo "DIST_distdir"$(distdir)
+	echo "DIST_pwd"$(shell pwd)
+	$(PERL) -i -p -e 's/#VERSION#/$(PACKAGE_VERSION)/g;s/#YEAR#/$(YEAR)/g;s/#DATE#/$(DATE)/g;' ../public/$(QX_CLASS)/*.js
+else
+build: ../public/.built
+endif
 
 dist-hook:
 	$(PERL) -i -p -e 's/#VERSION#/$(PACKAGE_VERSION)/g;s/#YEAR#/$(YEAR)/g;s/#DATE#/$(DATE)/g;' $(distdir)/../public/$(QX_CLASS)/*.js
+	
+
 
 clean: node_modules
 	$(NPX) qx clean

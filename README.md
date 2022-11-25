@@ -62,7 +62,7 @@ cd $HOME/opt/wgwrangler/bin
 ./wgwrangler prefork
 ```
 
-OS Preparation
+OS Preparation (Manual installation)
 -------------
 
 Since managing wireguard using its associated `wg*` commands requires root privileges we suggest the following
@@ -90,6 +90,18 @@ setup:
   WantedBy=multi-user.target
    ```
 
+Installation (deb Package)
+---------
+
+The steps described in the manual installation section are done automatically when you install one of the provided `.deb` packages.
+Configuration resides in `/etc/opt/wg-wrangler`.
+
+Currently supported ubuntu versions:
+
+- 18.04 LTS
+- 20.04 LTS
+- 22.04 LTS
+
 Packaging
 ---------
 
@@ -104,8 +116,25 @@ interpreter, make sure to delete any `PERL5LIB` environment variable, and run
 with your tar ball, when building the app this snapshot will be used to make sure
 all the right versions of the dependent modules get installed.
 
-```console
+```shell
 make dist
+```
+
+Build deb package locally
+-------------------------
+
+```shell
+
+# To build ubuntu 22 package
+cd wg-wrangler
+docker run --rm -v $(pwd):/mnt -it ubuntu:22.04 /bin/bash
+
+# inside the docker container
+./build_local.sh
+
+# copy the package
+cp /src/wg-wrangler_*_amd64_*.deb /mnt
+
 ```
 
 Screenshots

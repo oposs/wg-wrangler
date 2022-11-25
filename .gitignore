@@ -40,4 +40,3 @@ conftools
 etc/wgwrangler.yaml
 etc/wgwrangler.yaml.secret
 node_modules
-node_modules/

@@ -31,6 +31,19 @@ AC_PATH_PROG(NPX, npx, npx-not-found)
 AC_PATH_PROG(XGETTEXT, xgettext, xgettext-not-found)
 AC_PATH_PROG(MSGMERGE, msgmerge, msgmerge-not-found)
 
+AC_ARG_ENABLE([deb_build],
+[  --enable-deb_build    Enable debian package build specifics],
+[case "${enableval}" in
+  yes) deb_build=true ;;
+  no)  deb_build=false ;;
+  *) AC_MSG_ERROR([bad value ${deb_build} for --enable-deb_build]) ;;
+esac],[deb_build=false])
+
+AM_CONDITIONAL([DEB_BUILD], [test x$deb_build = xtrue])
+
+
+AC_ARG_VAR(DEBIAN_BUILD, [Is this a debian package build run, default no])
+
 
 URL_CAT="neither curl nor wget found"
 
@@ -59,22 +72,19 @@ else
   AC_MSG_ERROR(could not find perl)
 fi
 
-ac_node_version="10"
+ac_node_version="14"
 
 if test -x "$NODE"; then
   AC_MSG_CHECKING(make sure we have at least node ${ac_node_version})
   case `$NODE --version` in
-  v10*)
-    AC_MSG_RESULT(ok v10)
+  v14*)
+    AC_MSG_RESULT(ok v14)
     ;;
-  v11*)
-    AC_MSG_RESULT(ok v11)
+  v16*)
+    AC_MSG_RESULT(ok v16)
     ;;
-  v12*)
-    AC_MSG_RESULT(ok v12)
-    ;;
-  v13*)
-    AC_MSG_RESULT(ok v13)
+  v18*)
+    AC_MSG_RESULT(ok v18)
     ;;
   *)
     AC_MSG_RESULT(no);
@@ -178,7 +188,7 @@ cat <<NOTES
 
 ** WARNING ***********************************************
 
-To run the qooxdoo compiler, at least node v10 is required.
+To run the qooxdoo compiler, at least node v14 is required.
 Use nvm to setup your local, up to date copy of node.
 Go to https://github.com/nvm-sh/nvm for futher information
 
