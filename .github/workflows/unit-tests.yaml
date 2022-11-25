@@ -1,74 +1,47 @@
 name: Unit Tests
 
-on: 
+on:
   push:
     paths-ignore:
       - '**.md'
   pull_request:
     paths-ignore:
-      - '**.md'    
+      - '**.md'
 
 jobs:
-
   build:
-    
     strategy:
       matrix:
         os:
-          # - ubuntu-16.04
+          - ubuntu-22.04
+          - ubuntu-20.04
           - ubuntu-18.04
-          # no libssl on windows
-          # - windows-latest
-
-        perl:
-          # - '5.22'
-          - '5.26'
-          - '5.30'
         node:
-          # - '10.x'
-          # - '13.x'
-          - '12.x'
-        # exclude:
-          #- os: ubuntu-16.04
-          #  perl: '5.26'
-          #- os: ubuntu-16.04
-          #  perl: '5.30'
-          #- os: ubuntu-16.04
-          #  node: '13.x'
-          #- os: ubuntu-18.04
-          #  perl: '5.22'
-          #- os: windows-latest
-          #  perl: '5.22'
-          #- os: windows-latest
-          #  perl: '5.26'
-
+          - '18.x'
+          - '16.x'
+        exclude:
+          - os: ubuntu-22.04
+            node: '16.x'
+          - os: ubuntu-20.04
+            node: '16.x'
+          - os: ubuntu-18.04
+            node: '18.x'
       fail-fast: false
     name: node-${{ matrix.node }}/perl${{ matrix.perl }}/${{ matrix.os }}
- 
     runs-on: ${{ matrix.os }}
-
     steps:
-
     - name: Checkout
       uses: actions/checkout@v1
-
     - name: Setup Node
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node }}
-
-    - name: Setup perl
-      uses: shogo82148/actions-setup-perl@v1
-      with:
-        perl-version: ${{ matrix.perl }}
-
     - name: CPAN Cache
       id: cpan-cache
       uses: actions/cache@v1
       with:
         path: thirdparty
         key: ${{ matrix.os }}-cpan-${{ matrix.perl }}-${{ hashFiles('**/cpanfile') }}
-
     - name: Node Cache
       id: node-cache
       uses: actions/cache@v1
@@ -77,28 +50,20 @@ jobs:
         key: ${{ matrix.os }}-node-${{ matrix.node }}-${{ hashFiles('**/package.json') }}
         restore-keys: |
           ${{ matrix.os }}-node-${{ matrix.node }}-
-
     - name: Install OS dependencies
       run: sudo apt install libqrencode-dev pkg-config gettext
-      
-
     - name: Bootstrap
       run: ./bootstrap
-
     - name: Configure
       run: ./configure --prefix=$HOME/test-install
-    
     - name: Make
       run: make
-
     - name: Test
       run: |
           cp etc/wgwrangler.dist.yaml  etc/wgwrangler.yaml
           make test
-      
     - name: Dist
       run: make dist
-      
     - name: Check Dist
       run: |
         make dist
@@ -110,8 +75,6 @@ jobs:
         cd $HOME/test-install
         cp etc/wgwrangler.dist.yaml  etc/wgwrangler.yaml
         ./bin/wgwrangler
-
     - name: Cache Prep
       run: |
         rm thirdparty/Makefile* thirdparty/cpan*snapshot
-  
