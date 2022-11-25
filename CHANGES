@@ -1,3 +1,9 @@
+wg-wrangler (0.2.2) unstable; urgency=medium
+
+   * fixed ip suggestions
+
+   -- Tobias Bossert <bossert@oetiker.ch> Fri, 25 Jul 2022 20:57:23 +0100
+
 wg-wrangler (0.2.1) unstable; urgency=medium
 
    * updated: Build dependency node.js to 18 LTS (ubuntu 20+22) 16LTS (ubuntu 18)
