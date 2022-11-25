@@ -1,8 +1,13 @@
 #!/bin/bash
 
+# Overriding $HOME to prevent permissions issues when running on github actions
+mkdir -p /tmp/home
+chmod 0777 /tmp/home
+export HOME=/tmp/home
+
 apt -y update && \
     apt-get -y install apt-utils curl && \
-    curl https://deb.nodesource.com/setup_16.x | bash && \
+    curl https://deb.nodesource.com/setup_18.x | bash && \
     apt-get -u update && \
     apt-get -y install perl \
         make \

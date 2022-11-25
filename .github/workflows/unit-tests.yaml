@@ -4,6 +4,8 @@ on:
   push:
     paths-ignore:
       - '**.md'
+    tags-ignore:
+      - '**'
   pull_request:
     paths-ignore:
       - '**.md'
@@ -31,9 +33,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
     - name: Setup Node
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node }}
     - name: CPAN Cache

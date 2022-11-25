@@ -2,6 +2,11 @@
 set -ex
 cd /github/workspace/
 
+# Overriding $HOME to prevent permissions issues when running on github actions
+mkdir -p /tmp/home
+chmod 0777 /tmp/home
+export HOME=/tmp/home
+
 # workaround for debhelper bug: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=897569
 mkdir -p deb_build_home
 ls | grep -v deb_build_home | xargs mv -t deb_build_home # move everything except deb_build_home

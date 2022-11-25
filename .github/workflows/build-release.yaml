@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build package defined in ${{ matrix.docker_file }} for tag ${{ matrix.image_version_tag }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Run docker build
         id: build_package
         uses: ./.github/actions/build-release-action

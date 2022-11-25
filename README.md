@@ -1,16 +1,17 @@
 WGwrangler
 ===========
-Version: 0.2.0
-Date: 2021-07-18
+Version: 0.2.1
+Date: 2022-11-25
 
 WGwrangler is a web application to manage local Wireguard Configuration using 
 [wg-meta](https://metacpan.org/release/Wireguard-WGmeta) in its backend. 
 
 It comes complete with a classic "configure - make - install" setup.
 
-Setup
------
-In your app source directory and start building.
+Installation
+------------
+
+Download the current release distribution
 
 ```console
 # Install os dependencies
@@ -25,30 +26,6 @@ hints on how to fix the situation if something is missing.
 
 Any missing perl modules will be downloaded and built.
 
-Development
------------
-
-While developing the application it is convenient to NOT have to install it
-before runnning. You can actually serve the Qooxdoo source directly
-using the built-in Mojo webserver.
-
-```console
-./bin/wgwrangler-source-mode.sh
-```
-
-You can now connect to the CallBackery app with your web browser.
-
-If you need any additional perl modules, write their names into the PERL_MODULES
-file and run ./bootstrap.
-
-**Honored Environment Variables**
-
-- `WGwrangler_NO_WG` If defined, we do not call any wg* command from code (e.g. to generate pub/private-keys)
-- `WGwrangler_CONFIG` Use this variable to set the path to the main `wgwrangler.yaml` file, defaults to `etc/wgrangler.yaml`
-
-Installation
-------------
-
 To install the application, just run
 
 ```console
@@ -62,7 +39,7 @@ cd $HOME/opt/wgwrangler/bin
 ./wgwrangler prefork
 ```
 
-OS Preparation (Manual installation)
+OS Preparation (after manual installation)
 -------------
 
 Since managing wireguard using its associated `wg*` commands requires root privileges we suggest the following
@@ -101,6 +78,27 @@ Currently supported ubuntu versions:
 - 18.04 LTS
 - 20.04 LTS
 - 22.04 LTS
+
+Development
+-----------
+
+While developing the application it is convenient to NOT have to install it
+before runnning. You can actually serve the Qooxdoo source directly
+using the built-in Mojo webserver.
+
+```console
+./bin/wgwrangler-source-mode.sh
+```
+
+You can now connect to the CallBackery app with your web browser.
+
+If you need any additional perl modules, write their names into the PERL_MODULES
+file and run ./bootstrap.
+
+**Honored Environment Variables**
+
+- `WGwrangler_NO_WG` If defined, we do not call any wg* command from code (e.g. to generate pub/private-keys)
+- `WGwrangler_CONFIG` Use this variable to set the path to the main `wgwrangler.yaml` file, defaults to `etc/wgrangler.yaml`
 
 Packaging
 ---------
