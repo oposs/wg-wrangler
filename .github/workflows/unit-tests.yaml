@@ -27,7 +27,7 @@ jobs:
           - os: ubuntu-18.04
             node: '18.x'
       fail-fast: false
-    name: node-${{ matrix.node }}/perl${{ matrix.perl }}/${{ matrix.os }}
+    name: node-${{ matrix.node }}/${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
@@ -62,8 +62,6 @@ jobs:
       run: |
           cp etc/wgwrangler.dist.yaml  etc/wgwrangler.yaml
           make test
-    - name: Dist
-      run: make dist
     - name: Check Dist
       run: |
         make dist
