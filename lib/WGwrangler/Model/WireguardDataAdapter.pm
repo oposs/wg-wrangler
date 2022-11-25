@@ -100,7 +100,7 @@ sub _populate_ip_manager ($interface, $wg_metaT, $ip_manager) {
         my $interface_networks = $wg_metaT->{parsed_config}{$interface}{$interface}{address};
         $ip_manager->populate_range($interface, $interface_networks);
     }
-    for my $identifier (@{$wg_metaT->{parsed_config}{$interface}{section_order}}) {
+    for my $identifier ($wg_metaT->get_section_list($interface)) {
         unless ($identifier eq $interface) {
             my $ips_string = $wg_metaT->{parsed_config}{$interface}{$identifier}{'allowed-ips'};
             $ip_manager->acquire_multiple($interface, $ips_string);
@@ -175,7 +175,8 @@ Takes a private key and returns the derived public key. Throws an exception on c
 
 =cut
 sub get_public_key ($self, $private_key) {
-    return $self->wg_not_installed ? 'dummy_pub_key' : get_pub_key($private_key);
+    my $rand_component = int(rand(10000));
+    return $self->wg_not_installed ? 'dummy_pub_key_'.$rand_component : get_pub_key($private_key);
 }
 
 =head3 gen_key_pair()
@@ -184,7 +185,8 @@ Generates a key pair and returns them embedded in a hash reference
 
 =cut
 sub gen_key_pair ($self) {
-    my @keypair = $self->wg_not_installed ? ('dummy_priv_key', 'dummy_pub_key') : gen_keypair();
+    my $rand_component = int(rand(10000));
+    my @keypair = $self->wg_not_installed ? ('dummy_priv_key_'.$rand_component, 'dummy_pub_key'.$rand_component) : gen_keypair();
     return { 'private-key' => $keypair[0], 'public-key' => $keypair[1] }
 }
 

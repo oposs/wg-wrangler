@@ -11,8 +11,7 @@ inputs:
     default: latest
   node_version:
     description: Node version for building the debian package
-    required: false
-    default: 18.x
+    required: true
 
 outputs:
   package_name:

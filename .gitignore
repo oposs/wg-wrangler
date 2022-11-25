@@ -40,3 +40,5 @@ conftools
 etc/wgwrangler.yaml
 etc/wgwrangler.yaml.secret
 node_modules
+frontend/qx_packages
+
