@@ -5,7 +5,7 @@ on:
     paths-ignore:
       - '**.md'
     tags-ignore:
-      - '**'
+      - 'v*'
   pull_request:
     paths-ignore:
       - '**.md'
