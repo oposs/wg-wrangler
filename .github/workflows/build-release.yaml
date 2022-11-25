@@ -33,6 +33,7 @@ jobs:
         with:
           docker_file: ${{ matrix.docker_file }}
           image_version_tag: ${{ matrix.image_version_tag }}
+          node_version: ${{ matrix.node_version }}
 
       - name: Release deb files
         uses: softprops/action-gh-release@v1
