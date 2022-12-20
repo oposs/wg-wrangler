@@ -1,8 +1,14 @@
+wg-wrangler (0.2.3) unstable; urgency=medium
+
+   * Raised wg-meta version to 0.3.3 to fix deadlock when calling the reload callback
+
+   -- Tobias Bossert <bossert@oetiker.ch> Thu, 25 Dec 2022 11:35:59 +0100
+
 wg-wrangler (0.2.2) unstable; urgency=medium
 
    * fixed ip suggestions
 
-   -- Tobias Bossert <bossert@oetiker.ch> Fri, 25 Jul 2022 20:57:23 +0100
+   -- Tobias Bossert <bossert@oetiker.ch> Fri, 25 Nov 2022 20:57:23 +0100
 
 wg-wrangler (0.2.1) unstable; urgency=medium
 

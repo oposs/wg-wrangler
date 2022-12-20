@@ -1,7 +1,7 @@
 WGwrangler
 ===========
 Version: 0.2.2
-Date: 2022-11-25
+Date: 2022-12-20
 
 WGwrangler is a web application to manage local Wireguard Configuration using 
 [wg-meta](https://metacpan.org/release/Wireguard-WGmeta) in its backend. 
@@ -61,7 +61,7 @@ setup:
   Type=simple
   User=wireguard_manager
   Group=wireguard_manager
-  ExecStart=/usr/bin/perl /home/wireguard_manager/opt/wgwrangler/bin/wgwrangler prefork --listen 'http://127.0.0.1:7171'
+  ExecStart=/usr/bin/perl /home/wireguard_manager/opt/wgwrangler/bin/wgwrangler prefork --listen 'http://0.2.2.1:7171'
   
   [Install]
   WantedBy=multi-user.target
@@ -110,7 +110,7 @@ You can also package the application as a nice tar.gz file, it uses carton to
 install dependent module. If you want to make sure that your project builds with perl
 5.22, make sure to set the `PERL` environment variable to a perl 5.22
 interpreter, make sure to delete any `PERL5LIB` environment variable, and run
-`make clean && make`. This will cause a `cpanfile-0.1.0.snapshot` file to be included
+`make clean && make`. This will cause a `cpanfile-0.2.2.snapshot` file to be included
 with your tar ball, when building the app this snapshot will be used to make sure
 all the right versions of the dependent modules get installed.
 
