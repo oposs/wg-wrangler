@@ -38,19 +38,23 @@ has config => sub {
     my $self = shift;
     my $config = CallBackery::Model::ConfigJsonSchema->new(
         app  => $self,
-        file => $ENV{WGwrangler_CONFIG} || $self->home->rel_file('etc/wgwrangler.yaml')
+        file => $ENV{WGwrangler_CONFIG_HOME}.'/wgwrangler.yaml' || $self->home->rel_file('etc/wgwrangler.yaml')
     );
 
     my $be = $config->schema->{properties}{BACKEND};
     $be->{properties} = {
         %{$be->{properties}},
-        vpn_name           => { type => 'string' },
-        enable_git         => { type => 'boolean' },
-        not_applied_suffix => { type => 'string' },
-        wireguard_home     => { type => 'string' },
-        no_apply           => { type => 'boolean' },
-        wg_apply_command   => { type => 'string' },
-        wg_show_command    => { type => 'string' }
+        vpn_name            => { type => 'string' },
+        enable_git          => { type => 'boolean' },
+        not_applied_suffix  => { type => 'string' },
+        wireguard_home      => { type => 'string' },
+        no_apply            => { type => 'boolean' },
+        wg_apply_command    => { type => 'string' },
+        wg_show_command     => { type => 'string' },
+        reserved_ranges     => { 'type' => 'object', 'description' => 'Reserved ranges per interface' },
+        default_dns         => { 'type' => 'object', 'description' => 'Default dns names per interface' },
+        default_allowed_ips => { 'type' => 'object', 'description' => 'Default allowed ips names per interface' },
+        sender_email        => { 'type' => 'string', 'description' => 'Use this address as sender and reply-to email' }
     };
 
     push @{$config->schema->{properties}{BACKEND}{required}}, 'wireguard_home';

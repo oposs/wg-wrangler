@@ -6,11 +6,24 @@ BACKEND:
   sesame_pass: wedfwfewqf
   vpn_name: your_vpn_name
   enable_git: false
-  no_apply: true
+  no_apply: false
   not_applied_suffix: .not_applied
   wireguard_home: t/dummy_home/
   wg_apply_command: echo "applied for %interface%"
   wg_show_command: cat t/dummy_home/show_dummy
+  reserved_ranges:
+    wg0:
+      - 10.0.10.0/29
+  default_dns:
+    wg0: 192.168.0.1
+    wg1: 9.9.9.9
+  default_allowed_ips:
+    wg0:
+      - 0.0.0.0/0
+      - 192.168.1.0/32
+    wg1:
+      - 192.168.0.0/24
+  sender_email: support@oetiker.ch
 
 FRONTEND:
 # logo = ../resource/wgwrangler/logo.png
@@ -31,9 +44,6 @@ PLUGIN:
   - WireguardShow:
       module: WireguardShow
       tab-name: Wireguard
-      default-dns: 10.0.0.1
-      default-allowed-ips: 10.0.0.0/24
-      sender-email: support@oetiker.ch
 
   - WireguardVersions:
       module: WireguardVersions

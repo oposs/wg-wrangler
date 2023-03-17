@@ -15,7 +15,7 @@ All the methods of L<CallBackery::GuiPlugin::AbstractTable> plus:
 
 =cut
 
-has formCfg => sub ($self) {
+has formCfg => sub($self) {
 
     return [
         {
@@ -35,7 +35,7 @@ has formCfg => sub ($self) {
     ]
 };
 
-has tableCfg => sub ($self) {
+has tableCfg => sub($self) {
     return [
         {
             label    => trm('Disabled'),
@@ -136,7 +136,7 @@ has tableCfg => sub ($self) {
     ]
 };
 
-has actionCfg => sub ($self) {
+has actionCfg => sub($self) {
     my $bg_config = $self->app->config->cfgHash->{BACKEND};
     return [] if $self->user and not $self->user->may('write');
 
@@ -155,12 +155,13 @@ has actionCfg => sub ($self) {
             backend          => {
                 plugin => 'WireguardAddPeerForm',
                 config => {
-                    'default-allowed-ips' => $self->config->{'default-allowed-ips'},
-                    'default-dns'         => $self->config->{'default-dns'},
-                    'sender-email'        => $self->config->{'sender-email'},
+                    'default_allowed_ips' => $bg_config->{'default_allowed_ips'},
+                    'default_dns'         => $bg_config->{'default_dns'},
+                    'sender_email'        => $bg_config->{'sender_email'},
                     'vpn_name'            => $bg_config->{vpn_name},
                     'no_apply'            => $bg_config->{no_apply},
-                    'enable_git'          => $bg_config->{enable_git}
+                    'enable_git'          => $bg_config->{enable_git},
+                    'sender_email'        => $bg_config->{sender_email}
                 }
             }
         },
@@ -194,7 +195,7 @@ has actionCfg => sub ($self) {
             buttonSet        => {
                 enabled => false,
             },
-            actionHandler    => sub ($self, $args) {
+            actionHandler    => sub($self, $args) {
                 my $id = $args->{selection}{'public-key'};
                 die mkerror(4992, "You have to select a peer first") if not $id;
 
@@ -305,26 +306,6 @@ has actionCfg => sub ($self) {
             action => 'separator'
         },
     ];
-};
-
-has grammar => sub ($self) {
-    $self->mergeGrammar(
-        $self->SUPER::grammar,
-        {
-            _doc                  => "Wireguard plugin config",
-            _vars                 => [ qw(default-dns default-allowed-ips sender-email) ],
-            'default-dns'         => {
-                _doc => 'Default DNS server to be filled in the DNS field',
-            },
-            'default-allowed-ips' => {
-                _doc => 'Default allowed-ips for new peers'
-            },
-            'sender-email'        => {
-                _doc  => 'Value to set in the From: email header',
-                _type => 'string'
-            }
-        },
-    );
 };
 
 sub getTableRowCount ($self, $args, $qx_locale) {

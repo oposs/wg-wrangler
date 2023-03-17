@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wgwrangler 0.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-18 13:58+0200\n"
+"POT-Creation-Date: 2023-03-17 15:08+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,8 +17,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: lib/WGwrangler/GuiPlugin/WireguardVersions.pm:48
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:23
+#: lib/WGwrangler/GuiPlugin/WireguardVersions.pm:48
 msgid "*"
 msgstr ""
 
@@ -26,8 +26,8 @@ msgstr ""
 msgid "A device name"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:423
-#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:500
+#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:426
+#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:503
 msgid "Access Denied"
 msgstr ""
 
@@ -35,13 +35,13 @@ msgstr ""
 msgid "Actual Address"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:367
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:145
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:367
 msgid "Add Peer"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:205
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:92
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:205
 msgid "Add User"
 msgstr ""
 
@@ -122,8 +122,8 @@ msgstr ""
 msgid "DNS"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:443
-#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:517
+#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:446
+#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:520
 msgid "Data Decoding Problem %1"
 msgstr ""
 
@@ -143,8 +143,8 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:145
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:77
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:145
 msgid "Device"
 msgstr ""
 
@@ -230,13 +230,13 @@ msgstr ""
 msgid "Failed to send mail to %1"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:94
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:60
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:94
 msgid "Family Name"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:85
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:53
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:85
 msgid "Given Name"
 msgstr ""
 
@@ -248,12 +248,12 @@ msgstr ""
 msgid "Has to be larger than 0 and a number"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:44
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:48
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:44
 msgid "Interface"
 msgstr ""
 
-#: lib/WGwrangler/Model/IPmanager.pm:236
+#: lib/WGwrangler/Model/IPmanager.pm:238
 msgid "It seems that some parts of"
 msgstr ""
 
@@ -261,8 +261,8 @@ msgstr ""
 msgid "List of ip addresses, separated by comma and in CDIR notation"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:117
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:63
+#: lib/WGwrangler/GuiPlugin/WireguardAddPeerForm.pm:117
 msgid "Name"
 msgstr ""
 
@@ -294,8 +294,8 @@ msgstr ""
 msgid "Not enough arguments for validator `alias`"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:104
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:74
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:104
 msgid "Note"
 msgstr ""
 
@@ -328,8 +328,8 @@ msgstr ""
 msgid "Persistent-keepalive"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:428
-#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:507
+#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:431
+#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:510
 msgid "Plugin Name missing"
 msgstr ""
 
@@ -337,8 +337,8 @@ msgstr ""
 msgid "Public Key"
 msgstr ""
 
-#: lib/WGwrangler/GuiPlugin/WireguardVersions.pm:126
 #: lib/WGwrangler/GuiPlugin/WireguardShow.pm:256
+#: lib/WGwrangler/GuiPlugin/WireguardVersions.pm:126
 msgid "Reload Data"
 msgstr ""
 
@@ -386,7 +386,7 @@ msgstr ""
 msgid "Transfer-TX"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:434
+#: thirdparty/lib/perl5/CallBackery/Controller/RpcService.pm:437
 msgid "Upload Missing"
 msgstr ""
 
@@ -402,13 +402,13 @@ msgstr ""
 msgid "User email - config is sent to this email if desired"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:50
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:38
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:50
 msgid "UserId"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:59
 #: thirdparty/lib/perl5/CallBackery/GuiPlugin/Users.pm:46
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/UserForm.pm:59
 msgid "Username"
 msgstr ""
 
@@ -441,18 +441,18 @@ msgstr ""
 msgid "cardCfg must be defined in child plugin class"
 msgstr ""
 
-#: lib/WGwrangler/Model/IPmanager.pm:236
+#: lib/WGwrangler/Model/IPmanager.pm:238
 msgid "do not belong to"
 msgstr ""
 
-#: lib/WGwrangler/Model/IPmanager.pm:221
+#: lib/WGwrangler/Model/IPmanager.pm:223
 msgid "is already acquired"
 msgstr ""
 
-#: lib/WGwrangler/Model/IPmanager.pm:227
+#: lib/WGwrangler/Model/IPmanager.pm:229
 msgid "overlaps with an already acquired network"
 msgstr ""
 
-#: thirdparty/lib/perl5/CallBackery/GuiPlugin/AbstractForm.pm:139
+#: thirdparty/lib/perl5/CallBackery/GuiPlugin/AbstractForm.pm:92
 msgid "sorry, don't know the field you are talking about"
 msgstr ""
