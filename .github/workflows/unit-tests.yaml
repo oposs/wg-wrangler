@@ -7,6 +7,7 @@ on:
     branches:
       - '**'
   pull_request:
+    types: [opened, reopened]
     paths-ignore:
       - '**.md'
 
@@ -60,21 +61,10 @@ jobs:
       run: ./configure --prefix=$HOME/test-install
     - name: Make
       run: make
-    - name: Test
+    - name: Test & dist & install
       run: |
           cp etc/wgwrangler.dist.yaml  etc/wgwrangler.yaml
           make test
-    - name: Check Dist
-      run: |
-        make dist
-        tar xf *-$(cat VERSION).tar.gz
-        cd *-$(cat VERSION)
-        ./configure --prefix=$HOME/test-install
-        make
-        make install
-        cd $HOME/test-install
-        cp etc/wgwrangler.dist.yaml  etc/wgwrangler.yaml
-        ./bin/wgwrangler
     - name: Cache Prep
       run: |
         rm thirdparty/Makefile* thirdparty/cpan*snapshot
