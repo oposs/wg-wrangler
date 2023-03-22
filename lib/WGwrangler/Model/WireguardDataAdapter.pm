@@ -21,14 +21,14 @@ use Wireguard::WGmeta::Wrapper::Show;
 use Wireguard::WGmeta::Wrapper::ConfigT;
 use Wireguard::WGmeta::Wrapper::Bridge;
 use Wireguard::WGmeta::Validator;
-use WGwrangler::Model::IPmanager;
+use Net::IPManager;
 use CallBackery::Translate qw(trm);
 
 has app => sub {
     die 'app property must be set';
 };
 
-has log => sub ($self) {
+has log => sub($self) {
     $self->app->log;
 };
 
@@ -36,7 +36,7 @@ has 'wireguard_home' => sub {
     die 'This is a required attribute';
 };
 
-has 'backend_config' => sub ($self) {
+has 'backend_config' => sub($self) {
     $self->app->config->cfgHash->{BACKEND}
 };
 
@@ -77,10 +77,10 @@ has 'wg_show' => sub ($self) {
     Wireguard::WGmeta::Wrapper::Show->new($self->_get_wg_show_data());
 };
 
-has 'ip_manager' => sub ($self) {
-    my $ip_manager = WGwrangler::Model::IPmanager->new();
+has 'ip_manager' => sub($self) {
+    my $ip_manager = Net::IPManager->new();
     for my $interface (keys %{$self->wg_meta->{parsed_config}}) {
-        _populate_ip_manager($interface, $self->wg_meta, $ip_manager);
+        _populate_ip_manager($interface, $self->wg_meta, $ip_manager, $self->app->bgc);
     }
     return $ip_manager;
 };
@@ -92,13 +92,18 @@ sub _get_wg_show_data ($self) {
 
 sub _reload_callback ($interface, $ref_list_args) {
     my ($self) = @{$ref_list_args};
-    _populate_ip_manager($interface, $self->wg_meta, $self->ip_manager);
+    _populate_ip_manager($interface, $self->wg_meta, $self->ip_manager, $self->app->bgc);
 }
 
-sub _populate_ip_manager ($interface, $wg_metaT, $ip_manager) {
+sub _populate_ip_manager ($interface, $wg_metaT, $ip_manager, $bgc) {
     if (exists $wg_metaT->{parsed_config}{$interface}{$interface}{address}) {
         my $interface_networks = $wg_metaT->{parsed_config}{$interface}{$interface}{address};
         $ip_manager->populate_range($interface, $interface_networks);
+    }
+    # Acquire reserved ranges first
+    if (exists($bgc->{'reserved_ranges'}{$interface})) {
+        my $reserved_ranges = join(',', @{$bgc->{'reserved_ranges'}{$interface}});
+        $ip_manager->acquire_multiple($interface, $reserved_ranges);
     }
     for my $identifier ($wg_metaT->get_section_list($interface)) {
         unless ($identifier eq $interface) {

@@ -21,6 +21,8 @@ sudo apt install libqrencode-dev
 make
 ```
 
+**Minimum Node.js: `v14` -> If no compatible node version is found, the frontend is not built!**
+
 Configure will check if all requirements are met and give
 hints on how to fix the situation if something is missing.
 
@@ -79,6 +81,12 @@ Currently supported ubuntu versions:
 - 20.04 LTS
 - 22.04 LTS
 
+Configuration
+-------------
+
+Do get started, rename `/etc/opt/wg-wrangler/wgwrangler.dist.yaml` to `/etc/opt/wg-wrangler/wgwrangler.yaml` and adjust
+according your needs. 
+
 Development
 -----------
 
@@ -98,7 +106,7 @@ file and run ./bootstrap.
 **Honored Environment Variables**
 
 - `WGwrangler_NO_WG` If defined, we do not call any wg* command from code (e.g. to generate pub/private-keys)
-- `WGwrangler_CONFIG` Use this variable to set the path to the main `wgwrangler.yaml` file, defaults to `etc/wgrangler.yaml`
+- `WGwrangler_CONFIG_HOME` Use this variable to set the path to the main configuration files (email template + main config)
 
 Packaging
 ---------

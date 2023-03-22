@@ -42,7 +42,7 @@ sub prepare_and_send ($self, $mail_cfg) {
     my $send_cfg = {
         from        => $mail_cfg->{sender_email},
         to          => $mail_cfg->{email},
-        template    => 'send_config_by_email',
+        template    => 'send_config_by_email.ep',
         args        => $mail_cfg,
         attachments => [ $mail_cfg->{attachment} ]
     };

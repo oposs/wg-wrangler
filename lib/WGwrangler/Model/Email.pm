@@ -32,7 +32,7 @@ has mailTransport => sub ($self) {
 
 sub getText ($self, $template, $args) {
     my $render = $self->template->render_file(
-        $self->home->child('templates', $template . '.email.ep'),
+        $ENV{WGwrangler_CONFIG_HOME}.'/'.$template,
         $args);
     if (ref $render eq 'Mojo::Exception') {
         die("Faild to process $template: " . $render->message);

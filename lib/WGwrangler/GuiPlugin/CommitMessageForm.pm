@@ -84,7 +84,7 @@ has actionCfg => sub ($self) {
     ];
 };
 
-sub getAllFieldValues ($self, $args) {
+sub getAllFieldValues ($self, $args, $form_data, $qx_locale) {
     return [];
 }
 

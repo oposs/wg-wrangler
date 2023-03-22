@@ -1,0 +1,27 @@
+Subject: Wireguard VPN Configuration
+Reply-To: <%= $sender_email %>
+----
+Dear <%= $name %>
+This is your vpn configuration for your device "<%= $device_name %>" to access <%= $endpoint %>.
+Install a Wireguard client https://www.wireguard.com/install
+Add the config file attached to this message
+
+enjoy!
+----
+<html lang="en">
+<head><title></title></head>
+<body>
+<p>Dear <%= $name %></p>
+<p>This is your vpn configuration for your device "<%= $device_name %>" to access <%= $endpoint %>.</p>
+<ol>
+    <li>Install a Wireguard <a href="https://www.wireguard.com/install">client</a>.</li>
+    <li>Add the config file attached to this message</li>
+</ol>
+<p>Your Wireguard Configuration as a QR Code, readable by mobile Wireguard clients</p>
+<div>
+    <img style="image-rendering: crisp-edges;width: 300px;max-width: 100%" src="data:image/svg+xml;base64,<%= $qr %>"
+         alt="qr_config"/>
+</div>
+<p>enjoy!</p>
+</body>
+</html>

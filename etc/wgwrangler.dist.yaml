@@ -1,20 +1,37 @@
-
 BACKEND:
   cfg_db: /var/opt/wg-wrangler/wgwrangler.db
   sesame_user: adfadsfasdf4ee3r
   # perl -MDigest::SHA -e 'print Digest::SHA::hmac_sha1_hex("access"),"\n"'
   sesame_pass: 393afhkjhffjj
-  vpn_name: your_vpn_name
+  # A name for your VPN service, available as tag in the email template
+  vpn_name: 'Awesome Wireguard VPN'
+  # Enable versioning for wireguard configurations
   enable_git: false
-  no_apply: true
+  # Instead of applying the configuration automatically after every edit, show a button to apply the configuration manually
+  no_apply: false
   not_applied_suffix: .not_applied
-  wireguard_home: /dummy_home/
+  # Where does your wireguard configuration reside? (trailing slash expected)
+  wireguard_home: /etc/wireguard/
   wg_apply_command: sudo -n wg-quick strip %interface% > /tmp/wg_tmp && sudo -n wg syncconf %interface% /tmp/wg_tmp && rm /tmp/wg_tmp
   wg_show_command: sudo -n wg show all dump
+  # Ranges defined here are not possible to acquire
+  # Note: Make sure your subnet calculations are correct, e.g 192.168.1.1/24 is not a valid network _per se_, the
+  # correct notation is 192.168.1.0/24 (!)
+  reserved_ranges:
+    wg0:
+      - 10.0.0.0/29
+  default_dns:
+    wg1: 192.168.2.1
+  default_allowed_ips:
+    wg0:
+      - 192.168.0.0/24
+    wg1:
+      - 192.168.0.0/24
+  sender_email: support@oetiker.ch
 
 FRONTEND:
-# logo = ../resource/wgwrangler/logo.png
-# logo_small = ../resource/wgwrangler/logo-small.png
+  # logo = ../resource/wgwrangler/logo.png
+  # logo_small = ../resource/wgwrangler/logo-small.png
   title: WGwrangler
   initial_plugin: WireguardShow
   company_name: OETIKER+PARTNER AG
@@ -31,9 +48,6 @@ PLUGIN:
   - WireguardShow:
       module: WireguardShow
       tab-name: Wireguard
-      default-dns: 192.168.0.1
-      default-allowed-ips: 192.168.0.0/24
-      sender-email: support@oetiker.ch
 
   - WireguardVersions:
       module: WireguardVersions

@@ -159,6 +159,7 @@ has formCfg => sub ($self) {
             label            => trm('Allowed IPs'),
             widget           => 'text',
             triggerFormReset => true,
+            reloadOnFormReset => true,
             validator        => sub ($value, $parameter, $formData) {
                 return $self->app->wireguardModel->validator('single-ip', $value);
             },
@@ -229,6 +230,7 @@ has formCfg => sub ($self) {
             label            => trm('DNS'),
             widget           => 'text',
             triggerFormReset => true,
+            reloadOnFormReset => true,
             validator        => sub ($value, $parameter, $formData) {
                 return $self->app->wireguardModel->validator('single-ip', $value);
             },
@@ -319,7 +321,7 @@ has actionCfg => sub ($self) {
                     'name'         => $name,
                     'endpoint'     => $fqdn,
                     'email'        => $email,
-                    'sender_email' => $self->config->{'sender-email'},
+                    'sender_email' => $self->config->{'sender_email'},
                     'device_name'  => $device,
                     'attachment'   => {
                         attributes => {
@@ -432,14 +434,24 @@ sub getAllFieldValues ($self, $args, $formData, $qx_locale) {
         }
         $data->{'private-key'} = $private_key;
         $data->{'public-key'} = $public_key;
+        my $dns = exists($self->config->{'default_dns'}{"$may_interface"}) ?  $self->config->{'default_dns'}{"$may_interface"}: '';
+        my $allowed_ips = exists($self->config->{'default_allowed_ips'}{"$may_interface"}) ? join(',',@{$self->config->{'default_allowed_ips'}{"$may_interface"}}): '';
+
+        $data->{DNS} = $dns;
+        $data->{'allowed-ips'} = $allowed_ips;
+        unless ($formData->{currentFormData}{'DNS'}) {
+            $formData->{currentFormData}{'DNS'} = $dns;
+        }
+        unless ($formData->{currentFormData}{'allowed-ips'}) {
+            $formData->{currentFormData}{'allowed-ips'} = $allowed_ips;
+        }
+
         $data->{'config_preview'} = generate_preview_config($formData->{currentFormData}, $private_key, $interface_public_key);
     }
     else {
         $data->{'config_preview'} = 'Select an interface first';
     }
     $data->{'created'} = strftime("%Y-%m-%d %H:%M:%S %z", localtime);
-    $data->{'allowed-ips'} = $self->config->{'default-allowed-ips'};
-    $data->{'DNS'} = $self->config->{'default-dns'};
 
     return $data;
 }
