@@ -1,3 +1,10 @@
+wg-wrangler (0.3.0) unstable; urgency=medium
+
+  * Fixed incorrect handling of #+comment tags
+  * Extended IPManager module, we now support address reservations and per interface defaults
+
+ -- Tobias Bossert <tbossert@oetiker.ch>  Wed, 22 Mar 2023 12:12:48 +0100
+
 wg-wrangler (0.2.3) unstable; urgency=medium
 
    * Raised wg-meta version to 0.3.3 to fix deadlock when calling the reload callback
