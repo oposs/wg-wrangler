@@ -61,7 +61,7 @@ jobs:
       run: ./configure --prefix=$HOME/test-install
     - name: Make
       run: make
-    - name: Test & dist & install
+    - name: Test
       run: |
           cp etc/wgwrangler.dist.yaml  etc/wgwrangler.yaml
           make test
