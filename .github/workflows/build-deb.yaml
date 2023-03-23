@@ -1,0 +1,75 @@
+name: Build .deb packages
+
+on:
+  push:
+    tags:
+      - "v*"
+
+
+jobs:
+  build_deb_packages:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - distribution: debian
+            version: 10
+            node_version: '16.x'
+          - distribution: debian
+            version: 11
+            node_version: '18.x'
+          - distribution: ubuntu
+            version: 18.04
+            node_version: '16.x'
+          - distribution: ubuntu
+            version: 20.04
+            node_version: '18.x'
+          - distribution: ubuntu
+            version: 22.04
+            node_version: '18.x'
+
+
+    runs-on: ubuntu-latest
+    name: Build package for ${{ matrix.distribution }} ${{ matrix.version }}
+    container:
+      image: ${{ matrix.distribution }}:${{ matrix.version }}
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      # sneaky hack to make caches work because the cache action lives outside the container
+      options: --mount type=volume,dst=/__w/wgwrangler/wgwrangler/,volume-driver=local,volume-opt=type=none,volume-opt=o=bind,volume-opt=device=${{ github.workspace }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node_version }}
+      - name: Install OS requirements
+        run: apt-get update && apt-get install -yq perl make gcc devscripts openssl pkg-config libssl-dev debhelper automake libkrb5-dev libqrencode-dev g++ zlib1g-dev
+      - name: Node Cache
+        id: node-cache
+        uses: actions/cache@v3
+        with:
+          path: frontend/node_modules
+          key: ${{ matrix.distribution }}-node-${{ matrix.node_version }}-${{ hashFiles('package.json', '*/package.json','qx-lock.json', '*/qx-lock.json') }}
+          restore-keys: |
+            ${{ matrix.distribution }}-node-${{ matrix.node_version }}-
+      - name: CPAN cache
+        id: cpan_cache
+        uses: actions/cache@v3
+        with:
+          path: thirdparty
+          key: ${{ matrix.distribution }}-cpan-${{ matrix.version }}-${{ hashFiles('cpanfile', '*/cpanfile', 'Makefile.am', '*/Makefile.am') }}
+      - name: Build package
+        id: build_package
+        run: bash make-deb.sh ${{ matrix.distribution }} ${{ matrix.version }}
+      - name: Release deb files
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: ${{ github.workspace }}/${{ steps.build_package.outputs.package_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
