@@ -7,8 +7,8 @@ BACKEND:
   vpn_name: 'Awesome Wireguard VPN'
   # Enable versioning for wireguard configurations
   enable_git: false
-  # Instead of applying the configuration automatically after every edit, show a button to apply the configuration manually
-  no_apply: false
+  # Instead of applying the configuration automatically after every edit (true) show a button to manually apply the configuration
+  no_apply: true
   not_applied_suffix: .not_applied
   # Where does your wireguard configuration reside? (trailing slash expected)
   wireguard_home: /etc/wireguard/

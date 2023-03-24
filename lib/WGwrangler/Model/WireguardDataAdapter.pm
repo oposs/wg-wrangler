@@ -52,7 +52,7 @@ has 'wg_not_installed' => sub {
     return defined $ENV{'WGwrangler_NO_WG'}
 };
 
-has 'wg_meta' => sub ($self) {
+has 'wg_meta' => sub($self) {
     my $custom_attr_config = {
         'email' => {
             'validator' => sub($value) {return $value =~ /^\S+@\S+\.\S+$/;}
@@ -254,10 +254,20 @@ sub sort_table_data ($self, $data, $key, $order) {
     my @keys_to_sort = map {$_->{$key}} @{$data};
     my @sorted_indexes;
     if (defined $order) {
-        @sorted_indexes = sort {($keys_to_sort[$b] // '') cmp ($keys_to_sort[$a] // '')} 0 .. $#keys_to_sort;
+        if ($data_type eq 'number') {
+            @sorted_indexes = sort {($keys_to_sort[$b] // 0) <=> ($keys_to_sort[$a] // 0)} 0 .. $#keys_to_sort;
+        }
+        else {
+            @sorted_indexes = sort {($keys_to_sort[$b] // '') cmp ($keys_to_sort[$a] // '')} 0 .. $#keys_to_sort;
+        }
     }
     else {
-        @sorted_indexes = sort {($keys_to_sort[$a] // '') cmp ($keys_to_sort[$b] // '')} 0 .. $#keys_to_sort;
+        if ($data_type eq 'number') {
+            @sorted_indexes = sort {($keys_to_sort[$b] // 0) <=> ($keys_to_sort[$a] // 0)} 0 .. $#keys_to_sort;
+        }
+        else {
+            @sorted_indexes = sort {($keys_to_sort[$a] // '') cmp ($keys_to_sort[$b] // '')} 0 .. $#keys_to_sort;
+        }
     }
     return [ @{$data}[ @sorted_indexes ] ];
 }

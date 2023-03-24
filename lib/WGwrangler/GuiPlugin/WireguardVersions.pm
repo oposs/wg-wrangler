@@ -113,7 +113,7 @@ has actionCfg => sub ($self) {
             },
             actionHandler    => sub ($self, $args) {
                 my $hash = $args->{selection}{'hash'};
-                die mkerror(4992, "You have to select a peer first") if not $hash;
+                die mkerror(4992, "You have to select an entry first") if not $hash;
 
                 $self->app->versionManager->go_back_to_revision($hash);
 

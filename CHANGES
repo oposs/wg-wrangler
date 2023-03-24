@@ -1,3 +1,12 @@
+wg-wrangler (0.3.1) UNRELEASED; urgency=medium
+
+  * Sort numeric columns numerically
+  * Send emails only if everything before successes
+  * 'Send by Email' is now the default option
+  * Also show 'Last Handshake' column
+
+ -- Tobias Bossert <tbossert@oektiker.ch>  Fri, 24 Mar 2023 14:57:27 +0100
+
 wg-wrangler (0.3.0) unstable; urgency=medium
 
   * Fixed incorrect handling of #+comment tags

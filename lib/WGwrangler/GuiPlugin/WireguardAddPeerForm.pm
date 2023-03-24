@@ -284,8 +284,15 @@ has formCfg => sub ($self) {
         {
             key    => 'send_by_email',
             label  => => trm('Send by Email'),
-            widget => 'checkBox'
+            widget => 'checkBox',
+            set    => {
+                value => true
+            }
         },
+        {
+            widget => 'header',
+            label  => trm('Note: The configuration rendered in the preview is also completely valid'),
+        }
     ];
 };
 
@@ -316,6 +323,17 @@ has actionCfg => sub ($self) {
             $self->app->wireguardModel->update_peer_data($interface, $peer_pub_key, 'device', $device);
             $self->app->wireguardModel->update_peer_data($interface, $peer_pub_key, 'created', $created);
 
+            # Commit changes
+            $self->app->wireguardModel->commit_changes({});
+
+            # Check into VCS if enabled
+            if ($self->config->{'no_apply'} && $self->config->{'enable_git'}) {
+                my $commit_message = "Created peer for `$name` on interface `$interface`";
+                my $user_string = $self->user->{userInfo}{cbuser_login};
+                $self->app->versionManager->checkin_new_version($commit_message, $user_string, 'dummy@example.com');
+            }
+
+            # And send mail if no error occurred so far
             if (defined $send_by_email && $send_by_email == 1) {
                 my $email_cfg = {
                     'name'         => $name,
@@ -334,15 +352,6 @@ has actionCfg => sub ($self) {
                     }
                 };
                 $self->mailHandler->prepare_and_send($email_cfg);
-            }
-            # Commit changes
-            $self->app->wireguardModel->commit_changes({});
-
-            # Check into VCS if enabled
-            if ($self->config->{'no_apply'} && $self->config->{'enable_git'}) {
-                my $commit_message = "Created peer for `$name` on interface `$interface`";
-                my $user_string = $self->user->{userInfo}{cbuser_login};
-                $self->app->versionManager->checkin_new_version($commit_message, $user_string, 'dummy@example.com');
             }
         };
         if ($@) {
