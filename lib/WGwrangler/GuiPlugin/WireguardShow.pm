@@ -35,6 +35,12 @@ has formCfg => sub($self) {
     ]
 };
 
+has tableCfgHash => sub($self) {
+    # Simply convert the tableCfg to a hash where the 'key'-field becomes the key
+    my %hash = map {$_->{'key'} => $_} @{$self->tableCfg()};
+    return \%hash;
+};
+
 has tableCfg => sub($self) {
     return [
         {
@@ -93,12 +99,12 @@ has tableCfg => sub($self) {
             width    => '2*',
             key      => 'transfer-rx',
             sortable => true,
-            # format   => {
-            #     unitPrefix            => 'metric',
-            #     maximumFractionDigits => 2,
-            #     postfix               => 'Byte',
-            #     locale                => 'en'
-            # },
+            format   => {
+                unitPrefix            => 'metric',
+                maximumFractionDigits => 2,
+                postfix               => 'Byte',
+                locale                => 'en'
+            },
         },
         {
             label    => trm('Transfer-TX'),
@@ -106,32 +112,30 @@ has tableCfg => sub($self) {
             width    => '1*',
             key      => 'transfer-tx',
             sortable => true,
-            # format   => {
-            #     unitPrefix            => 'metric',
-            #     maximumFractionDigits => 2,
-            #     postfix               => 'Byte',
-            #     locale                => 'en'
-            # },
+            format   => {
+                unitPrefix            => 'metric',
+                maximumFractionDigits => 2,
+                postfix               => 'Byte',
+                locale                => 'en'
+            },
         },
-        #        {
-        #            label => trm('Size'),
-        #            type => 'number',
-        #            format => {
-        #                unitPrefix => 'metric',
-        #                maximumFractionDigits => 2,
-        #                postfix => 'Byte',
-        #                locale => 'en'
-        #            },
-        #            width => '1*',
-        #            key => 'song_size',
-        #            sortable => true,
-        #        },
         {
             label    => trm('Endpoint'),
             type     => 'string',
-            width    => '3*',
+            width    => '2*',
             key      => 'endpoint',
             sortable => true,
+        },
+        {
+            label    => trm('Latest Handshake'),
+            type     => 'number',
+            width    => '1*',
+            key      => 'latest-handshake',
+            sortable => true,
+            format   => {
+                postfix               => 's',
+                maximumFractionDigits => 2,
+            },
         },
     ]
 };
@@ -317,7 +321,9 @@ sub getTableData ($self, $args, $qx_locale) {
     my $filter = $args->{formData}{wg_interface};
     my $data = $self->app->wireguardModel->get_peer_table_data($args->{firstRow}, $args->{lastRow}, $filter);
     if ($args->{sortColumn}) {
-        $data = $self->app->wireguardModel->sort_table_data($data, $args->{sortColumn}, $args->{sortDesc});
+        my $table_cfg = $self->tableCfgHash();
+        my $column_type = $table_cfg->{$args->{sortColumn}}{'type'} // 'string';
+        $data = $self->app->wireguardModel->sort_table_data($data, $args->{sortColumn}, $args->{sortDesc}, $column_type);
     }
     # add action set to each row
     for my $row (@{$data}) {
