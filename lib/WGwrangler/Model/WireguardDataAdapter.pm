@@ -250,7 +250,7 @@ sub commit_changes ($self, $ref_integrity_hashes) {
     $self->apply_config() if $self->is_hot_config;
 }
 
-sub sort_table_data ($self, $data, $key, $order) {
+sub sort_table_data ($self, $data, $key, $order, $data_type) {
     my @keys_to_sort = map {$_->{$key}} @{$data};
     my @sorted_indexes;
     if (defined $order) {
