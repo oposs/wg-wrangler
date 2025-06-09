@@ -27,6 +27,9 @@ jobs:
           - distribution: ubuntu
             version: 22.04
             node_version: '18.x'
+          - distribution: ubuntu
+            version: 24.04
+            node_version: '18.x'
 
 
     runs-on: ubuntu-latest
