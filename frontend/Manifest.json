@@ -24,6 +24,6 @@
     "translation" : "source/translation"
   },
   "requires": {
-    "@qooxdoo/framework": "^7.3.1"
+    "@qooxdoo/framework": "^7.9.3"
   }
 }
