@@ -21,7 +21,7 @@ sudo apt install libqrencode-dev
 make
 ```
 
-**Minimum Node.js: `v14` -> If no compatible node version is found, the frontend is not built!**
+**Minimum Node.js: `v20` -> If no compatible node version is found, the frontend is not built!**
 
 Configure will check if all requirements are met and give
 hints on how to fix the situation if something is missing.
@@ -77,9 +77,8 @@ Configuration resides in `/etc/opt/wg-wrangler`.
 
 Currently supported ubuntu versions:
 
-- 18.04 LTS
-- 20.04 LTS
-- 22.04 LTS
+- 24.04 LTS
+- 26.04 LTS
 
 Configuration
 -------------
@@ -131,9 +130,9 @@ Build deb package locally
 
 ```shell
 
-# To build ubuntu 22 package
+# To build ubuntu 24 package
 cd wg-wrangler
-docker run --rm -v $(pwd):/mnt -it ubuntu:22.04 /bin/bash
+docker run --rm -v $(pwd):/mnt -it ubuntu:24.04 /bin/bash
 
 # inside the docker container
 ./build_local.sh

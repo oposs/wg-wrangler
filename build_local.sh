@@ -7,7 +7,7 @@ export HOME=/tmp/home
 
 apt -y update && \
     apt-get -y install apt-utils curl && \
-    curl https://deb.nodesource.com/setup_18.x | bash && \
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash && \
     apt-get -u update && \
     apt-get -y install perl \
         make \

@@ -72,19 +72,22 @@ else
   AC_MSG_ERROR(could not find perl)
 fi
 
-ac_node_version="14"
+ac_node_version="20"
 
 if test -x "$NODE"; then
   AC_MSG_CHECKING(make sure we have at least node ${ac_node_version})
   case `$NODE --version` in
-  v14*)
-    AC_MSG_RESULT(ok v14)
+  v20*)
+    AC_MSG_RESULT(ok v20)
     ;;
-  v16*)
-    AC_MSG_RESULT(ok v16)
+  v22*)
+    AC_MSG_RESULT(ok v22)
     ;;
-  v18*)
-    AC_MSG_RESULT(ok v18)
+  v24*)
+    AC_MSG_RESULT(ok v24)
+    ;;
+  v26*)
+    AC_MSG_RESULT(ok v26)
     ;;
   *)
     AC_MSG_RESULT(no);
@@ -139,7 +142,7 @@ else
 fi
 
 AC_ARG_ENABLE(pkgonly,
-        AC_HELP_STRING([--enable-pkgonly],
+        AS_HELP_STRING([--enable-pkgonly],
                         [Skip all checking]))
 AC_SUBST(enable_pkgonly)
 
@@ -188,7 +191,7 @@ cat <<NOTES
 
 ** WARNING ***********************************************
 
-To run the qooxdoo compiler, at least node v14 is required.
+To run the qooxdoo compiler, at least node v20 is required.
 Use nvm to setup your local, up to date copy of node.
 Go to https://github.com/nvm-sh/nvm for futher information
 
