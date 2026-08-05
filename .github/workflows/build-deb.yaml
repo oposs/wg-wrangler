@@ -38,7 +38,7 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
       - name: Install OS requirements
-        run: apt-get update && apt-get install -yq perl make gcc devscripts openssl pkg-config libssl-dev debhelper automake libkrb5-dev libqrencode-dev g++ zlib1g-dev
+        run: apt-get update && apt-get install -yq perl make gcc devscripts openssl pkg-config libssl-dev debhelper automake libkrb5-dev libqrencode-dev g++ zlib1g-dev libnet-idn-encode-perl
       - name: Node Cache
         id: node-cache
         uses: actions/cache@v6

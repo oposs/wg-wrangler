@@ -2,10 +2,10 @@ Source: wg-wrangler
 Section: system
 Priority: optional
 Maintainer: Tobias Bossert <bossert@oetiker.ch>
-Build-Depends: build-essential, debhelper (>= 13)
+Build-Depends: build-essential, debhelper (>= 13), libnet-idn-encode-perl
 
 Package: wg-wrangler
 Architecture: any
-Depends: ${shlibs:Depends}, perl, wireguard, sudo
+Depends: ${shlibs:Depends}, perl, wireguard, sudo, libnet-idn-encode-perl
 Recommends: git
 Description: An web-frontend for managing wireguard peer configuration

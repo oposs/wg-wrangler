@@ -26,7 +26,9 @@ bin/cpanm:
 	$(URL_CAT) https://cpanmin.us > bin/cpanm
 	$(AM_V_at)chmod 755 bin/cpanm
 
-$(CPANSNAPV): ../cpanfile
+# bin/cpanm must be listed here: this rule runs it, and without the explicit
+# prerequisite a parallel make can start it while it is still being downloaded
+$(CPANSNAPV): ../cpanfile bin/cpanm
 	$(AM_V_at)echo "** Installing Dependencies using Carton install"
 	$(AM_V_at)test -f $(CPANSNAPV) && cp $(CPANSNAPV) ../cpanfile.snapshot || true
 	test -x carton/bin/carton || $(PERL_ENV) $(PERL) bin/cpanm -q --notest --local-lib-contained $(THIRDPARTY_DIR)/carton Carton
