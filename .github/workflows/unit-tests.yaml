@@ -17,7 +17,7 @@ jobs:
       matrix:
         os:
           - ubuntu-24.04
-          - ubuntu-latest
+          - ubuntu-26.04
         node:
           - '22.x'
           - '24.x'
@@ -26,27 +26,27 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7
     - name: Setup Node
-      uses: actions/setup-node@v5
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ matrix.node }}
     - name: CPAN Cache
       id: cpan-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: thirdparty
         key: ${{ matrix.os }}-cpan-${{ hashFiles('**/cpanfile') }}
     - name: Node Cache
       id: node-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: frontend/node_modules
         key: ${{ matrix.os }}-node-${{ matrix.node }}-${{ hashFiles('**/package.json') }}
         restore-keys: |
           ${{ matrix.os }}-node-${{ matrix.node }}-
     - name: Install OS dependencies
-      run: sudo apt-get update && sudo apt-get install -yq libqrencode-dev pkg-config gettext
+      run: sudo apt-get update && sudo apt-get install -yq build-essential libqrencode-dev pkg-config gettext
     - name: Bootstrap
       run: ./bootstrap
     - name: Configure
