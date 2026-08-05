@@ -1,3 +1,23 @@
+wg-wrangler (0.4.0~beta) unstable; urgency=medium
+
+  * Build targets are now ubuntu 24.04 and 26.04; the dead debian 10/11 and
+    ubuntu 18.04/20.04 targets are gone
+  * configure now accepts node 20 through 26 and requires at least 20. Before
+    this it silently skipped the frontend build on anything newer than node 18
+  * qooxdoo updated to 7.9.3
+  * debhelper compat raised from the deprecated 9 to 13
+  * GitHub actions updated; the unit test matrix had exclude rules that stopped
+    it from ever testing node 22 on ubuntu 24.04
+  * ubuntu 26.04 needs libnet-idn-encode-perl, since Net::IDN::Encode no longer
+    compiles with gcc 15. It is a build and a runtime dependency
+  * Fixed a race in thirdparty that let a parallel make run bin/cpanm while it
+    was still being downloaded
+  * Fixed the version rewrite rule, which replaced every dotted number triple in
+    README.md and had repeatedly corrupted the example listen address and the
+    cpanfile snapshot name
+
+ -- Manuel Oetiker <manuel@oetiker.ch>  Wed, 05 Aug 2026 17:24:07 +0200
+
 wg-wrangler (0.3.1) unstable; urgency=medium
 
   * Sort numeric columns numerically

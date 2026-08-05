@@ -1,6 +1,6 @@
 WGwrangler
 ===========
-Version: 0.3.1
+Version: 0.4.0~beta
 Date: 2026-08-05
 
 WGwrangler is a web application to manage local Wireguard Configuration using 
