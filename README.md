@@ -1,7 +1,7 @@
 WGwrangler
 ===========
-Version: 0.2.2
-Date: 2022-12-20
+Version: 0.3.1
+Date: 2026-08-05
 
 WGwrangler is a web application to manage local Wireguard Configuration using 
 [wg-meta](https://metacpan.org/release/Wireguard-WGmeta) in its backend. 
@@ -63,7 +63,7 @@ setup:
   Type=simple
   User=wireguard_manager
   Group=wireguard_manager
-  ExecStart=/usr/bin/perl /home/wireguard_manager/opt/wgwrangler/bin/wgwrangler prefork --listen 'http://0.2.2.1:7171'
+  ExecStart=/usr/bin/perl /home/wireguard_manager/opt/wgwrangler/bin/wgwrangler prefork --listen 'http://127.0.0.1:7171'
   
   [Install]
   WantedBy=multi-user.target
@@ -80,11 +80,20 @@ Currently supported ubuntu versions:
 - 24.04 LTS
 - 26.04 LTS
 
+The package ships a `wg-wrangler.service` unit but does **not** enable it, because
+there is no usable configuration yet at that point. Create the configuration as
+described below, then activate the service:
+
+```console
+sudo systemctl enable --now wg-wrangler
+```
+
 Configuration
 -------------
 
 Do get started, rename `/etc/opt/wg-wrangler/wgwrangler.dist.yaml` to `/etc/opt/wg-wrangler/wgwrangler.yaml` and adjust
-according your needs. 
+according your needs. Make sure to change `sesame_user` and `sesame_pass`, the
+shipped defaults are publicly known.
 
 Development
 -----------
@@ -117,7 +126,7 @@ You can also package the application as a nice tar.gz file, it uses carton to
 install dependent module. If you want to make sure that your project builds with perl
 5.22, make sure to set the `PERL` environment variable to a perl 5.22
 interpreter, make sure to delete any `PERL5LIB` environment variable, and run
-`make clean && make`. This will cause a `cpanfile-0.2.2.snapshot` file to be included
+`make clean && make`. This will cause a `cpanfile-5.22.snapshot` file to be included
 with your tar ball, when building the app this snapshot will be used to make sure
 all the right versions of the dependent modules get installed.
 

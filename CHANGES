@@ -1,4 +1,4 @@
-wg-wrangler (0.3.1) UNRELEASED; urgency=medium
+wg-wrangler (0.3.1) unstable; urgency=medium
 
   * Sort numeric columns numerically
   * Send emails only if everything before successes

@@ -19,8 +19,11 @@ DATE := $(shell date +%Y-%m-%d)
 datadir = $(prefix)
 nobase_data_DATA = $(PUB) $(TEMPL) $(SHARE)
 
+# Only rewrite the version/date headers and explicit placeholders. The patterns
+# are anchored on purpose: an unanchored \d+\.\d+\.\d+ also matches IP addresses
+# and used to corrupt the example listen address in README.md on every release.
 README.md COPYRIGHT: VERSION
-	$(PERL) -i -p -e 's/(#VERSION#|\d+\.\d+\.\d+[^.\s]*)/$(PACKAGE_VERSION)/g;s/(#YEAR#|20[1-9]\d)/$(YEAR)/g;s/(#DATE#|20[1-9]\d-[01]\d-[0-3]\d)/$(DATE)/g;' $@
+	$(PERL) -i -p -e 's/^(Version:\s*)(?:#VERSION#|\d+\.\d+\.\d+\S*)/$${1}$(PACKAGE_VERSION)/;s/^(Date:\s*)(?:#DATE#|\d{4}-\d{2}-\d{2})/$${1}$(DATE)/;s/#VERSION#/$(PACKAGE_VERSION)/g;s/#YEAR#/$(YEAR)/g;s/#DATE#/$(DATE)/g;s/(Copyright \(c\) )20[1-9]\d/$${1}$(YEAR)/;' $@
 
 
 all-local: share/messages.pot
