@@ -75,10 +75,12 @@ Installation (deb Package)
 The steps described in the manual installation section are done automatically when you install one of the provided `.deb` packages.
 Configuration resides in `/etc/opt/wg-wrangler`.
 
-Currently supported ubuntu versions:
+Currently supported distributions:
 
-- 24.04 LTS
-- 26.04 LTS
+- Ubuntu 24.04 LTS
+- Ubuntu 26.04 LTS
+- Debian 12 (bookworm)
+- Debian 13 (trixie)
 
 The package ships a `wg-wrangler.service` unit but does **not** enable it, because
 there is no usable configuration yet at that point. Create the configuration as
