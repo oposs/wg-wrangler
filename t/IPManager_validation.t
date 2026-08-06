@@ -108,12 +108,16 @@ is $m->looks_like_ip('192.168.0.0./24'), 0, 'malformed cidr is rejected';
 is $m->looks_like_ip('192.168.0.20/32,not-an-ip'), 0,
     'a single bad entry rejects the whole list';
 
-# Empty values keep passing, which preserves the existing behaviour. Note that
-# this also lets an empty *required* field through: CallBackery hands a
-# required empty field to the validator and never reaches its own "field is
-# required" branch when a validator exists. Tightening this is a separate
-# decision, see the note in looks_like_ip().
-is $m->looks_like_ip(''), 1, 'empty string is accepted';
-is $m->looks_like_ip('  '), 1, 'whitespace only is accepted';
+# Empty is rejected, which is what actually enforces required => true on the
+# 'allowed-ips' field: CallBackery hands a required empty field to the
+# validator and never reaches its own "field is required" branch when a
+# validator exists. Optional fields such as DNS are unaffected, their
+# validator is not called at all while they are empty.
+is $m->looks_like_ip(''), 0, 'empty string is rejected';
+is $m->looks_like_ip('  '), 0, 'whitespace only is rejected';
+is $m->looks_like_ip('192.168.0.20/32,,192.168.0.21/32'), 0,
+    'empty entry inside a list is rejected';
+is $m->looks_like_ip('192.168.0.20/32,'), 1,
+    'a single trailing comma is tolerated';
 
 done_testing();

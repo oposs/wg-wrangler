@@ -144,21 +144,19 @@ Checks whether C<$ips_string> looks like a comma separated list of valid ips.
 Both plain addresses and CIDR notation are accepted, so C<192.168.2.1> and
 C<0.0.0.0/0> are equally valid.
 
-Empty parts are skipped, so this judges format only and never emptiness.
+An empty value is rejected. This is safe for optional fields because
+CallBackery returns from validateData() before calling the validator when an
+optional field is empty. For a I<required> empty field it does call the
+validator and never reaches its own "field is required" branch, so rejecting
+empty here is what actually enforces the required flag on 'allowed-ips'.
 
-Note that CallBackery skips the validator entirely for an optional field that
-is empty, but calls it for a I<required> empty field, and in that case its
-own "field is required" branch is never reached. Accepting empty here
-therefore means an empty required field passes as well. That is the long
-standing behaviour and is kept deliberately.
-
-Returns 1 if all non-empty parts look like ips and 0 otherwise.
+Returns 1 if every part looks like an ip and 0 otherwise.
 
 =cut
 sub looks_like_ip($self, $ips_string) {
     my @ips = map {_trm($_)} split /\,/, $ips_string;
+    return 0 unless @ips;
     for my $ip (@ips) {
-        next if $ip eq '';
         return 0 unless Net::IP::XS->new($ip);
     }
     return 1;
