@@ -1,7 +1,7 @@
 WGwrangler
 ===========
-Version: 0.4.0~beta
-Date: 2026-08-05
+Version: 0.4.0~rc1
+Date: 2026-08-06
 
 WGwrangler is a web application to manage local Wireguard Configuration using 
 [wg-meta](https://metacpan.org/release/Wireguard-WGmeta) in its backend. 

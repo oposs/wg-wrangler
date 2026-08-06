@@ -1,3 +1,18 @@
+wg-wrangler (0.4.0~rc1) unstable; urgency=medium
+
+  * Debian packages are built again, for debian 12 and 13 alongside ubuntu
+    24.04 and 26.04
+  * Replaced Net::IP, unmaintained since 2012, with Net::IP::XS
+  * looks_like_ip() now actually validates. It discarded the parse result and
+    accepted everything, so a typo in 'Allowed IPs' or 'DNS' went straight
+    into the client configuration mailed to the peer. Empty values are
+    rejected as well, which is what makes the required flag on 'allowed-ips'
+    take effect for the first time
+  * Added tests for the IPManager validation and error paths, raising branch
+    coverage of that module from 40% to 81%
+
+ -- Manuel Oetiker <manuel@oetiker.ch>  Thu, 06 Aug 2026 08:59:49 +0200
+
 wg-wrangler (0.4.0~beta) unstable; urgency=medium
 
   * Build targets are now ubuntu 24.04 and 26.04; the dead debian 10/11 and
