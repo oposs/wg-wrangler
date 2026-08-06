@@ -1,3 +1,15 @@
+wg-wrangler (0.4.0~rc2) unstable; urgency=medium
+
+  * configure requires perl 5.34 instead of 5.22. Nothing below 5.34 was built
+    or tested, 5.34 on ubuntu 22.04 is the oldest of the five build targets
+  * Replaced debian/compat with debhelper-compat in Build-Depends. The file was
+    itself deprecated and produced 74 warnings per package build
+  * Added tests for WireguardDataAdapter, which had no coverage although it
+    hosts the validator dispatch behind every peer form field. The suite is now
+    at 96 tests
+
+ -- Manuel Oetiker <manuel@oetiker.ch>  Thu, 06 Aug 2026 13:58:54 +0200
+
 wg-wrangler (0.4.0~rc1) unstable; urgency=medium
 
   * Debian packages are built again, for debian 12 and 13 alongside ubuntu
