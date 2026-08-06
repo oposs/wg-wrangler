@@ -15,11 +15,19 @@ Download the current release distribution
 
 ```console
 # Install os dependencies
-sudo apt install libqrencode-dev
+sudo apt install build-essential libqrencode-dev libssl-dev zlib1g-dev \
+                 pkg-config gettext libnet-idn-encode-perl
 
 ./configure --prefix=$HOME/opt/wgwrangler
 make
 ```
+
+`build-essential`, `libssl-dev` and `zlib1g-dev` are needed because several perl
+dependencies are XS modules that get compiled during the build, Net::SSLeay
+among them. `libnet-idn-encode-perl` is
+required from gcc 14 on, which covers debian 13 and ubuntu 26.04: the CPAN
+release of Net::IDN::Encode dates from 2018 and no longer compiles there, so the
+distribution package is used instead.
 
 **Minimum Node.js: `v20` -> If no compatible node version is found, the frontend is not built!**
 
@@ -110,8 +118,8 @@ using the built-in Mojo webserver.
 
 You can now connect to the CallBackery app with your web browser.
 
-If you need any additional perl modules, write their names into the PERL_MODULES
-file and run ./bootstrap.
+If you need any additional perl modules, add them to the `cpanfile` and run
+./bootstrap.
 
 **Honored Environment Variables**
 
@@ -125,12 +133,15 @@ Before releasing, make sure to update `CHANGES`, `VERSION` and run
 `./bootstrap`.
 
 You can also package the application as a nice tar.gz file, it uses carton to
-install dependent module. If you want to make sure that your project builds with perl
-5.22, make sure to set the `PERL` environment variable to a perl 5.22
-interpreter, make sure to delete any `PERL5LIB` environment variable, and run
-`make clean && make`. This will cause a `cpanfile-5.22.snapshot` file to be included
-with your tar ball, when building the app this snapshot will be used to make sure
-all the right versions of the dependent modules get installed.
+install dependent module. If you want to make sure that your project builds with
+the oldest perl among the build targets, currently 5.36 on debian 12, set the
+`PERL` environment variable to such an interpreter, delete any `PERL5LIB`
+environment variable, and run `make clean && make`. This will cause a
+`cpanfile-5.36.snapshot` file to be included with your tar ball, when building
+the app this snapshot will be used to make sure all the right versions of the
+dependent modules get installed. The snapshot is named after the perl that
+produced it, so a build on debian 13 or ubuntu 26.04 yields
+`cpanfile-5.40.snapshot`.
 
 ```shell
 make dist
