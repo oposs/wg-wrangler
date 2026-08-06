@@ -2,7 +2,7 @@ Source: wg-wrangler
 Section: system
 Priority: optional
 Maintainer: Tobias Bossert <bossert@oetiker.ch>
-Build-Depends: build-essential, debhelper (>= 13), libnet-idn-encode-perl
+Build-Depends: build-essential, debhelper-compat (= 13), libnet-idn-encode-perl
 
 Package: wg-wrangler
 Architecture: any
