@@ -88,15 +88,32 @@ like
     'populate_range dies on an unreadable range';
 
 # --- looks_like_ip ----------------------------------------------------------
-# KNOWN BUG: looks_like_ip() discards the result of the Net::IP::XS constructor
-# and unconditionally returns 1, so the 'single-ip' validator in
-# WireguardDataAdapter never rejects anything. These tests pin the current
-# behaviour so that a future fix is a deliberate, visible change.
+# Feeds the 'single-ip' validator, which guards the 'allowed-ips' and 'DNS'
+# fields of the add peer form. Those end up verbatim in the client
+# configuration that is mailed to the peer, so both plain addresses and CIDR
+# notation have to keep passing.
 
-is $m->looks_like_ip('192.168.0.20/32'), 1, 'looks_like_ip accepts a valid ip';
-is $m->looks_like_ip('not-an-ip'), 1,
-    'looks_like_ip also accepts garbage (known bug, see comment above)';
-is $m->looks_like_ip(''), 1,
-    'looks_like_ip also accepts the empty string (known bug, see comment above)';
+is $m->looks_like_ip('192.168.0.20/32'), 1, 'cidr address is accepted';
+is $m->looks_like_ip('192.168.2.1'), 1, 'plain address without prefix is accepted';
+is $m->looks_like_ip('0.0.0.0/0'), 1, 'ipv4 default route is accepted';
+is $m->looks_like_ip('::/0'), 1, 'ipv6 default route is accepted';
+is $m->looks_like_ip('fd00::1'), 1, 'plain ipv6 address is accepted';
+is $m->looks_like_ip('0.0.0.0/0,::/0'), 1, 'comma separated list is accepted';
+is $m->looks_like_ip('192.168.0.20/32, 192.168.0.21/32'), 1,
+    'comma separated list with spaces is accepted';
+
+is $m->looks_like_ip('not-an-ip'), 0, 'garbage is rejected';
+is $m->looks_like_ip('999.1.1.1'), 0, 'out of range address is rejected';
+is $m->looks_like_ip('192.168.0.0./24'), 0, 'malformed cidr is rejected';
+is $m->looks_like_ip('192.168.0.20/32,not-an-ip'), 0,
+    'a single bad entry rejects the whole list';
+
+# Empty values keep passing, which preserves the existing behaviour. Note that
+# this also lets an empty *required* field through: CallBackery hands a
+# required empty field to the validator and never reaches its own "field is
+# required" branch when a validator exists. Tightening this is a separate
+# decision, see the note in looks_like_ip().
+is $m->looks_like_ip(''), 1, 'empty string is accepted';
+is $m->looks_like_ip('  '), 1, 'whitespace only is accepted';
 
 done_testing();
