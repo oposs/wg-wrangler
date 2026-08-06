@@ -85,6 +85,7 @@ Configuration resides in `/etc/opt/wg-wrangler`.
 
 Currently supported distributions:
 
+- Ubuntu 22.04 LTS
 - Ubuntu 24.04 LTS
 - Ubuntu 26.04 LTS
 - Debian 12 (bookworm)
@@ -134,10 +135,10 @@ Before releasing, make sure to update `CHANGES`, `VERSION` and run
 
 You can also package the application as a nice tar.gz file, it uses carton to
 install dependent module. If you want to make sure that your project builds with
-the oldest perl among the build targets, currently 5.36 on debian 12, set the
+the oldest perl among the build targets, currently 5.34 on ubuntu 22.04, set the
 `PERL` environment variable to such an interpreter, delete any `PERL5LIB`
 environment variable, and run `make clean && make`. This will cause a
-`cpanfile-5.36.snapshot` file to be included with your tar ball, when building
+`cpanfile-5.34.snapshot` file to be included with your tar ball, when building
 the app this snapshot will be used to make sure all the right versions of the
 dependent modules get installed. The snapshot is named after the perl that
 produced it, so a build on debian 13 or ubuntu 26.04 yields
