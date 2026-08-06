@@ -1,7 +1,7 @@
 package Net::IPManager;
 use strict;
 use warnings FATAL => 'all';
-use Net::IP;
+use Net::IP::XS;
 use experimental 'signatures';
 use Net::IPManager::Constants;
 
@@ -40,7 +40,7 @@ sub populate_range($self, $interface, $ip_ranges_str) {
     my @ranges;
     my @ips = map {_trm($_)} split /\,/, $ip_ranges_str;
     for my $ip_range (@ips) {
-        my $may_ip = Net::IP->new($ip_range) or die "Could not read ip-range for `$interface`: " . Net::IP::Error();
+        my $may_ip = Net::IP::XS->new($ip_range) or die "Could not read ip-range for `$interface`: " . Net::IP::XS::Error();
         # prepare acquired ip storage
         $self->{acquired_ips}->{$interface}{$may_ip->ip()} = {};
         push @ranges, $may_ip;
@@ -76,7 +76,7 @@ Raises exception if C<$ip_string> is invalid.
 
 =cut
 sub acquire_single($self, $interface, $ip_string, $force = 0) {
-    my $may_ip = Net::IP->new($ip_string) or die "Could not read ip for `$ip_string`: " . Net::IP::Error();
+    my $may_ip = Net::IP::XS->new($ip_string) or die "Could not read ip for `$ip_string`: " . Net::IP::XS::Error();
     for my $interface_range (@{$self->{interface_ranges}->{$interface}}) {
         # Check if $may_ip is the first or last ip of an interface range (and only check if want to acquire a single ip)
         if ($may_ip->size() == 1 && ($interface_range->ip() eq $may_ip->ip() || $interface_range->last_ip() eq $may_ip->last_ip())) {
@@ -116,7 +116,7 @@ Raises exception if C<$ip_string> is invalid.
 
 =cut
 sub release_ip($self, $interface, $ip_string) {
-    my $may_ip = Net::IP->new($ip_string) or die "Could not read ip for `$ip_string`: " . Net::IP::Error();
+    my $may_ip = Net::IP::XS->new($ip_string) or die "Could not read ip for `$ip_string`: " . Net::IP::XS::Error();
     for my $interface_range (@{$self->{interface_ranges}->{$interface}}) {
         if ($self->_is_in($may_ip, $interface_range)) {
             delete $self->{acquired_ips}->{$interface}{$interface_range->ip()}{$may_ip->ip()};
@@ -140,13 +140,24 @@ sub _is_in($self, $ip, $range) {
 
 =head3 looks_like_ip($ips_string)
 
-Checks whether C<$ips_string> looks like a valid ip in CIDR notation
+Checks whether C<$ips_string> looks like a comma separated list of valid ips.
+Both plain addresses and CIDR notation are accepted, so C<192.168.2.1> and
+C<0.0.0.0/0> are equally valid.
+
+An empty value is rejected. This is safe for optional fields because
+CallBackery returns from validateData() before calling the validator when an
+optional field is empty. For a I<required> empty field it does call the
+validator and never reaches its own "field is required" branch, so rejecting
+empty here is what actually enforces the required flag on 'allowed-ips'.
+
+Returns 1 if every part looks like an ip and 0 otherwise.
 
 =cut
 sub looks_like_ip($self, $ips_string) {
     my @ips = map {_trm($_)} split /\,/, $ips_string;
+    return 0 unless @ips;
     for my $ip (@ips) {
-        my $may_ip = Net::IP->new($ip) or undef;
+        return 0 unless Net::IP::XS->new($ip);
     }
     return 1;
 }
@@ -158,9 +169,11 @@ Takes a subnet (larger than /32 or /128) and returns the IP with $offset away fr
 =cut
 sub get_next_ip($interface_range, $offset = 1) {
     my $prefix = $interface_range->version() == 4 ? '/32' : '/128';
-    my $next_ip = $interface_range->ip_add_num($offset);
+    # Net::IP::XS declares ip_add_num as (self, num, unused) and insists on the
+    # third argument, unlike Net::IP which takes only the number
+    my $next_ip = $interface_range->ip_add_num($offset, undef);
     # This is unfortunately necessary since ip_add_num() keeps the subnet size
-    return defined $next_ip ? Net::IP->new($next_ip->ip() . $prefix) : undef;
+    return defined $next_ip ? Net::IP::XS->new($next_ip->ip() . $prefix) : undef;
 }
 
 =head3 suggest_ip($interface)
@@ -224,12 +237,12 @@ sub is_valid_for_interface($self, $interface, $ips_string, $current_peer_ips = u
 
         for my $ip_string_to_test (@ips_string_to_test) {
             my $ip_is_within_on_disk_version = undef;
-            my $ip_object_to_test = Net::IP->new($ip_string_to_test) or return Net::IP::Error();
+            my $ip_object_to_test = Net::IP::XS->new($ip_string_to_test) or return Net::IP::XS::Error();
 
             # First lets test if within on disk range (for this peer)
             if (defined $current_peer_ips) {
                 for my $current_range_string (@current_peer_ips) {
-                    my $current_range_object = Net::IP->new($current_range_string) or return Net::IP::Error();
+                    my $current_range_object = Net::IP::XS->new($current_range_string) or return Net::IP::XS::Error();
                     if ($self->_is_in($ip_object_to_test, $current_range_object)) {
                         $ip_is_within_on_disk_version = 1;
                         $found_matching_version++;

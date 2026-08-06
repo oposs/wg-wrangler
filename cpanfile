@@ -1,7 +1,7 @@
 requires 'CallBackery', '>= 0.42.4';
 requires 'Mojo::SQLite';
 requires 'Wireguard::WGmeta', '>= 0.3.4';
-requires 'Net::IP', '>=1.26';
+requires 'Net::IP::XS', '>= 0.23';
 requires 'Email::MIME';
 requires 'Email::Sender';
 requires 'Text::QRCode';
