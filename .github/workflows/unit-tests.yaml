@@ -12,10 +12,12 @@ on:
       - '**.md'
 
 jobs:
-  build:
+  # Ubuntu targets run directly on the hosted runners
+  runner:
     strategy:
       matrix:
         os:
+          - ubuntu-22.04
           - ubuntu-24.04
           - ubuntu-26.04
         node:
@@ -46,7 +48,10 @@ jobs:
         restore-keys: |
           ${{ matrix.os }}-node-${{ matrix.node }}-
     - name: Install OS dependencies
-      run: sudo apt-get update && sudo apt-get install -yq build-essential libqrencode-dev pkg-config gettext libnet-idn-encode-perl
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq build-essential libqrencode-dev libssl-dev \
+          zlib1g-dev pkg-config gettext libnet-idn-encode-perl
     - name: Bootstrap
       run: ./bootstrap
     - name: Configure
@@ -60,3 +65,43 @@ jobs:
     - name: Cache Prep
       run: |
         rm thirdparty/Makefile* thirdparty/cpan*snapshot
+
+  # Debian targets have no hosted runner, so they run in a container. The
+  # package list is longer because the base images ship neither perl nor the
+  # autotools.
+  container:
+    strategy:
+      matrix:
+        version:
+          - 12
+          - 13
+      fail-fast: false
+    name: node-22.x/debian-${{ matrix.version }}
+    runs-on: ubuntu-latest
+    container:
+      image: debian:${{ matrix.version }}
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    steps:
+    - name: Install OS dependencies
+      run: |
+        apt-get update
+        apt-get install -yq perl build-essential autoconf automake curl \
+          ca-certificates libqrencode-dev libssl-dev zlib1g-dev pkg-config \
+          gettext libnet-idn-encode-perl
+    - name: Checkout
+      uses: actions/checkout@v7
+    - name: Setup Node
+      uses: actions/setup-node@v7
+      with:
+        node-version: '22.x'
+    - name: Bootstrap
+      run: ./bootstrap
+    - name: Configure
+      run: ./configure --prefix=$HOME/test-install
+    - name: Make
+      run: make
+    - name: Test
+      run: |
+          cp etc/wgwrangler.dist.yaml  etc/wgwrangler.yaml
+          make test

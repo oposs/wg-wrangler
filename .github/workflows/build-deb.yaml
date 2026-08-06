@@ -19,6 +19,9 @@ jobs:
             version: 13
             node_version: '22.x'
           - distribution: ubuntu
+            version: 22.04
+            node_version: '22.x'
+          - distribution: ubuntu
             version: 24.04
             node_version: '22.x'
           - distribution: ubuntu
