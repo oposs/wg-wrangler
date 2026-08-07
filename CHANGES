@@ -1,3 +1,19 @@
+wg-wrangler (0.4.0~rc3) unstable; urgency=medium
+
+  * Fixed the maintainer scripts. postinst aborted when an account named
+    wg-wrangler_manager already existed as a regular user, left the .gitconfig
+    unwritten because the home directory was never created, and still exited 0,
+    so dpkg considered the half configured package installed
+  * postrm no longer runs on upgrade. It used to revert the group of
+    /etc/wireguard, drop the sudoers rule and try to delete the account on every
+    upgrade, relying on the incoming postinst to restore all of it
+  * The sudoers rule is written instead of appended and gets mode 0440
+  * Documented which account and home directory the package uses, and how to
+    point an existing account at it. git reads the home directory from
+    /etc/passwd, so a .gitconfig written elsewhere is never seen
+
+ -- Manuel Oetiker <manuel@oetiker.ch>  Fri, 07 Aug 2026 17:26:50 +0200
+
 wg-wrangler (0.4.0~rc2) unstable; urgency=medium
 
   * configure requires perl 5.34 instead of 5.22. Nothing below 5.34 was built
