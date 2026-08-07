@@ -1,33 +1,68 @@
 #!/bin/sh
+set -e
 
 PKGNAME=wg-wrangler
 USERNAME=wg-wrangler_manager
 GROUPNAME=wg-wrangler_manager
+HOMEDIR=/opt/$PKGNAME/home
 
-# Create user and group
-adduser --system --group --home /opt/wg-wrangler/home $USERNAME
+case "$1" in
+    configure)
+        # Only create the account when it is missing. `adduser --system` fails
+        # outright when an account of that name already exists as a regular
+        # user, and without set -e the rest of this script used to run on
+        # regardless, leaving a half configured package while dpkg reported
+        # success.
+        if ! getent passwd "$USERNAME" >/dev/null; then
+            adduser --system --group --home "$HOMEDIR" "$USERNAME"
+        fi
+        if ! getent group "$GROUPNAME" >/dev/null; then
+            addgroup --system "$GROUPNAME"
+        fi
 
-# make sure /etc/wireguard is considered as safe by git
-echo "[safe]
+        # adduser only creates the home directory for accounts it creates
+        # itself, so an account that predates the package leaves us without
+        # one. Everything below depends on it existing.
+        mkdir -p "$HOMEDIR"
+        chown "$USERNAME" "$HOMEDIR"
+
+        # make sure /etc/wireguard is considered as safe by git
+        cat > "$HOMEDIR/.gitconfig" <<EOF
+[safe]
 directory = /etc/wireguard
-" > /opt/wg-wrangler/home/.gitconfig
+EOF
+        chown "$USERNAME" "$HOMEDIR/.gitconfig"
 
-# set permissions and group membership on /etc/wireguard
-chgrp --silent --recursive $GROUPNAME /etc/wireguard/
-# set group permissions
-chmod g+rwx /etc/wireguard
-chmod -R g+rw /etc/wireguard
+        # set permissions and group membership on /etc/wireguard. The
+        # directory belongs to the wireguard package and may legitimately be
+        # absent, so do not fail the installation over it.
+        if [ -d /etc/wireguard ]; then
+            chgrp --silent --recursive "$GROUPNAME" /etc/wireguard/
+            chmod g+rwx /etc/wireguard
+            chmod -R g+rw /etc/wireguard
+        fi
 
-# set permissions for /opt/wg-wrangler/etc dir
-chgrp --silent --recursive $GROUPNAME /etc/opt/$PKGNAME/
-# set group permissions
-chmod -R g+rwx /etc/opt/$PKGNAME/
+        # set permissions for the configuration directory
+        chgrp --silent --recursive "$GROUPNAME" /etc/opt/$PKGNAME/
+        chmod -R g+rwx /etc/opt/$PKGNAME/
 
-# create var directory
-mkdir -p /var/opt/$PKGNAME
-chown --silent --recursive $USERNAME /var/opt/$PKGNAME
+        # create var directory
+        mkdir -p /var/opt/$PKGNAME
+        chown --silent --recursive "$USERNAME" /var/opt/$PKGNAME
 
-# Whitelist wg* commands for us
-echo "%$GROUPNAME ALL=NOPASSWD: /usr/bin/wg*" >> /etc/sudoers.d/$PKGNAME
+        # Whitelist wg* commands for us. Written rather than appended: with
+        # >> the rule was added again on every run.
+        echo "%$GROUPNAME ALL=NOPASSWD: /usr/bin/wg*" > /etc/sudoers.d/$PKGNAME
+        chmod 0440 /etc/sudoers.d/$PKGNAME
+        ;;
 
+    abort-upgrade|abort-remove|abort-deconfigure)
+        ;;
 
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
+esac
+
+exit 0

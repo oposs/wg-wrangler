@@ -77,11 +77,41 @@ setup:
   WantedBy=multi-user.target
    ```
 
+If you enable `enable_git`, git runs as this account against `/etc/wireguard`.
+Unless the repository belongs to the account itself, git refuses to touch it
+with `detected dubious ownership`. Declare the directory as safe in the
+account's `~/.gitconfig`, meaning the home directory recorded in `/etc/passwd`,
+since that is where git looks:
+
+```text
+[safe]
+directory = /etc/wireguard
+```
+
 Installation (deb Package)
 ---------
 
 The steps described in the manual installation section are done automatically when you install one of the provided `.deb` packages.
 Configuration resides in `/etc/opt/wg-wrangler`.
+
+The package creates the system account `wg-wrangler_manager` with
+`/opt/wg-wrangler/home` as its home directory, and maintains the `.gitconfig`
+described above in there. If you set the machine up by hand first and created
+an account of that name yourself, the package keeps it as it is: it never
+changes the home directory of an existing account. Should that home point
+somewhere else, git will not find the `.gitconfig` the package writes, because
+it reads the home directory from `/etc/passwd`. Point the account at the
+expected location once:
+
+```console
+sudo systemctl stop wg-wrangler
+sudo usermod -d /opt/wg-wrangler/home wg-wrangler_manager
+sudo systemctl start wg-wrangler
+```
+
+This does not move any files. Reinstalling the package afterwards recreates
+the `.gitconfig` in the right place. A leftover `.gitconfig` in the previous
+home is no longer read and can be removed.
 
 Currently supported distributions:
 
