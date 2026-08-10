@@ -1,3 +1,24 @@
+wg-wrangler (0.4.0) unstable; urgency=medium
+
+  Identical to 0.4.0~rc4. The entries below carry the detail; the headlines
+  since 0.3.1 are:
+
+  * Build targets are ubuntu 22.04, 24.04, 26.04, debian 12 and 13. All five are
+    now also covered by the test suite, which used to run on two of them
+  * Requires node 20 or newer and perl 5.34 or newer. configure used to accept
+    perl 5.22 and silently skipped the frontend build on any node above 18
+  * qooxdoo updated to 7.9.3, Net::IP replaced by the maintained Net::IP::XS
+  * Two behaviour changes worth noting before upgrading: address validation now
+    rejects input it used to accept, and 'Allowed IPs' is a required field for
+    the first time. A typo there used to end up verbatim in the client
+    configuration mailed to the peer
+  * The maintainer scripts no longer fail when the wg-wrangler_manager account
+    already exists as a regular user, and postrm no longer reverts permissions
+    on every upgrade
+  * Test suite grew from 36 to 96 tests
+
+ -- Manuel Oetiker <manuel@oetiker.ch>  Mon, 10 Aug 2026 09:05:36 +0200
+
 wg-wrangler (0.4.0~rc4) unstable; urgency=medium
 
   * Removed the name attributes from the action config of WireguardShow. Every
