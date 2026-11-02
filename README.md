@@ -1,33 +1,43 @@
 WGwrangler
 ===========
-Version: 0.4.0
-Date: 2026-08-10
+
+[![CI](https://github.com/oposs/wg-wrangler/actions/workflows/ci.yml/badge.svg)](https://github.com/oposs/wg-wrangler/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/oposs/wg-wrangler)](https://github.com/oposs/wg-wrangler/releases/latest)
 
 WGwrangler is a web application to manage local Wireguard Configuration using 
 [wg-meta](https://metacpan.org/release/Wireguard-WGmeta) in its backend. 
 
-It comes complete with a classic "configure - make - install" setup.
+![](.github/img/overview.png)
 
-Installation
-------------
+Install
+-------
 
-Download the current release distribution
+Debian 12 and 13, Ubuntu 22.04, 24.04 and 26.04:
+
+```sh
+sudo install -d -m 0755 /etc/apt/keyrings
+sudo curl -fsSL -o /etc/apt/keyrings/gitea-oposs.asc https://gitea.oetiker.ch/api/packages/oposs/debian/repository.key
+echo "deb [signed-by=/etc/apt/keyrings/gitea-oposs.asc] https://gitea.oetiker.ch/api/packages/oposs/debian $(. /etc/os-release && echo $VERSION_CODENAME) main" | sudo tee /etc/apt/sources.list.d/oposs.list
+sudo apt update && sudo apt install wg-wrangler
+```
+
+The packages and the source tarball are also attached to each
+[release](https://github.com/oposs/wg-wrangler/releases/latest).
+"Installation (deb package)" below describes what the package sets up.
+
+Installation from source
+------------------------
+
+Download the source tarball of the current release
 
 ```console
 # Install os dependencies
 sudo apt install build-essential libqrencode-dev libssl-dev zlib1g-dev \
                  pkg-config gettext libnet-idn-encode-perl
 
-./configure --prefix=$HOME/opt/wgwrangler
+./configure --disable-container --prefix=$HOME/opt/wgwrangler
 make
 ```
-
-`build-essential`, `libssl-dev` and `zlib1g-dev` are needed because several perl
-dependencies are XS modules that get compiled during the build, Net::SSLeay
-among them. `libnet-idn-encode-perl` is
-required from gcc 14 on, which covers debian 13 and ubuntu 26.04: the CPAN
-release of Net::IDN::Encode dates from 2018 and no longer compiles there, so the
-distribution package is used instead.
 
 **Minimum Node.js: `v20` -> If no compatible node version is found, the frontend is not built!**
 
@@ -88,8 +98,8 @@ since that is where git looks:
 directory = /etc/wireguard
 ```
 
-Installation (deb Package)
----------
+Installation (deb package)
+--------------------------
 
 The steps described in the manual installation section are done automatically when you install one of the provided `.deb` packages.
 Configuration resides in `/etc/opt/wg-wrangler`.
@@ -154,51 +164,47 @@ If you need any additional perl modules, add them to the `cpanfile` and run
 
 **Honored Environment Variables**
 
-- `WGwrangler_NO_WG` If defined, we do not call any wg* command from code (e.g. to generate pub/private-keys)
-- `WGwrangler_CONFIG_HOME` Use this variable to set the path to the main configuration files (email template + main config)
+- `WGwrangler_NO_WG`: If defined, no wg* command is called, for example to generate public and private keys.
+- `WGwrangler_CONFIG_HOME`: Use this variable to set the path to the main configuration files (email template + main config)
 
-Packaging
+Testing
+-------
+
+`./configure` defaults to container mode: `make` builds the image the
+`Containerfile` describes with podman or docker, and `make check` runs the
+test suite in it. `make test-dev TARGET=t/basic.t` runs one test against the
+`lib` and `t` of the working tree. `./configure --disable-container` builds and
+tests in this tree instead, with the dependencies listed above.
+
+Releasing
 ---------
 
-Before releasing, make sure to update `CHANGES`, `VERSION` and run
-`./bootstrap`.
+Add an entry for every change under `## [Unreleased]` in `CHANGES.md`. To
+release, run the **Create release PR** workflow in the GitHub Actions tab
+(bugfix, feature or major). It sets `VERSION`, builds the source tarball and
+the five `.deb` packages, runs the tests and opens a pull request. Merging
+that pull request tags the release, publishes it and uploads the packages to
+the apt repository.
 
-You can also package the application as a nice tar.gz file, it uses carton to
-install dependent module. If you want to make sure that your project builds with
-the oldest perl among the build targets, currently 5.34 on ubuntu 22.04, set the
-`PERL` environment variable to such an interpreter, delete any `PERL5LIB`
-environment variable, and run `make clean && make`. This will cause a
-`cpanfile-5.34.snapshot` file to be included with your tar ball, when building
-the app this snapshot will be used to make sure all the right versions of the
-dependent modules get installed. The snapshot is named after the perl that
-produced it, so a build on debian 13 or ubuntu 26.04 yields
-`cpanfile-5.40.snapshot`.
-
-```shell
-make dist
-```
+To make sure the project builds with the oldest perl among the build targets,
+currently 5.34 on ubuntu 22.04, set the `PERL` environment variable to such an
+interpreter, delete any `PERL5LIB` environment variable, and run
+`make clean && make` in a tree configured with `--disable-container`. This
+writes a `thirdparty/cpanfile-5.34.snapshot`, which the tarball carries and
+the build uses to install the same module versions.
 
 Build deb package locally
 -------------------------
 
 ```shell
-
-# To build ubuntu 24 package
 cd wg-wrangler
-docker run --rm -v $(pwd):/mnt -it ubuntu:24.04 /bin/bash
-
-# inside the docker container
-./build_local.sh
-
-# copy the package
-cp /src/wg-wrangler_*_amd64_*.deb /mnt
-
+podman run --rm -v $(pwd):/mnt -it ubuntu:24.04 /mnt/build_local.sh
 ```
+
+The package for that distribution lands in the source tree.
 
 Screenshots
 -----------
-
-![](.github/img/overview.png)
 
 ![](.github/img/create.png)
 
