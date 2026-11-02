@@ -1,0 +1,19 @@
+# Host build output: the image runs bootstrap, configure and make itself.
+.git
+autom4te.cache
+conftools
+config.log
+config.status
+configure
+aclocal.m4
+**/Makefile
+**/Makefile.in
+public
+frontend/node_modules
+frontend/compiled
+frontend/qx_packages
+thirdparty/*
+!thirdparty/Makefile.am
+!thirdparty/cpanfile*snapshot
+*.tar.gz
+*.deb

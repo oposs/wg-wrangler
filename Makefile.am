@@ -1,8 +1,17 @@
 #  Copyright (C) 2021 Tobias Bossert
 
 AUTOMAKE_OPTIONS =  foreign
+ACLOCAL_AMFLAGS = -I m4
 
+# In container driver mode the host only drives the image; the real build in
+# the subdirectories runs inside it (build/container.mk).
+if !CONTAINER_DRIVER
 SUBDIRS = bin lib thirdparty etc frontend
+endif
+DIST_SUBDIRS = bin lib thirdparty etc frontend
+
+# Source the developer edits and re-runs with `make test-dev TARGET=t/foo.t`.
+TEST_DEV_MOUNTS = lib t
 
 PUB := $(shell find -L public -type d \( -name ".??*" -o -name transpiled \) -prune -o -not -name "*db.json" -a -not -name "*.map" -a -not -name "*~" -a -not -name transpiled -a -not -name "*.tmp"  -a -type f -print )
 TEMPL := $(shell test -d templates && find -L templates -type f -name "*.ep")
@@ -11,13 +20,15 @@ SHARE := $(shell test -d share && find -L share -type d -name ".??*" -prune -o -
 PERLTESTS := $(shell find -L t -name "*.t")
 PM := $(shell find -L lib -name "*.pm")
 
-EXTRA_DIST = VERSION cpanfile COPYRIGHT LICENSE README.md CHANGES AUTHORS bootstrap $(PUB) $(wildcard t/*.t) $(POD) $(TEMPL) $(PERLTESTS) $(SHARE)
+EXTRA_DIST = VERSION cpanfile COPYRIGHT LICENSE README.md CHANGES.md AUTHORS bootstrap Containerfile $(PUB) $(wildcard t/*.t) $(POD) $(TEMPL) $(PERLTESTS) $(SHARE)
 
 YEAR := $(shell date +%Y)
 DATE := $(shell date +%Y-%m-%d)
 
 datadir = $(prefix)
 nobase_data_DATA = $(PUB) $(TEMPL) $(SHARE)
+
+if !CONTAINER_DRIVER
 
 # Only rewrite the version/date headers and explicit placeholders. The patterns
 # are anchored on purpose: an unanchored \d+\.\d+\.\d+ also matches IP addresses
@@ -40,5 +51,11 @@ share/messages.pot: $(PM) $(CALLBACKERY_PM)
 	sed -i 's/; charset=CHARSET/; charset=UTF-8/' share/messages.pot
 	for lang in $(LANGUAGES); do 		( test -f $$lang || cp share/messages.pot $$lang ); 		$(MSGMERGE) -s --force-po -U $$lang share/messages.pot; 	done
 
-test:
-	$(MJ_CLASS)_CONFIG_HOME=t/etc prove -w
+# automake's `make check` runs this. TESTS narrows the run to the files named,
+# which is how `make test-dev TARGET=t/foo.t` reaches a single test.
+check-local:
+	$(MJ_CLASS)_CONFIG_HOME=t/etc prove -w $(TESTS)
+
+endif
+
+include $(top_srcdir)/build/container.mk
