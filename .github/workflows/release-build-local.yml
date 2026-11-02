@@ -1,0 +1,83 @@
+name: Release build (deb packages)
+
+# The .deb packages of a release, one per distribution. No repo-infra piece
+# builds packages of a Perl program that compiles its CPAN dependencies, so
+# this file is the repository's own (references/onboarding.md, "Project-owned
+# workflows"). release-build.yml calls it with the version and the release
+# branch head.
+#
+# Each package is built by dpkg-buildpackage inside the distribution it is
+# for, which also runs the test suite there (make check). Its version carries
+# the codename, wg-wrangler_<version>~<codename>_amd64.deb, so the five files
+# differ in name and ri-publish-gitea can send each to its own apt
+# distribution.
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: The version being released.
+        type: string
+        required: true
+      ref:
+        description: The release branch head to build.
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  deb:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: debian:12
+            id: debian-12
+          - image: debian:13
+            id: debian-13
+          - image: ubuntu:22.04
+            id: ubuntu-22.04
+          - image: ubuntu:24.04
+            id: ubuntu-24.04
+          - image: ubuntu:26.04
+            id: ubuntu-26.04
+    name: .deb for ${{ matrix.image }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    container:
+      image: docker.io/library/${{ matrix.image }}
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # git first, so checkout makes a real clone instead of a REST download.
+      - name: Install the build dependencies
+        run: |
+          apt-get update
+          apt-get install -yq git build-essential debhelper autoconf automake \
+            perl curl ca-certificates openssl pkg-config gettext \
+            libssl-dev zlib1g-dev libqrencode-dev libnet-idn-encode-perl
+
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+
+      # Debian 12 and Ubuntu 22.04 and 24.04 ship a node older than 20, the
+      # oldest configure accepts.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.x'
+
+      - name: Build the package
+        env:
+          VERSION: ${{ inputs.version }}
+        run: ./make-deb.sh "$VERSION" "$RUNNER_TEMP/release-asset-deb"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-asset-deb-${{ matrix.id }}
+          path: ${{ runner.temp }}/release-asset-deb/
+          if-no-files-found: error

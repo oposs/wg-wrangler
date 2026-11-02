@@ -42,3 +42,6 @@ etc/wgwrangler.yaml.secret
 node_modules
 frontend/qx_packages
 
+
+# Written by make-deb.sh for each package build
+debian/changelog

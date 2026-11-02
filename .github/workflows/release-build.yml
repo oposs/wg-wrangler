@@ -1,0 +1,34 @@
+name: Release build
+
+# Called by Create release PR on the release branch before the pull request
+# exists (D28). It builds the source tarball with the repo-infra piece and the
+# .deb packages with this repository's own release-build-local.yml. Read-only:
+# nothing here writes the repository.
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: The version being released.
+        type: string
+        required: true
+      ref:
+        description: The release branch head to build.
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  tarball:
+    uses: oposs/repo-infra/.github/workflows/ri-release-source-tarball.yml@v2
+    with:
+      version: ${{ inputs.version }}
+      ref: ${{ inputs.ref }}
+
+  # One .deb per distribution, each built and tested in that distribution.
+  packages:
+    uses: ./.github/workflows/release-build-local.yml
+    with:
+      version: ${{ inputs.version }}
+      ref: ${{ inputs.ref }}
