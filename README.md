@@ -46,7 +46,7 @@ hints on how to fix the situation if something is missing.
 
 Any missing perl modules will be downloaded and built.
 
-To install the application, just run
+To install the application, run
 
 ```console
 make install
@@ -59,23 +59,21 @@ cd $HOME/opt/wgwrangler/bin
 ./wgwrangler prefork
 ```
 
-OS Preparation (after manual installation)
--------------
+OS preparation after a source installation
+------------------------------------------
 
-Since managing wireguard using its associated `wg*` commands requires root privileges we suggest the following
-setup:
+The `wg*` commands need root privileges. A setup for running them from wgwrangler:
 
-- Create a separate user/group e.g `wireguard_manager`
-- Whitelist the `wg` commands for this group in the `/etc/sudoers` file:
+- Create a separate user and group, for example `wireguard_manager`.
+- Allow the `wg` commands for this group in `/etc/sudoers`:
   ```text
   %wireguard_manager ALL=NOPASSWD: /usr/bin/wg*
   ```
-- Set `wireguard_manger` as group on `/etc/wireguard` and adjust permissions to `g+rwx`
-- Additionally, creating a `wg-wrangler.service` file may improve usability quite a bit:
+- Set `wireguard_manager` as the group of `/etc/wireguard` and give it `g+rwx`.
+- Create a `wg-wrangler.service` unit, for example:
   ```text
-  # This is to be considered as a (very) simple example of such a .service file
   [Unit]
-  Description=wg-wranger wireguard manager
+  Description=wg-wrangler wireguard manager
   
   [Service]
   Type=simple
@@ -101,7 +99,7 @@ directory = /etc/wireguard
 Installation (deb package)
 --------------------------
 
-The steps described in the manual installation section are done automatically when you install one of the provided `.deb` packages.
+The `.deb` package does the steps of the previous section itself.
 Configuration resides in `/etc/opt/wg-wrangler`.
 
 The package creates the system account `wg-wrangler_manager` with
@@ -142,16 +140,15 @@ sudo systemctl enable --now wg-wrangler
 Configuration
 -------------
 
-Do get started, rename `/etc/opt/wg-wrangler/wgwrangler.dist.yaml` to `/etc/opt/wg-wrangler/wgwrangler.yaml` and adjust
-according your needs. Make sure to change `sesame_user` and `sesame_pass`, the
+To get started, rename `/etc/opt/wg-wrangler/wgwrangler.dist.yaml` to `/etc/opt/wg-wrangler/wgwrangler.yaml` and adjust
+it to your needs. Make sure to change `sesame_user` and `sesame_pass`, the
 shipped defaults are publicly known.
 
 Development
 -----------
 
-While developing the application it is convenient to NOT have to install it
-before runnning. You can actually serve the Qooxdoo source directly
-using the built-in Mojo webserver.
+During development, the built-in Mojo web server serves the Qooxdoo source
+directly, without an installation:
 
 ```console
 ./bin/wgwrangler-source-mode.sh
@@ -162,10 +159,10 @@ You can now connect to the CallBackery app with your web browser.
 If you need any additional perl modules, add them to the `cpanfile` and run
 ./bootstrap.
 
-**Honored Environment Variables**
+**Environment variables**
 
 - `WGwrangler_NO_WG`: If defined, no wg* command is called, for example to generate public and private keys.
-- `WGwrangler_CONFIG_HOME`: Use this variable to set the path to the main configuration files (email template + main config)
+- `WGwrangler_CONFIG_HOME`: Path of the main configuration files (the main configuration and the email template).
 
 Testing
 -------
