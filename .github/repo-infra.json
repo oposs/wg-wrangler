@@ -1,0 +1,38 @@
+{
+  "moving_major_tag": false,
+  "version_files": [
+    {
+      "path": "VERSION",
+      "pattern": "^[0-9][^\\n]*$",
+      "replacement": "$VERSION",
+      "verify": "^$VERSION$"
+    }
+  ],
+  "release_assets": [
+    "wgwrangler-*.tar.gz",
+    "wg-wrangler_*~bookworm_amd64.deb",
+    "wg-wrangler_*~trixie_amd64.deb",
+    "wg-wrangler_*~jammy_amd64.deb",
+    "wg-wrangler_*~noble_amd64.deb",
+    "wg-wrangler_*~resolute_amd64.deb"
+  ],
+  "gitea_packages": {
+    "url": "https://gitea.oetiker.ch",
+    "owner": "oposs",
+    "debian": {
+      "component": "main",
+      "distributions": {
+        "wg-wrangler_*~bookworm_*.deb": "bookworm",
+        "wg-wrangler_*~trixie_*.deb": "trixie",
+        "wg-wrangler_*~jammy_*.deb": "jammy",
+        "wg-wrangler_*~noble_*.deb": "noble",
+        "wg-wrangler_*~resolute_*.deb": "resolute"
+      }
+    }
+  },
+  "exceptions": {
+    "homebrew": "a service that needs root, WireGuard and sudo on a Linux server; brew is the wrong channel",
+    "linux-packages": "only .deb: the program targets Debian and Ubuntu servers, no rpm-based target is supported",
+    "man-page": "a daemon that systemd starts; its only options are the Mojolicious server options"
+  }
+}

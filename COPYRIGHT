@@ -1,7 +1,10 @@
 WGwrangler
-a cool web app with Mojolicious backend
+a web frontend for managing WireGuard peer configuration
 
-Copyright (c) 2026 Tobias Bossert and the other people listed in the
+Copyright (c) 2026 OETIKER+PARTNER AG and the other people listed in the
 AUTHORS file.
 
-All rights reserved.
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option)
+any later version. The full text is in the LICENSE file.
