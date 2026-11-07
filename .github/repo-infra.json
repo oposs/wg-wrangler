@@ -10,11 +10,11 @@
   ],
   "release_assets": [
     "wgwrangler-*.tar.gz",
-    "wg-wrangler_*~bookworm_amd64.deb",
-    "wg-wrangler_*~trixie_amd64.deb",
-    "wg-wrangler_*~jammy_amd64.deb",
-    "wg-wrangler_*~noble_amd64.deb",
-    "wg-wrangler_*~resolute_amd64.deb"
+    "wg-wrangler_*bookworm_amd64.deb",
+    "wg-wrangler_*trixie_amd64.deb",
+    "wg-wrangler_*jammy_amd64.deb",
+    "wg-wrangler_*noble_amd64.deb",
+    "wg-wrangler_*resolute_amd64.deb"
   ],
   "gitea_packages": {
     "url": "https://gitea.oetiker.ch",
