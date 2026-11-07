@@ -13,16 +13,19 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### New
 
+### Changed
+
+### Fixed
+
+## 0.5.0 - 2026-11-04
+### New
 - The .deb packages are published in the apt repository at gitea.oetiker.ch, one distribution per codename (bookworm, trixie, jammy, noble, resolute). The README shows the commands to add it.
 
 ### Changed
-
 - The package file names carry the distribution codename, for example `wg-wrangler_0.4.1~noble_amd64.deb`, instead of a suffix such as `_ubuntu-24_04.deb`. The package version carries it as well.
 - `./configure` builds and tests in a container by default. To build and install from source on the host, run `./configure --disable-container`.
 - The test target is `make check`; `make test` no longer exists.
 - wg-wrangler is licensed under the GPL-3.0. The LICENSE file used to hold only placeholder text.
-
-### Fixed
 
 ## 0.4.0 - 2026-08-10
 
